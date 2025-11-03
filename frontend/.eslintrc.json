@@ -1,0 +1,55 @@
+{
+	"env": {
+		"browser": true,
+		"es2021": true,
+		"node": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/recommended",
+		"plugin:@next/next/recommended",
+		"standard"
+	],
+	"overrides": [],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": "latest",
+		"sourceType": "module"
+	},
+	"plugins": ["react"],
+	"rules": {
+		"indent": "off",
+		"comma-dangle": "off",
+		"quotes": "off",
+        "semi": "off",
+        "no-unused-vars": "off",
+		"space-before-function-paren": "off",
+        "eol-last": "off",
+        "brace-style": "off",
+        "no-trailing-spaces": "off",
+        "no-unused-expressions": "off",
+        "quote-props": "off",
+        "no-undef": "off",
+		"no-tabs": 0,
+		"react/react-in-jsx-scope": "off",
+		"react/prop-types": "off",
+		"multiline-ternary": "off",
+        "operator-linebreak": "off",
+        "@next/next/no-img-element": "off",
+        "no-var": "off",
+        "no-extra-semi": "off",
+        "padded-blocks": "off",
+        "object-shorthand": "off",
+		"no-multiple-empty-lines": "off",
+		"object-curly-spacing": "off",
+		"import/no-duplicates": "off",
+		"react/no-unknown-property": [
+			2,
+			{
+				"ignore": ["jsx", "global", "space"]
+			}
+		]
+	}
+}

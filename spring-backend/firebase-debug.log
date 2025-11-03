@@ -1,0 +1,25 @@
+[debug] [2025-03-15T10:55:56.662Z] ----------------------------------------------------------------------
+[debug] [2025-03-15T10:55:56.665Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\miumu\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-03-15T10:55:56.665Z] CLI Version:   13.34.0
+[debug] [2025-03-15T10:55:56.666Z] Platform:      win32
+[debug] [2025-03-15T10:55:56.666Z] Node Version:  v22.11.0
+[debug] [2025-03-15T10:55:56.666Z] Time:          Sat Mar 15 2025 17:55:56 GMT+0700 (Indochina Time)
+[debug] [2025-03-15T10:55:56.666Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-03-15T10:55:56.673Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-03-15T10:55:56.673Z] > authorizing via signed-in user (tranlenhatgo12.1@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\codespace\quiz-ai-online\quizai-spring
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
