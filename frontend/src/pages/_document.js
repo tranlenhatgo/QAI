@@ -13,7 +13,8 @@ export default function Document () {
 			<meta name="theme-color" content="#0d6efd" />
 			<meta name="apple-mobile-web-app-capable" content="yes" />
 			<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-			<meta name="apple-mobile-web-app-title" content="Qraft" />				{/* <!-- Meta --> */}
+			{/* <!-- Meta --> */}
+			<meta name="apple-mobile-web-app-title" content="Qraft" />
 				{/* <meta name="author" content="Cosmo" />
 				<meta name="theme-color" content="#3b82f6" />
 				<meta name="description" content="Quizi is a quiz/trivia game with questions made by IA. You can select different game modes and topics, you can also use different wildcards to help you answer the questions." />

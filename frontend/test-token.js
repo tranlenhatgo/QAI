@@ -39,7 +39,7 @@ async function testToken() {
     console.log("\n🎉 Your QRAFT token is working perfectly!");
     
   } catch (error) {
-    console.error("❌ Error:", error.message);
+    console.error("❌ Error:", error);
   }
 }
 

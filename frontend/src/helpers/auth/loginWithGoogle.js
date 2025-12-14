@@ -27,7 +27,9 @@ export default async function loginWithGoogle() {
             walletAddress: wallet.address,
             createdAt: new Date()
          }, { merge: true });
-         console.log("Wallet created:", wallet.address);
+         if (process.env.NODE_ENV !== "production") {
+            console.log("Wallet created:", wallet.address);
+         }
          // Store private key securely or prompt user to save it
          localStorage.setItem(`wallet_${result.user.uid}`, wallet.privateKey);
       }
