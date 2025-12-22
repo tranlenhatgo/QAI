@@ -28,9 +28,13 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+
+# Blockchain
+cache/
+artifacts/
+deployment-info.json
+node_modules/
 
 # vercel
 .vercel
-
-
-.env

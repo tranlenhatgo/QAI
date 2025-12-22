@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiPlus } from 'react-icons/fi';
 import { IoMdSave } from 'react-icons/io';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { AiFillBulb, AiFillFile, AiFillFolder, AiOutlineCaretUp } from "react-icons/ai";
+import { IoCloseSharp } from 'react-icons/io5';
 import Image from 'next/image';
 import { useBoundStore } from '@/store/useBoundStore';
 import fileToGenerate from '@/helpers/quiz/fileToGenerate';
@@ -12,6 +13,19 @@ const QuizQuestionCreator = () => {
   const [currentQuestion, setCurrentQuestion] = useState({ question: '', answers: ['', '', '', ''], correctAnswer: '', category: '' });
   const { addCreatedQuestion, createdQuestions, removeCreatedQuestion, saveQuestions, quizId, generateQuestion, update, updateQuizQuestions, setCreateQuestions } = useBoundStore(state => state);
   const [fileSelected, setFileSelected] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState({ type: '', message: '' });
+  const [generateLoading, setGenerateLoading] = useState(false);
+  const [generateStatus, setGenerateStatus] = useState({ type: '', message: '' });
+
+  // Cleanup uploaded file when component unmounts (page navigation)
+  useEffect(() => {
+    return () => {
+      setFileSelected(false);
+      setUploadStatus({ type: '', message: '' });
+      setGenerateStatus({ type: '', message: '' });
+    };
+  }, []);
 
   const addQuestion = () => {
     if (!currentQuestion.question.trim()) {
@@ -34,6 +48,15 @@ const QuizQuestionCreator = () => {
     const updatedAnswers = [...currentQuestion.answers];
     updatedAnswers[index] = value;
     setCurrentQuestion({ ...currentQuestion, answers: updatedAnswers });
+  };
+
+  const clearUploadedFile = () => {
+    setFileSelected(false);
+    setUploadStatus({ type: '', message: '' });
+    setGenerateStatus({ type: '', message: '' });
+    // Reset file input
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) fileInput.value = '';
   };
 
   const selectCorrectAnswer = (aIndex) => {
@@ -68,29 +91,19 @@ const QuizQuestionCreator = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
+    <div className="p-6 bg-white rounded-lg shadow-md">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
         <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-          <FaRegQuestionCircle className="mr-2 text-blue-500" /> Create a Quiz
+          <FaRegQuestionCircle className="mr-2 text-blue-500" /> Question Creator
         </h2>
         <div className="flex items-center justify-end space-x-2 mt-2 md:mt-0">
           <button
-            onClick={() => {
-              if (update) {
-                updateQuizQuestions();
-              } else {
-                saveQuestions();
-              }
-            }}
-            className="btn-primary flex items-center space-x-2 text-sm px-3 py-2 md:text-base md:px-5 md:py-3"
-          >
-            <IoMdSave />
-          </button>
-          <button
             onClick={() => setCurrentQuestion({ question: '', answers: ['', '', '', ''], correctAnswer: '' })}
             className="btn-primary flex items-center space-x-2 text-sm px-3 py-2 md:text-base md:px-5 md:py-3"
+            title="Clear current question"
           >
             <BsArrowRepeat />
+            <span className="hidden md:inline">Clear</span>
           </button>
         </div>
       </div>
@@ -125,49 +138,118 @@ const QuizQuestionCreator = () => {
           ))}
         </div>
 
-        <div className="flex flex-wrap space-x-2 my-4">
+        <div className="space-y-4 my-4">
           <button
             onClick={addQuestion}
-            className="btn-primary flex items-center space-x-2 text-sm px-3 py-2 md:text-base md:px-5 md:py-3"
+            className="btn-primary flex items-center space-x-2 w-full md:w-auto text-sm px-3 py-2 md:text-base md:px-5 md:py-3"
           >
-            <FiPlus /> <span>Add</span>
+            <FiPlus /> <span>Add Question</span>
           </button>
-          <div className="flex space-x-2">
-            <input
-              type="file"
-              id="fileInput"
-              className="hidden"
-              accept="application/pdf, .txt, .docx, .doc, .pptx, .ppt"
-              onChange={async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  setFileSelected(true);
-                  try {
-                    await fileToGenerate(file, quizId); // Send file to backend
-                  } catch (error) {
-                    console.error('Error sending file:', error);
+          
+          <div className="border-t pt-4">
+            <h3 className="text-lg font-semibold mb-3 text-gray-800">AI Question Generation</h3>
+            <div className="space-y-3">
+              <input
+                type="file"
+                id="fileInput"
+                className="hidden"
+                accept="application/pdf, .txt, .docx, .doc, .pptx, .ppt"
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (file && quizId) {
+                    setUploadLoading(true);
+                    setUploadStatus({ type: '', message: '' });
+                    setFileSelected(false);
+                    try {
+                      await fileToGenerate(file, quizId);
+                      setFileSelected(true);
+                      setUploadStatus({ type: 'success', message: 'File uploaded successfully! Click "Generate Questions" to proceed.' });
+                    } catch (error) {
+                      setUploadStatus({ type: 'error', message: error.message || 'Failed to upload file. Please try again.' });
+                      setFileSelected(false);
+                    } finally {
+                      setUploadLoading(false);
+                    }
                   }
-                } else {
-                  setFileSelected(false);
-                }
-              }}
-            />
+                }}
+              />
 
-            <button
-              className="btn-primary flex items-center space-x-2 text-sm px-3 py-2 md:text-base md:px-5 md:py-3"
-              onClick={() => document.getElementById('fileInput').click()} // Trigger file input
-            >
-              <AiFillFile /> <span>Select File</span>
-            </button>
-
-            {fileSelected && (
               <button
-                className="btn-primary flex items-center space-x-2 text-sm px-3 py-2 md:text-base md:px-5 md:py-3"
-                onClick={() => generateQuestion('13r0hXk2bPMLUUqESQgKodet7byvXbSJ1')}
+                className="btn-primary flex items-center justify-center space-x-2 w-full text-sm px-3 py-2 md:text-base md:px-5 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => document.getElementById('fileInput').click()}
+                disabled={uploadLoading}
               >
-                <AiFillBulb /> <span>Generate Question</span>
+                {uploadLoading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Uploading...</span>
+                  </>
+                ) : (
+                  <>
+                    <AiFillFile /> <span>Upload File</span>
+                  </>
+                )}
               </button>
-            )}
+
+              {uploadStatus.message && (
+                <p className={`text-sm ${uploadStatus.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+                  {uploadStatus.message}
+                </p>
+              )}
+
+              {fileSelected && !uploadLoading && (
+                <>
+                  {/* Clear File Button */}
+                  <button
+                    className="btn-secondary flex items-center justify-center space-x-2 w-full text-sm px-3 py-2 border border-gray-300 hover:bg-gray-100"
+                    onClick={clearUploadedFile}
+                  >
+                    <IoCloseSharp /> <span>Clear File</span>
+                  </button>
+
+                  <button
+                    className="btn-primary flex items-center justify-center space-x-2 w-full text-sm px-3 py-2 md:text-base md:px-5 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={async () => {
+                      setGenerateLoading(true);
+                      setGenerateStatus({ type: '', message: '' });
+                      try {
+                        await generateQuestion(quizId);
+                        setGenerateStatus({ type: 'success', message: 'Question generated successfully! You can generate more or upload a different file.' });
+                        // Don't clear fileSelected - keep the file for multiple generations
+                      } catch (error) {
+                        setGenerateStatus({ type: 'error', message: error.message || 'Failed to generate question. Please try again.' });
+                      } finally {
+                        setGenerateLoading(false);
+                      }
+                    }}
+                    disabled={generateLoading}
+                  >
+                    {generateLoading ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Generating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <AiFillBulb /> <span>Generate Questions</span>
+                      </>
+                    )}
+                  </button>
+
+                  {generateStatus.message && (
+                    <p className={`text-sm ${generateStatus.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+                      {generateStatus.message}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

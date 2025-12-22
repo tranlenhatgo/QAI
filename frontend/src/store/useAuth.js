@@ -3,6 +3,7 @@ import loginWithGoogle from "@/helpers/auth/loginWithGoogle"
 import getQuizByUserId from "@/helpers/quiz/getQuizByUserId"
 import signUp from "@/helpers/auth/signUp"
 import signIn from "@/helpers/auth/signIn"
+import { getUserWithWallet } from "@/helpers/wallet/walletinit"
 
 const defaultFirebaseUser = {
    "uid": "@@@",
@@ -11,6 +12,7 @@ const defaultFirebaseUser = {
    "displayName": "No user",
    "isAnonymous": false,
    "photoURL": "default-avatar.jpg",
+   "walletAddress": null
 }
 
 export const useAuthStore = (set, get) => ({
@@ -20,22 +22,34 @@ export const useAuthStore = (set, get) => ({
    hostId: null,
    authloading: false,
    dest: null,
+   privateKeyToShow: null, // Store private key temporarily to show in popup
    setDest: (dest) => {
       set({ dest })
+   },
+   setPrivateKeyToShow: (privateKey) => {
+      set({ privateKeyToShow: privateKey })
    },
    setUser: (user) => {
       set({ user })
    },
    login: async (username, password) => {
       set({ authloading: true })
-      signIn(username, password)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const userCredential = await signIn(username, password)
+      // Merge Firebase user with wallet address
+      const userData = await getUserWithWallet(userCredential.user)
+      get().setUser(userData)
       set({ authloading: false })
    },
    register: async (username, password) => {
       set({ authloading: true })
-      signUp(username, password)
+      const { userCredential, wallet } = await signUp(username, password)
+      // Store private key to show in popup
+      set({ privateKeyToShow: wallet.privateKey })
+      // Merge Firebase user with wallet address
+      const userData = await getUserWithWallet(userCredential.user)
+      get().setUser(userData)
       set({ authloading: false })
+      return wallet
    },
    logout: async () => {
       set({ authloading: true });
@@ -47,11 +61,22 @@ export const useAuthStore = (set, get) => ({
       return get().user !== null;
    },
    loginWithGoogle: async () => {
-      const user = await loginWithGoogle()
       set({ authloading: true })
-      get().setUser(user)
-      set({ authloading: false })
-      return user
+      try {
+         const user = await loginWithGoogle()
+         if (!user) {
+            throw new Error('Login failed: No user returned')
+         }
+         // Merge Firebase user with wallet address
+         const userData = await getUserWithWallet(user)
+         get().setUser(userData)
+         set({ authloading: false })
+         return userData
+      } catch (error) {
+         console.error('Login with Google failed:', error)
+         set({ authloading: false })
+         throw error
+      }
    },
    getQuizByUserId: async () => {
       const userId = get().user?.uid

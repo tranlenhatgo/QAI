@@ -1,7 +1,7 @@
 import { auth } from '@/helpers/auth/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 
-async function signIn(email, password) {
+export default async function signIn(email, password) {
   return signInWithEmailAndPassword(auth, email, password)
 }
 

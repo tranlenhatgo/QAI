@@ -4,4 +4,4 @@
 
 <h2>🍰 Contribution Guidelines:</h2>
 
-based on: https://github.com/cosmoart/quiz-game?tab=readme-ov-file by: https://github.com/cosmoart
+ui based on: https://github.com/cosmoart/quiz-game?tab=readme-ov-file by: https://github.com/cosmoart

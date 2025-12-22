@@ -78,7 +78,8 @@ export default function QuizHistory() {
                <ul className='space-y-3'>
                   {historyToDisplay.map((quiz, index) => {
                      // Extract correctAnswers and totalQuestions from the score field
-                     const [correctAnswers, totalQuestions] = quiz.score.split('/').map(Number);
+                     const scoreField = quiz.score || '0/0'; // Fallback if score is null
+                     const [correctAnswers, totalQuestions] = scoreField.split('/').map(Number);
                      const percentage = ((correctAnswers / totalQuestions) * 100).toFixed(1);
 
                      // Determine the color class based on the percentage

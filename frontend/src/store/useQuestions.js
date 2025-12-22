@@ -9,7 +9,7 @@ export const useQuestionsStore = (set, get) => ({
 	loadingInfinity: false,
 	error: [false, ''],
 	currentQuestion: 1,
-	score: 1,
+	questionProgress: 1,
 	win: undefined,
 	quizQuestions: [],
 	getQuestions: (topics, number, infinity) => {
@@ -65,7 +65,7 @@ export const useQuestionsStore = (set, get) => ({
 			return { questions }
 		})
 	},
-	cleanQuestions: () => set({ questions: [], score: 1, currentQuestion: 1, win: undefined }),
-	setScore: (score) => set({ score }),
+	cleanQuestions: () => set({ questions: [], questionProgress: 1, currentQuestion: 1, win: undefined }),
+	setQuestionProgress: (questionProgress) => set({ questionProgress }),
 	setWin: (win) => set({ win })
 })
