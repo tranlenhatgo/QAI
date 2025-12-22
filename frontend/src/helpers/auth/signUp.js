@@ -4,6 +4,6 @@ import { createUserWallet } from '@/helpers/wallet/walletinit'
 
 export default async function signUp(email, password) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  await createUserWallet(userCredential.user);
-  return userCredential;
+  const wallet = await createUserWallet(userCredential.user);
+  return { userCredential, wallet };
 }

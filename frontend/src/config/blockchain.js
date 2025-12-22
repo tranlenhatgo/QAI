@@ -1,7 +1,7 @@
 // Blockchain configuration for Qraft app
 
-// After deploying your contract, update this address
-export const QRAFT_TOKEN_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // UPDATE AFTER DEPLOYMENT
+// After deploying, update this address
+export const QRAFT_TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Updated after deployment
 
 // RPC URLs for different networks
 export const RPC_URLS = {
@@ -44,6 +44,12 @@ export const QRAFT_TOKEN_ABI = [
   "function transfer(address to, uint256 amount) returns (bool)",
   "function quizReward() view returns (uint256)",
   "function correctAnswerReward() view returns (uint256)",
+  "function distributeReward(address user, uint256 amount, string reason)",
+  "function batchDistributeRewards(address[] users, uint256[] amounts, string reason)",
+  "function setRewardDistributor(address distributor, bool authorized)",
+  "function getContractBalance() view returns (uint256)",
+  "function fundContract(uint256 amount)",
+  "function withdrawTokens(uint256 amount)",
   "event Transfer(address indexed from, address indexed to, uint256 value)",
   "event RewardDistributed(address indexed user, uint256 amount, string reason)"
 ];

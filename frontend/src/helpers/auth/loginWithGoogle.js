@@ -52,5 +52,6 @@ export default async function loginWithGoogle() {
       // };
    } catch (error) {
       console.error("Google login failed:", error);
+      throw error; // Re-throw to let caller handle
    }
 };

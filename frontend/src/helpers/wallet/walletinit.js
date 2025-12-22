@@ -4,7 +4,6 @@ import { db, auth } from '../auth/firebase';
 
 // Create wallet when user signs up
 async function createUserWallet(firebaseUser) {
-  // TODO: Securely store private key or prompt user to save it
   const wallet = ethers.Wallet.createRandom();
   
   await setDoc(doc(db, 'users', firebaseUser.uid), {
@@ -12,7 +11,11 @@ async function createUserWallet(firebaseUser) {
     createdAt: new Date()
   });
   
-  return wallet;
+  // Return wallet with private key so it can be shown to user
+  return {
+    address: wallet.address,
+    privateKey: wallet.privateKey
+  };
 }
 
 // Get wallet address from Firestore

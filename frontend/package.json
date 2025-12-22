@@ -41,6 +41,5 @@
 		"hardhat": "^2.27.2",
 		"postcss": "^8.4.21",
 		"tailwindcss": "^3.2.4"
-	},
-	"type": "module"
+	}
 }
