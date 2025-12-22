@@ -6,21 +6,33 @@ import { useBoundStore } from '@/store/useBoundStore';
 import PageLoading from '@/components/PageLoading';
 
 export default function AuthForm() {
-	const { dest, setDest, login, authloading, loginWithGoogle, logout } = useBoundStore(state => state);
+	const { dest, setDest, login, authloading, loginWithGoogle, logout, register, privateKeyToShow, setPrivateKeyToShow } = useBoundStore(state => state);
 	const dialog = useRef(null);
+	const privateKeyDialog = useRef(null);
 	const router = useRouter();
 
 	// State for expanding/collapsing the sign-up section
 	const [isSignUpExpanded, setIsSignUpExpanded] = useState(false);
+	const [copiedPrivateKey, setCopiedPrivateKey] = useState(false);
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-		if (dest && dest !== 'create') {
-			await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(router.push('/' + dest));
-		} else if (dest === 'create') {
-			await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(document.getElementById('createQuizRoomDialog')?.showModal());
+		
+		if (isSignUpExpanded) {
+			// Handle sign up
+			await register(e.target.email.value, e.target.signupPassword.value);
+			// Show private key dialog
+			privateKeyDialog.current?.showModal();
+			closeDialog();
+		} else {
+			// Handle login
+			if (dest && dest !== 'create') {
+				await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(router.push('/' + dest));
+			} else if (dest === 'create') {
+				await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(document.getElementById('createQuizRoomDialog')?.showModal());
+			}
+			setDest(null);
 		}
-		setDest(null);
 	}
 
 	async function handleLogin(e) {
@@ -57,6 +69,21 @@ export default function AuthForm() {
 			dialog.current.removeEventListener('animationend', handleAnimationEnd);
 		}
 		dialog.current.addEventListener('animationend', handleAnimationEnd);
+	}
+
+	function closePrivateKeyDialog() {
+		playSound('pop-down');
+		setCopiedPrivateKey(false);
+		setPrivateKeyToShow(null);
+		privateKeyDialog.current?.close();
+	}
+
+	function copyPrivateKey() {
+		if (privateKeyToShow) {
+			navigator.clipboard.writeText(privateKeyToShow);
+			setCopiedPrivateKey(true);
+			setTimeout(() => setCopiedPrivateKey(false), 3000);
+		}
 	}
 
 	return (
@@ -134,6 +161,47 @@ export default function AuthForm() {
 						</button>
 					</div>
 				</form>
+			</dialog>
+
+			{/* Private Key Dialog */}
+			<dialog ref={privateKeyDialog} className='fixed top-1/2 w-11/12 sm:w-[600px] left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 backdrop-blur-lg rounded-md py-9 px-8 md:px-11 z-50'>
+				<button className='absolute top-2 right-2 text-3xl hover:scale-110 transition-all' onClick={closePrivateKeyDialog}>
+					<IoCloseSharp />
+				</button>
+
+				<div className='flex flex-col gap-4'>
+					<h2 className='text-2xl font-bold text-center text-red-600'>⚠️ Important: Save Your Private Key</h2>
+					
+					<div className='bg-yellow-50 border-l-4 border-yellow-400 p-4'>
+						<p className='text-sm text-yellow-800 font-semibold'>
+							This is your ONLY chance to save your wallet's private key!
+						</p>
+						<ul className='list-disc list-inside text-sm text-yellow-700 mt-2 space-y-1'>
+							<li>Without this key, you cannot access your QRAFT tokens</li>
+							<li>We do NOT store this key - if you lose it, your tokens are lost forever</li>
+							<li>Never share this key with anyone</li>
+							<li>Store it in a secure password manager or write it down and keep it safe</li>
+						</ul>
+					</div>
+
+					<div className='bg-gray-100 p-4 rounded-md break-all font-mono text-sm'>
+						{privateKeyToShow}
+					</div>
+
+					<button
+						onClick={copyPrivateKey}
+						className='btn-primary py-3 px-6 w-full'
+					>
+						{copiedPrivateKey ? '✓ Copied!' : '📋 Copy Private Key'}
+					</button>
+
+					<button
+						onClick={closePrivateKeyDialog}
+						className='bg-red-500 text-white py-3 px-6 w-full rounded-md hover:bg-red-600 transition-colors font-semibold'
+					>
+						I have saved my private key
+					</button>
+				</div>
 			</dialog>
 		</>
 	);

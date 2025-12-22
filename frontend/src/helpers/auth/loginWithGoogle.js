@@ -1,5 +1,7 @@
 import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "./firebase"; // Adjust the import path as necessary
+import { auth, provider, db } from "./firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { ethers } from "ethers";
 
 export default async function loginWithGoogle() {
    try {
@@ -16,6 +18,21 @@ export default async function loginWithGoogle() {
          },
          body: JSON.stringify({ token }),
       });
+
+      // Check if user has wallet, create if not
+      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+      if (!userDoc.exists() || !userDoc.data()?.walletAddress) {
+         const wallet = ethers.Wallet.createRandom();
+         await setDoc(doc(db, 'users', result.user.uid), {
+            walletAddress: wallet.address,
+            createdAt: new Date()
+         }, { merge: true });
+         if (process.env.NODE_ENV !== "production") {
+            console.log("Wallet created:", wallet.address);
+         }
+         // Store private key securely or prompt user to save it
+         localStorage.setItem(`wallet_${result.user.uid}`, wallet.privateKey);
+      }
 
       return result.user;
       // ✅ Send token to backend
@@ -35,5 +52,6 @@ export default async function loginWithGoogle() {
       // };
    } catch (error) {
       console.error("Google login failed:", error);
+      throw error; // Re-throw to let caller handle
    }
 };

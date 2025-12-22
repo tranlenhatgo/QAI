@@ -10,12 +10,14 @@ const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
 	const { user, setUser } = useBoundStore(state => state);
+	
 	useEffect(() => {
 		if (user && sessionStorage.getItem('user')) {
 			const user = JSON.parse(sessionStorage.getItem('user'));
 			setUser(user);
 		}
 	}, []);
+
 	return (
 		<>
 			<Head>

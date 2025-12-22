@@ -26,7 +26,7 @@ const canvasStyles = {
 }
 
 export default function GameOver() {
-	const { queries, score, win, questions, setDecryptedAnswer, takeId, sendAsk } = useBoundStore(state => state)
+	const { queries, questionProgress, win, questions, setDecryptedAnswer, takeId, sendAsk } = useBoundStore(state => state)
 	const [expandedQuestionIndex, setExpandedQuestionIndex] = useState(null);
 	const { showAsk } = useState(false);
 	const refAnimationInstance = useRef(null)
@@ -103,7 +103,61 @@ export default function GameOver() {
 			fire()
 			playSound('win', 0.2)
 		}
+		
+		// Distribute QRAFT rewards when quiz ends
+		if (win !== undefined) {
+			distributeRewards()
+		}
 	}, [win])
+	
+	async function distributeRewards() {
+		const { user } = useBoundStore.getState()
+		
+		// Don't distribute rewards if user is not logged in (default user has uid "@@@")
+		if (!user || !user.walletAddress || user.uid === "@@@") {
+			console.log('User not logged in, skipping reward distribution')
+			return
+		}
+		
+		// Calculate actual score (correct answers)
+		const correctAnswers = questions.filter(q => q.userAnswer === 1).length
+		const totalQuestions = questions.length
+		const percentage = (correctAnswers / totalQuestions) * 100
+		
+		// Determine reward amount based on performance
+		let rewardAmount = 0
+		if (queries.infinitymode) {
+			rewardAmount = questionProgress * 2 // 2 QRAFT per question in infinity mode
+		} else if (percentage >= 90) {
+			rewardAmount = 50 // Perfect score
+		} else if (percentage >= 70) {
+			rewardAmount = 20 // Good score
+		} else if (percentage >= 50) {
+			rewardAmount = 10 // Passing score
+		} else {
+			rewardAmount = 5 // Participation reward
+		}
+		
+		try {
+			const response = await fetch('/api/rewards/distribute', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userWalletAddress: user.walletAddress,
+					amount: rewardAmount,
+					reason: `Quiz completion: ${correctAnswers}/${totalQuestions} correct (${percentage.toFixed(1)}%)`
+				})
+			})
+			
+			const result = await response.json()
+			if (result.success) {
+				console.log(`✅ Rewarded ${rewardAmount} QRAFT tokens!`)
+				// Optionally show a notification to user
+			}
+		} catch (error) {
+			console.error('Failed to distribute reward:', error)
+		}
+	}
 
 	function closeDialog() {
 		playSound('pop', 0.2)
@@ -124,9 +178,39 @@ export default function GameOver() {
 	}
 
 	function finalText() {
-		if (queries.infinitymode) return `You answered well ${score} questions!`
-		if (win === true) return 'Congratulations! \nQuiz completed successfully.'
-		return 'Better luck next time! \nYou can try again.'
+		const correctAnswers = questions.filter(q => q.userAnswer === 1).length
+		const totalQuestions = questions.length
+		const { user } = useBoundStore.getState()
+		const isLoggedIn = user && user.uid !== "@@@"
+		
+		if (queries.infinitymode) {
+			const reward = questionProgress * 2
+			if (!isLoggedIn) {
+				return `You answered ${questionProgress} questions!\n⚠️ Login to earn QRAFT rewards!`
+			}
+			return `You answered ${questionProgress} questions!\n🪙 Earned: ${reward} QRAFT`
+		}
+		
+		if (win === true) {
+			const percentage = (correctAnswers / totalQuestions) * 100
+			let reward = 0
+			if (percentage >= 90) reward = 50
+			else if (percentage >= 70) reward = 20
+			else if (percentage >= 50) reward = 10
+			else reward = 5
+			
+			if (!isLoggedIn) {
+				return `Congratulations!\n${correctAnswers}/${totalQuestions} correct\n⚠️ Login to earn QRAFT rewards!`
+			}
+			return `Congratulations!\n${correctAnswers}/${totalQuestions} correct\n🪙 Earned: ${reward} QRAFT`
+		}
+		
+		// Show different message based on login status
+		if (!isLoggedIn) {
+			return `Better luck next time!\n${correctAnswers}/${totalQuestions} correct\n⚠️ Login to earn QRAFT rewards!`
+		}
+		
+		return `Better luck next time!\n${correctAnswers}/${totalQuestions} correct\n🪙 Earned: 5 QRAFT (Participation)`
 	}
 
 	return (
