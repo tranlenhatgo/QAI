@@ -8,17 +8,31 @@ import { QRAFT_TOKEN_ADDRESS, QRAFT_TOKEN_ABI, getCurrentRpcUrl } from '@/config
  */
 export async function getQraftBalance(walletAddress) {
   try {
-    const provider = new ethers.JsonRpcProvider(getCurrentRpcUrl());
-    const tokenContract = new ethers.Contract(
-      QRAFT_TOKEN_ADDRESS,
-      QRAFT_TOKEN_ABI,
-      provider
+    const rpcUrl = getCurrentRpcUrl();
+    const provider = new ethers.JsonRpcProvider(rpcUrl, undefined, {
+      staticNetwork: true,
+      polling: false // Disable polling to prevent hanging
+    });
+    
+    // Test connection with timeout
+    const balancePromise = (async () => {
+      const tokenContract = new ethers.Contract(
+        QRAFT_TOKEN_ADDRESS,
+        QRAFT_TOKEN_ABI,
+        provider
+      );
+      const balance = await tokenContract.balanceOf(walletAddress);
+      return ethers.formatUnits(balance, 18);
+    })();
+    
+    // 5 second timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Blockchain connection timeout')), 5000)
     );
     
-    const balance = await tokenContract.balanceOf(walletAddress);
-    return ethers.formatUnits(balance, 18);
+    return await Promise.race([balancePromise, timeoutPromise]);
   } catch (error) {
-    console.error('Error fetching QRAFT balance:', error);
+    console.error('Error fetching QRAFT balance (blockchain may not be running):', error.message);
     return '0';
   }
 }
