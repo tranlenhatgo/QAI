@@ -11,7 +11,7 @@ export default function Main () {
 	return (
 		<>
 			<Head>
-				<title>Qcraft</title>
+				<title>Qraft</title>
 			</Head>
 			<MainHome />
 			<GameModes />

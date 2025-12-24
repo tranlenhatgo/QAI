@@ -174,7 +174,7 @@ export default function AuthForm() {
 					
 					<div className='bg-yellow-50 border-l-4 border-yellow-400 p-4'>
 						<p className='text-sm text-yellow-800 font-semibold'>
-							This is your ONLY chance to save your wallet's private key!
+						This is your ONLY chance to save your wallet&apos;s private key!
 						</p>
 						<ul className='list-disc list-inside text-sm text-yellow-700 mt-2 space-y-1'>
 							<li>Without this key, you cannot access your QRAFT tokens</li>

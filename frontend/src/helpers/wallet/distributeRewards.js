@@ -20,7 +20,7 @@ export async function distributeReward(toAddress, amount, privateKey) {
     const contract = new ethers.Contract(
       QRAFT_TOKEN_ADDRESS,
       QRAFT_TOKEN_ABI,
-      wallet // ⭐ Use wallet (signer), not provider
+      wallet // Use wallet (signer), not provider
     );
     
     // Convert amount to wei (18 decimals)

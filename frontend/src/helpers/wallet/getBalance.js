@@ -26,7 +26,7 @@ export async function getQraftBalance(walletAddress) {
     })();
     
     // 5 second timeout
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise((_resolve, reject) => 
       setTimeout(() => reject(new Error('Blockchain connection timeout')), 5000)
     );
     
