@@ -35,22 +35,8 @@ export default function Create() {
 			<Head><title>Quizi | Create</title></Head>
 
 			<CreateHeader />
-			
-			{/* Two-column responsive layout */}
-			<div className="container mx-auto px-4 py-6">
-				<div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6">
-					{/* Main area - Question creator */}
-					<div className="order-2 xl:order-1">
-						<CreateQuestions />
-					</div>
-					
-					{/* Sidebar - Quiz details */}
-					<div className="order-1 xl:order-2">
-						<CreateInfo />
-					</div>
-				</div>
-			</div>
-			
+			<CreateInfo />
+			<CreateQuestions />
 			<Footer alert={true} />
 			<style jsx global>
 				{`

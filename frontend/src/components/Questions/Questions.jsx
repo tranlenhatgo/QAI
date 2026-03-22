@@ -9,7 +9,7 @@ import playSound from '@/helpers/playSound'
 import { useBoundStore } from '@/store/useBoundStore'
 
 export default function Questions() {
-	const { questions, loading, loadingInfinity, currentQuestion, setCurrentQuestion, setUserAnswer, win, questionProgress, setWin, setQuestionProgress, wildCards, useLivesCard, queries, getQuestions } = useBoundStore(state => state)
+	const { questions, loading, loadingInfinity, currentQuestion, setCurrentQuestion, setUserAnswer, win, score, setWin, setScore, wildCards, useLivesCard, queries, getQuestions } = useBoundStore(state => state)
 	const [time, setTime] = useState(Number(queries.time))
 
 	useEffect(() => {
@@ -24,18 +24,18 @@ export default function Questions() {
 		function shortcuts(e) {
 			if (!queries.infinitymode) {
 				if (e.key === 'ArrowLeft' && currentQuestion > 1) changueCurrent(currentQuestion - 1)
-				if (e.key === 'ArrowRight' && currentQuestion < questionProgress) changueCurrent(currentQuestion + 1)
+				if (e.key === 'ArrowRight' && currentQuestion < score) changueCurrent(currentQuestion + 1)
 			}
 
 			if (e.key === 'a' || e.key === 'b' || e.key === 'c' || e.key === 'd') {
 				const answer = ['a', 'b', 'c', 'd'].indexOf(e.key)
-				if (answer !== -1) document.querySelector(`.answers-${queries.infinitymode ? currentQuestion : questionProgress} .answer-${answer + 1}`)?.click()
+				if (answer !== -1) document.querySelector(`.answers-${queries.infinitymode ? currentQuestion : score} .answer-${answer + 1}`)?.click()
 			}
 		}
 
 		document.addEventListener('keydown', shortcuts)
 		return () => document.removeEventListener('keydown', shortcuts)
-	}, [currentQuestion, questionProgress])
+	}, [currentQuestion, score])
 
 	useEffect(() => {
 		if (win !== undefined || !queries.timemode || loading || loadingInfinity) return
@@ -48,23 +48,23 @@ export default function Questions() {
 
 		if (wildCards.lives < 1) {
 			clickCorrectAnswer()
-			setUserAnswer(questionProgress - 1, -1)
+			setUserAnswer(score - 1, -1)
 			playSound('wrong_answer', 0.3)
 			setWin(false)
 		} else {
 			if (queries.infinitymode) {
-				if (questionProgress !== 1 && questionProgress % 5 === 0) {
+				if (score !== 1 && score % 5 === 0) {
 					clickCorrectAnswer()
 					getAnotherQuestions()
 				} else clickCorrectAnswer(true)
 			} else {
-				if (questionProgress === queries.questions) {
+				if (score === queries.questions) {
 					setWin(true)
 					clickCorrectAnswer()
 				} else clickCorrectAnswer(true)
 			}
 
-			setUserAnswer(questionProgress - 1, 2)
+			setUserAnswer(score - 1, 2)
 			useLivesCard()
 			playSound('correct_answer', 0.3)
 		}
@@ -74,25 +74,25 @@ export default function Questions() {
 		setTimeout(() => {
 			setTime(Number(queries.time))
 			changueCurrent(1)
-			setQuestionProgress(questionProgress + 1)
+			setScore(score + 1)
 			const topics = categories.filter(category => queries.categories.find(cat => cat === category.id)).map(cat => cat.name)
 			getQuestions(topics, 5, true)
 		}, 1000)
 	}
 
-	function clickCorrectAnswer(addProgress = false) {
-		if (addProgress) {
+	function clickCorrectAnswer(addScore = false) {
+		if (addScore) {
 			setTimeout(() => {
-				setQuestionProgress(questionProgress + 1)
+				setScore(score + 1)
 				setTime(Number(queries.time))
-				setUserAnswer(questionProgress - 1, 1)
-				changueCurrent(questionProgress + 1)
+				setUserAnswer(score - 1, 1)
+				changueCurrent(score + 1)
 			}, 1000)
 		}
 
-		document.querySelectorAll(`.answers-${questionProgress} button`).forEach(answer => {
+		document.querySelectorAll(`.answers-${score} button`).forEach(answer => {
 			answer.disabled = true
-			if (answer.textContent === questions[questionProgress - 1].correctAnswer) {
+			if (answer.textContent === questions[score - 1].correctAnswer) {
 				answer.classList.add('correctAnswer')
 				answer.parentNode.classList.add('shake-left-right')
 			}
