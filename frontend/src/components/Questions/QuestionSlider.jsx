@@ -5,7 +5,7 @@ import Image from 'next/image'
 import checkAnswer from '@/helpers/question/checkAnswer'
 
 export default function QuestionSlider({ changueCurrent, setTime, getAnotherQuestions }) {
-	const { questions, queries, loadingInfinity, setUserAnswer, setAnswer, error, useLivesCard, setWin, wildCards, currentQuestion, setScore, win, score } = useBoundStore(state => state)
+	const { questions, queries, loadingInfinity, setUserAnswer, setAnswer, error, useLivesCard, setWin, wildCards, currentQuestion, setQuestionProgress, win, questionProgress } = useBoundStore(state => state)
 
 	async function validateAnswer(e) {
 		var correct = null;
@@ -32,10 +32,10 @@ export default function QuestionSlider({ changueCurrent, setTime, getAnotherQues
 
 		if (queries.infinitymode) {
 			if (correct) {
-				if (score !== 1 && score % 5 === 0) getAnotherQuestions()
+				if (questionProgress !== 1 && questionProgress % 5 === 0) getAnotherQuestions()
 			} else {
 				if (wildCards.lives > 0) {
-					if (score !== 1 && score % 5 === 0) getAnotherQuestions()
+					if (questionProgress !== 1 && questionProgress % 5 === 0) getAnotherQuestions()
 					useLivesCard()
 				} else return setWin(false)
 			}
@@ -43,15 +43,15 @@ export default function QuestionSlider({ changueCurrent, setTime, getAnotherQues
 			if (!correct) {
 				if (wildCards.lives > 0) {
 					useLivesCard()
-					if (score === Number(queries.questions)) return setWin(true)
+					if (questionProgress === Number(queries.questions)) return setWin(true)
 				} else return setWin(false)
-			} else if (score === Number(queries.questions)) return setWin(true)
+			} else if (questionProgress === Number(queries.questions)) return setWin(true)
 		}
 
 		setTimeout(() => {
-			setScore(score + 1)
+			setQuestionProgress(questionProgress + 1)
 			setTime(Number(queries.time))
-			if (queries.infinitymode && score !== 1 && score % 5 === 0) changueCurrent(1)
+			if (queries.infinitymode && questionProgress !== 1 && questionProgress % 5 === 0) changueCurrent(1)
 			else changueCurrent(currentQuestion + 1)
 		}, 1000)
 	}
@@ -88,8 +88,7 @@ export default function QuestionSlider({ changueCurrent, setTime, getAnotherQues
 									<li key={j + answer} className="relative">
 										<button
 											className={`${'answer-' + (j + 1)} peer btn-primary w-full shadow-sm pl-12 py-3 px-5 rounded mb-6 ${answer.length > 24 ? 'text-sm' : ''}`}
-											disabled={!queries.infinitymode && (score !== i + 1 || currentQuestion !== i + 1 || win !== undefined)}
-											onClick={validateAnswer}>
+											disabled={!queries.infinitymode && (questionProgress !== i + 1 || currentQuestion !== i + 1 || win !== undefined)}											onClick={validateAnswer}>
 											{answer || '---'}
 										</button >
 
