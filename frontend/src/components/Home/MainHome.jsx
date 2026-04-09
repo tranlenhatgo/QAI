@@ -34,7 +34,7 @@ export default function MainHome() {
 			<HomeHeader />
 			<article>
 				<h1 className='text-8xl font-medium w-full uppercase z-10 relative' translate='no'>
-					{'Quizz'.split('').map((letter, index) => (
+					{'Qraft'.split('').map((letter, index) => (
 						<span key={index} id={letter + index + 10} className='relative inline-block transition-all duration-300' onMouseEnter={handleTitleHover} onMouseLeave={handleTitleLeave}>
 							{letter}
 						</span>

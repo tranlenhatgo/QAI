@@ -88,8 +88,7 @@ export default function QuestionSlider({ changueCurrent, setTime, getAnotherQues
 									<li key={j + answer} className="relative">
 										<button
 											className={`${'answer-' + (j + 1)} peer btn-primary w-full shadow-sm pl-12 py-3 px-5 rounded mb-6 ${answer.length > 24 ? 'text-sm' : ''}`}
-											disabled={!queries.infinitymode && (questionProgress !== i + 1 || currentQuestion !== i + 1 || win !== undefined)}
-											onClick={validateAnswer}>
+											disabled={!queries.infinitymode && (questionProgress !== i + 1 || currentQuestion !== i + 1 || win !== undefined)}											onClick={validateAnswer}>
 											{answer || '---'}
 										</button >
 

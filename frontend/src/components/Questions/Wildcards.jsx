@@ -6,7 +6,7 @@ import { useBoundStore } from '@/store/useBoundStore'
 import { useEffect } from 'react'
 
 export default function Wildcards () {
-	const { wildCards, useSkipCard, queries, win, useHalfCard, currentQuestion, questionProgress } = useBoundStore(state => state)
+	const { wildCards, useSkipCard, queries, win, useHalfCard, currentQuestion, score } = useBoundStore(state => state)
 
 	useEffect(() => {
 		function shortcuts (e) {
@@ -18,7 +18,7 @@ export default function Wildcards () {
 	}, [])
 
 	function disabled (type) {
-		const finalQuestion = queries.infinitymode ? (questionProgress % 5 === 0 ? 5 : questionProgress % 5) : questionProgress
+		const finalQuestion = queries.infinitymode ? (score % 5 === 0 ? 5 : score % 5) : score
 		return wildCards[type] < 1 || win !== undefined || currentQuestion !== finalQuestion
 	}
 
