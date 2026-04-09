@@ -6,24 +6,37 @@ import PlayForm from '@/components/Form/PlayForm';
 import CreateQuizRoomForm from '@/components/Form/CreateQuizRoomForm';
 import { useBoundStore } from '@/store/useBoundStore';
 import { useEffect } from 'react';
+import { auth } from '@/helpers/auth/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import RequireAuth from '@/components/Auth/RequireAuth';
 const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
-	const { user, setUser } = useBoundStore(state => state);
+	const { setUser, setAuthReady } = useBoundStore(state => state);
 	
 	useEffect(() => {
-		if (user && sessionStorage.getItem('user')) {
-			const user = JSON.parse(sessionStorage.getItem('user'));
-			setUser(user);
-		}
-	}, []);
+		const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+			setUser(firebaseUser ?? null);
+			setAuthReady(true);
+		});
+
+		return () => unsubscribe();
+	}, [setUser, setAuthReady]);
+
+	const content = Component.requireAuth ? (
+		<RequireAuth>
+			<Component {...pageProps} />
+		</RequireAuth>
+	) : (
+		<Component {...pageProps} />
+	);
 
 	return (
 		<>
 			<Head>
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
-			<Component {...pageProps} />
+			{content}
 			<PlayForm />
 			<AuthForm />
 			<CreateQuizRoomForm />
