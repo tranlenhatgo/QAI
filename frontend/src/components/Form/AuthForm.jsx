@@ -6,7 +6,7 @@ import { useBoundStore } from '@/store/useBoundStore';
 import PageLoading from '@/components/PageLoading';
 
 export default function AuthForm() {
-	const { dest, setDest, login, authloading, loginWithGoogle, logout } = useBoundStore(state => state);
+	const { dest, setDest, login, register, authloading, loginWithGoogle } = useBoundStore(state => state);
 	const dialog = useRef(null);
 	const router = useRouter();
 
@@ -15,11 +15,28 @@ export default function AuthForm() {
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-		if (dest && dest !== 'create') {
-			await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(router.push('/' + dest));
-		} else if (dest === 'create') {
-			await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(document.getElementById('createQuizRoomDialog')?.showModal());
+		const submitAction = e.nativeEvent?.submitter?.name;
+
+		if (submitAction === 'signUp') {
+			await register(e.target.email.value, e.target.signupPassword.value);
+			setIsSignUpExpanded(false);
+			closeDialog();
+			setDest(null);
+			return;
 		}
+
+		await login(e.target.username.value, e.target.password.value);
+
+		if (dest && dest !== 'create') {
+			closeDialog();
+			router.push('/' + dest);
+		} else if (dest === 'create') {
+			closeDialog();
+			document.getElementById('createQuizRoomDialog')?.showModal();
+		} else {
+			closeDialog();
+		}
+
 		setDest(null);
 	}
 
@@ -28,7 +45,7 @@ export default function AuthForm() {
 		if (e.target.name === 'google') {
 			try {
 				const user = await loginWithGoogle(); // Wait for the user data to be returned
-				sessionStorage.setItem('user', JSON.stringify(user)); // Store the user in sessionStorage
+				if (!user) return;
 				closeDialog(); // Close the dialog
 				if (dest === 'create') {
 					document.getElementById('createQuizRoomDialog')?.showModal(); // Open the create quiz room dialog
@@ -108,7 +125,7 @@ export default function AuthForm() {
 
 					<hr className='my-4' />
 
-					<button type='submit' name='singUp' className={`${isSignUpExpanded ? '' : 'hidden'} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Sign Up</button>
+					<button type='submit' name='signUp' className={`${isSignUpExpanded ? '' : 'hidden'} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Sign Up</button>
 					<button type='submit' name='login' className={`${isSignUpExpanded ? 'hidden' : ''} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Login</button>
 					<div
 						className="flex justify-center items-center cursor-pointer"

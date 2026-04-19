@@ -5,16 +5,15 @@ import playSound from '@/helpers/playSound'
 import { useRouter } from 'next/router';
 
 export default function HomeHeader() {
-	const { setDest } = useBoundStore(state => state)
+	const { setDest, user } = useBoundStore(state => state)
 	const router = useRouter();
 	function handleLogin() {
 		playSound('pop');
-		const user = JSON.parse(sessionStorage.getItem('user')); 
 		if (user) {
-			setDest(null); 
-			router.push('/profile'); 
+			setDest(null);
+			router.push('/profile');
 		} else {
-			setDest('profile'); 
+			setDest('profile');
 			document.getElementById('authDialog')?.showModal();
 		}
 	}
@@ -23,7 +22,15 @@ export default function HomeHeader() {
 			<ul className='flex gap-4'>
 				<li>
 					<button href="/" className='block' onClick={handleLogin}>
-						<CgProfile color='#0f172a' className='text-4xl hover:scale-105 transition-all  p-1 bg-white rounded' title='Login' />
+						{user ? (
+							<img
+								src={user?.photoURL || '/default-avatar.jpg'}
+								alt="Profile"
+								className="w-10 h-10 rounded-full mb-4 mx-auto"
+							/>
+						) : (
+							<CgProfile color='#0f172a' className='text-4xl hover:scale-105 transition-all  p-1 bg-white rounded' title='Login' />
+						)}
 					</button>
 				</li>
 			</ul>

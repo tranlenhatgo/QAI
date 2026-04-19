@@ -31,6 +31,9 @@ export const useQuestionsStore = (set, get) => ({
 	},
 	takeQuiz: async (id, name) => {
 		const uid = get().user?.uid
+		if (!uid) {
+			console.warn('Guest taking quiz:', name, '- scores will not be saved')
+		}
 		await takeQuiz(id, name, uid)
 			.then(data => {
 				set({ questions: data.questions, takeId: data.takeId })
