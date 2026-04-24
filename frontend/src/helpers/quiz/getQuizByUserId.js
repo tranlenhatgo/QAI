@@ -11,6 +11,7 @@ export default async function getQuizByUserId(userId) {
          body: JSON.stringify({ id: userId }), 
       });
 
+      // Commented for backendless testing - remove comments for production
       // if (!response.ok) {
       //    const errorData = await response.json();
       //    throw new Error(errorData.message || 'Failed to fetch quizzes');

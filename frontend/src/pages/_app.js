@@ -13,7 +13,7 @@ import RequireAuth from '@/components/Auth/RequireAuth';
 const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
-	const { setUser, setAuthReady } = useBoundStore(state => state);
+	const { user, setUser, setAuthReady } = useBoundStore(state => state);
 	
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -43,7 +43,7 @@ export default function App({ Component, pageProps }) {
 			<CreateQuizRoomForm />
 			<Script id="study-coach-config" strategy="afterInteractive">
 				{`window.STUDY_COACH_CONFIG = {
-					userId: "${user?.uid || 'anonymous'}",
+					userId: "${user?.uid ?? 'anonymous'}",
 					serverUrl: "ws://localhost:8000/ws/chat"
 				};`}
 			</Script>
