@@ -1,7 +1,6 @@
 import '@/styles/globals.css'
 import { Rubik } from 'next/font/google'
 import Head from 'next/head'
-import Script from 'next/script'
 import AuthForm from './../components/Form/AuthForm';
 import PlayForm from '@/components/Form/PlayForm';
 import CreateQuizRoomForm from '@/components/Form/CreateQuizRoomForm';
@@ -10,10 +9,13 @@ import { useEffect } from 'react';
 import { auth } from '@/helpers/auth/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import RequireAuth from '@/components/Auth/RequireAuth';
+import StudyCoachWidget from '@/components/Chat/StudyCoachWidget';
 const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
-	const { user, setUser, setAuthReady } = useBoundStore(state => state);
+	const { user, setUser, setAuthReady, setChatConfig, hydrateChat } = useBoundStore(state => state);
+	const studyCoachHiddenPaths = ['/chat', '/play'];
+	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'https://collected-snore-carving.ngrok-free.dev'
 	
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -23,6 +25,16 @@ export default function App({ Component, pageProps }) {
 
 		return () => unsubscribe();
 	}, [setUser, setAuthReady]);
+
+	useEffect(() => {
+		setChatConfig({
+			userId: user?.uid ?? 'anonymous',
+			serverUrl: studyCoachServerUrl,
+			transport: 'webhook',
+			hiddenPaths: studyCoachHiddenPaths,
+		})
+		hydrateChat()
+	}, [user?.uid, setChatConfig, hydrateChat, studyCoachServerUrl])
 
 	const content = Component.requireAuth ? (
 		<RequireAuth>
@@ -38,16 +50,10 @@ export default function App({ Component, pageProps }) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
 			{content}
+			<StudyCoachWidget />
 			<PlayForm />
 			<AuthForm />
 			<CreateQuizRoomForm />
-			<Script id="study-coach-config" strategy="afterInteractive">
-				{`window.STUDY_COACH_CONFIG = {
-					userId: "${user?.uid ?? 'anonymous'}",
-					serverUrl: "ws://localhost:8000/ws/chat"
-				};`}
-			</Script>
-			<Script src="http://localhost:8000/static/widget.js" strategy="afterInteractive" />
 			<style jsx global>{`
         html {
           font-family: ${rubik.style.fontFamily};
