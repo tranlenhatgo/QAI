@@ -1,5 +1,7 @@
+import { auth } from '@/helpers/auth/firebase'
+
 const CHAT_STORAGE_KEY = 'qraft-chat-state'
-const DEFAULT_SERVER_URL = 'https://collected-snore-carving.ngrok-free.dev'
+const DEFAULT_SERVER_URL = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 const DEFAULT_HIDDEN_PATHS = ['/chat']
 const DEFAULT_CHAT_MODE = 'simple'
 const DEFAULT_CHAT_TRANSPORT = 'webhook'
@@ -130,14 +132,29 @@ function updateConversationTitle(conversation, title) {
 	}
 }
 
-async function fallbackRequest(serverUrl, payload, chatMode) {
-	const httpUrl = resolveChatHttpUrl(serverUrl, chatMode)
-	const response = await fetch(httpUrl, {
+async function fallbackRequest(payload, chatMode) {
+	const bearerToken = await auth.currentUser?.getIdToken().catch(() => null)
+	const response = await fetch('/api/coach/chat', {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(payload),
+		headers: {
+			'Content-Type': 'application/json',
+			...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
+		},
+		body: JSON.stringify({
+			message: payload.message,
+			history: payload.history,
+			chatMode,
+		}),
 	})
-	return response.json()
+
+	const data = await response.json().catch(() => ({}))
+	if (!response.ok) {
+		const error = new Error(data?.message || 'Failed to reach coach API')
+		error.status = response.status
+		throw error
+	}
+
+	return data
 }
 
 export const useChatStore = (set, get) => ({
@@ -483,7 +500,6 @@ export const useChatStore = (set, get) => ({
 
 		try {
 			const data = await fallbackRequest(
-				state.chatConfig.serverUrl || DEFAULT_SERVER_URL,
 				payload,
 				state.chatConfig.chatMode || DEFAULT_CHAT_MODE,
 			)
@@ -523,8 +539,11 @@ export const useChatStore = (set, get) => ({
 				set({ isStreaming: false, streamingText: '' })
 			}
 		} catch (error) {
+			const errorMessage = error?.status === 401
+				? 'Please sign in to use AI Study Coach.'
+				: 'Failed to reach the server. Please try again.'
 			set(chatState => ({
-				conversations: updateConversation(chatState.conversations, conversationId, conversation => appendMessageToConversation(conversation, createMessage('error', 'Failed to reach the server. Please try again.'))),
+				conversations: updateConversation(chatState.conversations, conversationId, conversation => appendMessageToConversation(conversation, createMessage('error', errorMessage))),
 				isStreaming: false,
 				streamingText: '',
 			}))

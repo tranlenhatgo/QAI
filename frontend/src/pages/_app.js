@@ -7,7 +7,7 @@ import CreateQuizRoomForm from '@/components/Form/CreateQuizRoomForm';
 import { useBoundStore } from '@/store/useBoundStore';
 import { useEffect } from 'react';
 import { auth } from '@/helpers/auth/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onIdTokenChanged } from 'firebase/auth';
 import RequireAuth from '@/components/Auth/RequireAuth';
 import StudyCoachWidget from '@/components/Chat/StudyCoachWidget';
 const rubik = Rubik({ subsets: ['latin'] })
@@ -15,12 +15,29 @@ const rubik = Rubik({ subsets: ['latin'] })
 export default function App({ Component, pageProps }) {
 	const { user, setUser, setAuthReady, setChatConfig, hydrateChat } = useBoundStore(state => state);
 	const studyCoachHiddenPaths = ['/chat', '/play'];
-	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'https://collected-snore-carving.ngrok-free.dev'
+	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+		const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
 			setUser(firebaseUser ?? null);
-			setAuthReady(true);
+			try {
+				if (firebaseUser) {
+					const token = await firebaseUser.getIdToken()
+					await fetch('/api/auth/set-token', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ token }),
+					})
+				} else {
+					await fetch('/api/auth/clear-token', { method: 'POST' })
+				}
+			} catch (error) {
+				console.error('Failed to sync auth token cookie', error)
+			} finally {
+				setAuthReady(true);
+			}
 		});
 
 		return () => unsubscribe();
