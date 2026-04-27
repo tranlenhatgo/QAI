@@ -42,7 +42,7 @@ export default function AuthForm() {
 
 	async function handleLogin(e) {
 		e.preventDefault();
-		if (e.target.name === 'google') {
+		if (e.currentTarget.name === 'google') {
 			try {
 				const user = await loginWithGoogle(); // Wait for the user data to be returned
 				if (!user) return;

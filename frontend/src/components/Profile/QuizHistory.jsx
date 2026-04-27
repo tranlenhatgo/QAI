@@ -1,8 +1,9 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useBoundStore } from "@/store/useBoundStore";
 import categoriesJSON from "@/assets/categories.json";
 import { BsArrowRepeat } from "react-icons/bs";
 import QuizQuestionsModal from './QuizQuestionsModal'
+import ProfileLeaderboard from './ProfileLeaderboard'
 import { useRouter } from "next/router";
 
 export default function QuizHistory() {
@@ -66,6 +67,15 @@ export default function QuizHistory() {
                onClick={() => setActiveTab('created')}
             >
                Created Quizzes
+            </button>
+            <button
+               className={`pb-3 text-base font-semibold transition-all ${activeTab === 'leaderboard'
+                  ? 'border-b-4 border-blue-600 text-blue-600'
+                  : 'text-gray-500 hover:text-blue-500'
+                  }`}
+               onClick={() => setActiveTab('leaderboard')}
+            >
+               Leaderboard
             </button>
          </div>
 
@@ -208,6 +218,12 @@ export default function QuizHistory() {
                   onClose={() => setModalOpen(false)}
                   quiz={quizQuestions}
                />
+            </div>
+         )}
+
+         {activeTab === 'leaderboard' && (
+            <div className='overflow-y-auto max-h-[calc(100vh-250px)]'>
+               <ProfileLeaderboard history={historyToDisplay} />
             </div>
          )}
       </aside>
