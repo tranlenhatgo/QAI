@@ -10,6 +10,9 @@ export default function AuthForm() {
 	const dialog = useRef(null);
 	const router = useRouter();
 
+	// Whitelist of valid post-auth redirect destinations to prevent open redirects
+	const ALLOWED_DESTS = ['profile', 'create', 'play', 'chat'];
+
 	// State for expanding/collapsing the sign-up section
 	const [isSignUpExpanded, setIsSignUpExpanded] = useState(false);
 
@@ -27,12 +30,12 @@ export default function AuthForm() {
 
 		await login(e.target.username.value, e.target.password.value);
 
-		if (dest && dest !== 'create') {
-			closeDialog();
-			router.push('/' + dest);
-		} else if (dest === 'create') {
+		if (dest === 'create') {
 			closeDialog();
 			document.getElementById('createQuizRoomDialog')?.showModal();
+		} else if (dest && ALLOWED_DESTS.includes(dest)) {
+			closeDialog();
+			router.push('/' + dest);
 		} else {
 			closeDialog();
 		}
@@ -48,9 +51,9 @@ export default function AuthForm() {
 				if (!user) return;
 				closeDialog(); // Close the dialog
 				if (dest === 'create') {
-					document.getElementById('createQuizRoomDialog')?.showModal(); // Open the create quiz room dialog
-				} else if (dest) {
-					router.push('/' + dest); // Redirect to the destination
+					document.getElementById('createQuizRoomDialog')?.showModal();
+				} else if (dest && ALLOWED_DESTS.includes(dest)) {
+					router.push('/' + dest);
 				}
 			} catch (error) {
 				console.error('Google login failed:', error);

@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   if (!token) return res.status(400).json({ error: "Token required" });
 
-  const firebaseWebApiKey = "AIzaSyASy5ZI1DE7vmETU9Q340IGF6CsPVY89Zo"
+  const firebaseWebApiKey = process.env.FIREBASE_WEB_API_KEY
   if (!firebaseWebApiKey) {
     return res.status(500).json({ message: 'Missing FIREBASE_WEB_API_KEY', statusCode: 500 })
   }

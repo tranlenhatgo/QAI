@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+import withAuth from '@/lib/withAuth'
+
+async function handler(req, res) {
    if (req.method !== 'POST') {
       return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 });
    }
@@ -15,7 +17,7 @@ export default async function handler(req, res) {
 
       if (!response.ok) {
          return res.status(response.status).json({
-            message: data.message || 'Failed to save quỉzoom',
+            message: data.message || 'Failed to save quiz',
             statusCode: response.status,
          });
       }
@@ -23,10 +25,12 @@ export default async function handler(req, res) {
       return res.status(200).json(data);
    } 
    catch (err) {
-      console.error('Error in save-quiz API:', err); // Log the full error object
+      console.error('Error in save-quiz API:', err.message);
       return res.status(500).json({
          message: 'Internal Server Error',
          statusCode: 500,
       });
    }
 }
+
+export default withAuth(handler)

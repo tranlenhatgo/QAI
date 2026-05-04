@@ -16,12 +16,11 @@ export default async function handler(req, res) {
       const bytes = CryptoJS.AES.decrypt(correctAnswer, encryptionKey);
       const decryptedCorrectAnswer = bytes.toString(CryptoJS.enc.Utf8);
 
-      // Compare the decrypted correct answer with the selected answer
       const isCorrect = decryptedCorrectAnswer === selectedAnswer;
 
       return res.status(200).json({ isCorrect });
    } catch (error) {
-      console.error('Error comparing answers:', error);
+      console.error('Error comparing answers:', error.message);
       return res.status(500).json({ message: 'Internal Server Error', statusCode: 500 });
    }
 }

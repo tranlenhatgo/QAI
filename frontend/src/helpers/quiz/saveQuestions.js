@@ -6,8 +6,6 @@ export default async function saveQuestions(questions, quizId) {
       correct_answer: q.correctAnswer,
    }));
 
-   console.log('Formatted Questions:', formattedQuestions); 
-
    try {
       const response = await fetch('/api/quiz/save-questions', {
          method: 'POST',

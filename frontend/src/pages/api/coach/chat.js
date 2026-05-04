@@ -1,3 +1,5 @@
+import withAuth from '@/lib/withAuth'
+
 const DEFAULT_TIMEOUT_MS = 30000
 const DEFAULT_ALLOWED_HISTORY_ROLES = new Set(['user', 'assistant'])
 
@@ -14,47 +16,9 @@ function normalizeHistory(history) {
     .slice(-20)
 }
 
-async function verifyFirebaseIdToken(idToken) {
-  const firebaseWebApiKey = process.env.FIREBASE_WEB_API_KEY
-  if (!firebaseWebApiKey) {
-    throw new Error('Missing FIREBASE_WEB_API_KEY')
-  }
-
-  const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseWebApiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken }),
-  })
-
-  if (!response.ok) {
-    return null
-  }
-
-  const data = await response.json().catch(() => null)
-  const localId = data?.users?.[0]?.localId
-  return typeof localId === 'string' && localId.length > 0 ? localId : null
-}
-
-function readAuthToken(req) {
-  const cookieToken = req.cookies?.token
-  if (cookieToken) return cookieToken
-
-  const authHeader = req.headers?.authorization || req.headers?.Authorization
-  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
-    return authHeader.slice('Bearer '.length).trim()
-  }
-
-  return null
-}
-
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 })
-  }
-
-  const token = readAuthToken(req)
-  if (!token) {
-    return res.status(401).json({ message: 'Not authenticated', statusCode: 401 })
   }
 
   const studyCoachApiUrl = process.env.STUDY_COACH_API_URL
@@ -64,10 +28,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'Study coach API is not configured', statusCode: 500 })
   }
 
-  const userId = await verifyFirebaseIdToken(token)
-  if (!userId) {
-    return res.status(401).json({ message: 'Invalid auth token', statusCode: 401 })
-  }
+  // req.userId is set by the withAuth middleware
+  const userId = req.userId
 
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : ''
   const chatMode = req.body?.chatMode === 'agentic' ? 'agentic' : 'simple'
@@ -118,3 +80,5 @@ export default async function handler(req, res) {
     clearTimeout(timeout)
   }
 }
+
+export default withAuth(handler)
