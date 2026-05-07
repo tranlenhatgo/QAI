@@ -34,7 +34,10 @@ export default function Questions() {
 		}
 
 		document.addEventListener('keydown', shortcuts)
-		return () => document.removeEventListener('keydown', shortcuts)
+		return () => {
+			document.removeEventListener('keydown', shortcuts)
+			document.body.style.backgroundColor = ''
+		}
 	}, [currentQuestion, questionProgress])
 
 	useEffect(() => {

@@ -35,6 +35,24 @@
   }
 
   // ─── Lightweight Markdown ──────────────────────────────
+  const ALLOWED_TAGS = new Set(['p', 'br', 'strong', 'em', 'code', 'h1', 'h2', 'h3', 'ul', 'li']);
+
+  function sanitizeHTML(html) {
+    if (typeof DOMParser === 'undefined') return html;
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const walker = doc.body.querySelectorAll('*');
+    walker.forEach(el => {
+      if (!ALLOWED_TAGS.has(el.tagName.toLowerCase())) {
+        el.replaceWith(doc.createTextNode(el.textContent));
+      }
+      // Strip all attributes (no href, onclick, style, etc.)
+      while (el.attributes && el.attributes.length > 0) {
+        el.removeAttribute(el.attributes[0].name);
+      }
+    });
+    return doc.body.innerHTML;
+  }
+
   function renderMarkdown(text) {
     let html = text
       // Escape HTML
@@ -71,7 +89,7 @@
       })
       .join('');
 
-    return html;
+    return sanitizeHTML(html);
   }
 
   // ─── DOM Creation ──────────────────────────────────────

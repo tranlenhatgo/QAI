@@ -2,15 +2,17 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
-import { FiChevronRight, FiMessageSquare, FiMoon, FiPlus, FiSettings, FiTrash2, FiUser } from 'react-icons/fi'
+import { BiArrowBack } from 'react-icons/bi'
+import { FiChevronRight, FiMessageSquare, FiPlus, FiSettings, FiTrash2, FiUser } from 'react-icons/fi'
 import { useBoundStore } from '@/store/useBoundStore'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
+import PageFooter from '@/components/PageFooter'
 
 function SidebarSection({ title, icon, children, action }) {
 	return (
-		<section className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-sm">
+		<section className="rounded-xl bg-white shadow-md border border-gray-100 p-4">
 			<div className="mb-4 flex items-center justify-between gap-3">
-				<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">
+				<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-500">
 					{icon}
 					<span>{title}</span>
 				</div>
@@ -26,14 +28,14 @@ function ToggleRow({ label, description, checked, onChange }) {
 		<button
 			type="button"
 			onClick={() => onChange(!checked)}
-			className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-left transition-colors hover:bg-slate-900/90"
+			className="flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-left transition-colors hover:bg-gray-100"
 		>
 			<div>
-				<p className="text-sm font-medium text-white">{label}</p>
-				<p className="text-xs text-slate-400">{description}</p>
+				<p className="text-sm font-medium text-slate-800">{label}</p>
+				<p className="text-xs text-slate-500">{description}</p>
 			</div>
-			<span className={`flex h-6 w-11 items-center rounded-full p-1 transition-colors ${checked ? 'bg-sky-500' : 'bg-slate-700'}`}>
-				<span className={`h-4 w-4 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+			<span className={`flex h-6 w-11 items-center rounded-full p-1 transition-colors ${checked ? 'bg-blue-500' : 'bg-gray-300'}`}>
+				<span className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
 			</span>
 		</button>
 	)
@@ -117,40 +119,44 @@ export default function ChatPage() {
 				<title>Qraft | Chat</title>
 			</Head>
 
-			<div className="min-h-screen bg-[#07101d] text-slate-100">
-				<div className="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.18),_transparent_28%),radial-gradient(circle_at_80%_0%,_rgba(56,189,248,0.12),_transparent_20%),linear-gradient(180deg,_rgba(2,6,23,0.88),_rgba(15,23,42,0.98))]" />
-				<header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-					<div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-4 md:px-6">
-						<div>
-							<p className="text-xs uppercase tracking-[0.35em] text-sky-300">Qraft AI</p>
-							<h1 className="text-xl font-semibold text-white md:text-2xl">Chat</h1>
-						</div>
-						<div className="flex items-center gap-3">
-							<div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 md:flex">
-								<span className={`h-2.5 w-2.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-								<span>{statusText}</span>
-							</div>
-							<button
-								type="button"
-								onClick={() => router.push('/')}
-								className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-							>
-								Back home
-							</button>
+			{/* Header - matches ProfileHeader style */}
+			<nav className='sticky top-0 z-50 w-full bg-[url("/profile-header.svg")] bg-horizontal-scroll-animation shadow-lg'>
+				<div className='max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between gap-4'>
+					<button
+						onClick={() => router.push('/')}
+						className='flex items-center gap-2 text-white hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-blue-700'
+					>
+						<BiArrowBack className='text-2xl' title='Go back' />
+					</button>
+
+					<div className='flex items-center gap-3 flex-1'>
+						<div className='bg-black bg-opacity-40 backdrop-blur-sm rounded-lg px-4 py-2'>
+							<h1 className='text-white font-bold text-lg'>AI Study Coach</h1>
+							<p className='text-blue-100 text-sm'>{statusText}</p>
 						</div>
 					</div>
-				</header>
 
-				<main className="mx-auto grid min-h-[calc(100vh-73px)] max-w-[1600px] grid-cols-1 gap-4 px-4 py-4 lg:grid-cols-[20rem_minmax(0,1fr)] lg:px-6">
-					<aside className="flex min-h-0 flex-col gap-4 lg:sticky lg:top-[5.5rem] lg:h-[calc(100vh-7rem)]">
+					<div className='hidden sm:flex items-center gap-2 bg-black bg-opacity-30 backdrop-blur-sm rounded-lg px-3 py-1.5'>
+						<span className={`h-2.5 w-2.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+						<span className='text-sm text-white/80'>{isConnected ? 'Online' : 'Offline'}</span>
+					</div>
+				</div>
+			</nav>
+
+			{/* Main content */}
+			<main className='max-w-7xl mx-auto px-4 md:px-8 pt-6 pb-16'>
+				<div className='grid grid-cols-1 lg:grid-cols-[20rem_minmax(0,1fr)] gap-6'>
+					{/* Sidebar */}
+					<aside className='flex flex-col gap-4 lg:sticky lg:top-20 h-fit'>
+						{/* History */}
 						<SidebarSection
 							title="History"
-							icon={<FiMessageSquare className="text-sky-300" />}
+							icon={<FiMessageSquare className="text-blue-500" />}
 							action={
 								<button
 									type="button"
 									onClick={() => newConversation('New chat')}
-									className="inline-flex items-center gap-2 rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1.5 text-xs font-semibold text-sky-200 transition-colors hover:bg-sky-500/20"
+									className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100"
 								>
 									<FiPlus />
 									New
@@ -159,24 +165,24 @@ export default function ChatPage() {
 						>
 							<div className="space-y-2">
 								{conversations.length === 0 ? (
-									<p className="rounded-2xl border border-dashed border-white/10 bg-slate-950/50 px-4 py-6 text-sm text-slate-400">Start a new conversation to build your chat history.</p>
+									<p className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-sm text-slate-400">Start a new conversation to build your chat history.</p>
 								) : conversations.map(conversation => (
 									<div
 										key={conversation.id}
-										className={`group flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${conversation.id === activeConversationId ? 'border-sky-400/40 bg-sky-500/10' : 'border-white/10 bg-slate-950/50 hover:bg-slate-900/80'}`}
+										className={`group flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${conversation.id === activeConversationId ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-gray-100'}`}
 									>
 										<button
 											type="button"
 											onClick={() => selectConversation(conversation.id)}
 											className="min-w-0 flex-1 text-left"
 										>
-											<p className="truncate text-sm font-medium text-white">{conversation.title}</p>
+											<p className="truncate text-sm font-medium text-slate-800">{conversation.title}</p>
 											<p className="mt-1 text-xs text-slate-400">{conversation.messages.length} messages</p>
 										</button>
 										<button
 											type="button"
 											onClick={() => deleteConversation(conversation.id)}
-											className="rounded-full p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-rose-300"
+											className="rounded-full p-2 text-slate-400 transition-colors hover:bg-gray-200 hover:text-rose-500"
 											aria-label="Delete conversation"
 										>
 											<FiTrash2 />
@@ -186,59 +192,62 @@ export default function ChatPage() {
 							</div>
 						</SidebarSection>
 
-						<SidebarSection title="Account" icon={<FiUser className="text-sky-300" />}>
-							<div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-4">
-								<img src={user?.photoURL || '/default-avatar.jpg'} alt="Profile" className="h-12 w-12 rounded-full border border-white/10 object-cover" />
+						{/* Account */}
+						<SidebarSection title="Account" icon={<FiUser className="text-blue-500" />}>
+							<div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
+								<img src={user?.photoURL || '/default-avatar.jpg'} alt="Profile" className="h-12 w-12 rounded-full border-2 border-blue-200 object-cover" />
 								<div className="min-w-0">
-									<p className="truncate text-sm font-semibold text-white">{displayName}</p>
-									<p className="truncate text-xs text-slate-400">{displayEmail}</p>
+									<p className="truncate text-sm font-semibold text-slate-800">{displayName}</p>
+									<p className="truncate text-xs text-slate-500">{displayEmail}</p>
 								</div>
 							</div>
 							<div className="mt-3 flex flex-col gap-2">
-								<Link href="/profile" className="inline-flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white transition-colors hover:bg-slate-900/90">
+								<Link href="/profile" className="inline-flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 transition-colors hover:bg-gray-100">
 									Profile
-									<FiChevronRight className="text-slate-500" />
+									<FiChevronRight className="text-slate-400" />
 								</Link>
 								{user ? (
-									<button type="button" onClick={handleLogout} className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-200 transition-colors hover:bg-rose-500/20">
+									<button type="button" onClick={handleLogout} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-100">
 										Log out
 									</button>
 								) : (
-									<button type="button" onClick={handleSignIn} className="rounded-2xl border border-sky-400/20 bg-sky-500/10 px-4 py-3 text-sm font-medium text-sky-200 transition-colors hover:bg-sky-500/20">
+									<button type="button" onClick={handleSignIn} className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100">
 										Sign in
 									</button>
 								)}
 							</div>
 						</SidebarSection>
 
-						<SidebarSection title="Settings" icon={<FiSettings className="text-sky-300" />}>
+						{/* Settings */}
+						<SidebarSection title="Settings" icon={<FiSettings className="text-blue-500" />}>
 							<div className="space-y-3">
 								<ToggleRow label="Compact mode" description="Tighter spacing for denser conversations" checked={settings.compactMode} onChange={value => setSetting('compactMode', value)} />
 								<ToggleRow label="Show timestamps" description="Display message times in chat history" checked={settings.showTimestamps} onChange={value => setSetting('showTimestamps', value)} />
 								<ToggleRow label="Auto connect" description="Reconnect the chat when this page is open" checked={settings.autoConnect} onChange={value => setSetting('autoConnect', value)} />
 							</div>
-							<div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-xs uppercase tracking-[0.22em] text-slate-500">
+							<div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-xs uppercase tracking-widest text-slate-400">
 								Study coach is ready to help.
 							</div>
 						</SidebarSection>
 					</aside>
 
-					<section className="min-h-0 rounded-[2rem] border border-white/10 bg-slate-950/70 shadow-[0_30px_100px_rgba(15,23,42,0.35)] backdrop-blur-sm">
+					{/* Chat panel */}
+					<section className="rounded-2xl bg-white shadow-lg overflow-hidden">
 						<div className="flex h-full min-h-[calc(100vh-8rem)] flex-col">
 							<div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4 md:px-6">
 								<div>
-									<p className="text-xs uppercase tracking-[0.3em] text-sky-300">Conversation</p>
+									<p className="text-xs uppercase tracking-widest text-blue-900">Conversation</p>
 									<h2 className="text-lg font-semibold text-white">{activeTitle}</h2>
 								</div>
-								<div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 md:block">
+								<div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-blue-200 md:block">
 									{isConnected ? (isStreaming ? 'Generating response...' : (isWebhookMode ? 'Using webhook API' : 'Connected')) : 'Waiting for connection'}
 								</div>
 							</div>
 
 							<div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
 								{messages.length === 0 ? (
-									<div className="flex h-full min-h-[24rem] flex-col items-center justify-center rounded-[2rem] border border-dashed border-white/10 bg-white/5 px-6 text-center">
-										<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sky-500/15 text-sky-300">
+									<div className="flex h-full min-h-[24rem] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 px-6 text-center">
+										<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/15 text-blue-300">
 											<FiMessageSquare className="text-2xl" />
 										</div>
 										<p className="text-lg font-semibold text-white">Start a new chat</p>
@@ -263,8 +272,10 @@ export default function ChatPage() {
 							</div>
 						</div>
 					</section>
-				</main>
-			</div>
+				</div>
+			</main>
+
+			<PageFooter />
 		</>
 	)
 }

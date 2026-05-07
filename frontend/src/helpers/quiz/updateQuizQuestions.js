@@ -7,8 +7,6 @@ export default async function updateQuestions(questions, quizId) {
       correctAnswer: q.correctAnswer,
    }));
 
-   console.log('Formatted Questions:', formattedQuestions); 
-
    try {
       const response = await fetch('/api/quiz/update-questions', {
          method: 'POST',

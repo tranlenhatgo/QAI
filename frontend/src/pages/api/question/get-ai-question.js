@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+import withAuth from '@/lib/withAuth'
+
+async function handler(req, res) {
    if (req.method !== 'POST') {
       return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 });
    }
@@ -6,11 +8,10 @@ export default async function handler(req, res) {
    const { id } = req.body;
 
    if (!id) {
-      return res.status(400).json({ message: 'ID and Name are required', statusCode: 400 });
+      return res.status(400).json({ message: 'ID is required', statusCode: 400 });
    }
 
    try {
-      // Fetch questions from the external REST API
       const response = await fetch(`${process.env.REST_API_URL}/n8n/get-question`, {
          method: 'POST',
          headers: {
@@ -28,13 +29,14 @@ export default async function handler(req, res) {
       }
 
       const data = await response.json();
-
-      return res.status(200).json(data); // Return the data with encrypted correctAnswer
+      return res.status(200).json(data);
    } catch (error) {
-      console.error('Error fetching question:', error);
+      console.error('Error fetching question:', error.message);
       return res.status(500).json({
          message: 'Internal Server Error',
          statusCode: 500,
       });
    }
 }
+
+export default withAuth(handler)

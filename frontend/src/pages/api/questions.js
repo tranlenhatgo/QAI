@@ -64,8 +64,8 @@ export default function handler (req, res) {
 			}))
 		})
 		.catch(err => {
-			console.log(err)
-			const message = err.body.message || 'Something went wrong'
+			console.error('Error generating questions:', err.message)
+			const message = err.body?.message || 'Something went wrong'
 			const statusCode = err.statusCode || 500
 			return res.status(500).json({ message, statusCode })
 		})

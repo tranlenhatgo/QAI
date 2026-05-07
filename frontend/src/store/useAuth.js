@@ -86,7 +86,6 @@ export const useAuthStore = (set, get) => ({
          return
       }
       const data = await getQuizByUserId(userId)
-      console.log('data', data)
       const { quizzes, history } = data
       set({ quizzes })
       set({ history })

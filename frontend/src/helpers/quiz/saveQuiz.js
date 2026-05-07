@@ -8,7 +8,6 @@ export default function saveQuiz(name, description, startTime, endTime, categori
       start_time: startTime + ":00Z",
       end_time: endTime + ":00Z",
    };
-   console.log('Payload:', payload); // Log the payload to be sent to the API
    const save = fetch('/api/quiz/save-quiz', {
       method: 'POST',
       headers: {
@@ -24,7 +23,7 @@ export default function saveQuiz(name, description, startTime, endTime, categori
          } else return data
       })
       .catch(err => {
-         console.log(err)
+         console.error('Error saving quiz:', err.message)
          throw err
       })
 

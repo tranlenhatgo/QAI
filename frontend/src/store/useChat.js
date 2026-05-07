@@ -171,6 +171,8 @@ export const useChatStore = (set, get) => ({
 	isConnected: false,
 	isStreaming: false,
 	hasUnread: false,
+	serviceHealthy: null,
+	chatHealthy: null,
 	streamingText: '',
 	lastWeaknesses: null,
 	pendingActions: [],
@@ -329,6 +331,34 @@ export const useChatStore = (set, get) => ({
 	},
 
 	resetAssistantStream: () => set({ streamingText: '' }),
+
+	checkServiceHealth: async () => {
+		const { chatConfig } = get()
+		const root = normalizeServerRoot(chatConfig.serverUrl || DEFAULT_SERVER_URL)
+		const httpRoot = /^ws(s)?:\/\//i.test(root)
+			? root.replace(/^ws:\/\//i, 'http://').replace(/^wss:\/\//i, 'https://')
+			: root
+		try {
+			const res = await fetch(`${httpRoot}/`, { method: 'GET' })
+			set({ serviceHealthy: res.ok })
+		} catch {
+			set({ serviceHealthy: false })
+		}
+	},
+
+	checkChatHealth: async () => {
+		const { chatConfig } = get()
+		const root = normalizeServerRoot(chatConfig.serverUrl || DEFAULT_SERVER_URL)
+		const httpRoot = /^ws(s)?:\/\//i.test(root)
+			? root.replace(/^ws:\/\//i, 'http://').replace(/^wss:\/\//i, 'https://')
+			: root
+		try {
+			const res = await fetch(`${httpRoot}/health`, { method: 'GET' })
+			set({ chatHealthy: res.ok })
+		} catch {
+			set({ chatHealthy: false })
+		}
+	},
 
 	connectChat: () => {
 		const transport = get().chatConfig.transport || DEFAULT_CHAT_TRANSPORT
