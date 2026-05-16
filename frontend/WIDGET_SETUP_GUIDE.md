@@ -97,7 +97,7 @@ The server streams responses token-by-token. Handle these three message types:
 
 **3. Error:**
 ```json
-{"type": "error", "content": "No LLM available. Configure an API key or start Ollama."}
+{"type": "error", "content": "No LLM available. Start LM Studio and load a model."}
 ```
 → Display the error content as a system message in the chat.
 
@@ -367,7 +367,7 @@ import Script from 'next/script';
 ### Prerequisites
 
 - FastAPI server running: `python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000`
-- `COACH_EXTERNAL_LLM_API_KEY` set in `.env` (or Ollama running)
+- LM Studio running with a model loaded (or `COACH_EXTERNAL_LLM_API_KEY` for Google fallback)
 
 ### Test Checklist
 

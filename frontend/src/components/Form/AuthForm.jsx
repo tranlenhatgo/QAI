@@ -5,6 +5,9 @@ import playSound from '@/helpers/playSound';
 import { useBoundStore } from '@/store/useBoundStore';
 import PageLoading from '@/components/PageLoading';
 
+const WEAK_PASSWORD_MESSAGE = 'Must be at least 6 characters.';
+const LOGIN_ERROR_MESSAGE = 'Invalid email or password.';
+
 export default function AuthForm() {
 	const { dest, setDest, login, register, authloading, loginWithGoogle } = useBoundStore(state => state);
 	const dialog = useRef(null);
@@ -15,20 +18,43 @@ export default function AuthForm() {
 
 	// State for expanding/collapsing the sign-up section
 	const [isSignUpExpanded, setIsSignUpExpanded] = useState(false);
+	const [authError, setAuthError] = useState('');
 
 	async function handleSubmit(e) {
 		e.preventDefault();
+		setAuthError('');
 		const submitAction = e.nativeEvent?.submitter?.name;
 
 		if (submitAction === 'signUp') {
-			await register(e.target.email.value, e.target.signupPassword.value);
+			const password = e.target.signupPassword.value;
+
+			if (password.length < 6) {
+				setAuthError(WEAK_PASSWORD_MESSAGE);
+				return;
+			}
+
+			try {
+				await register(e.target.email.value, password);
+			} catch (error) {
+				if (error?.code === 'auth/weak-password') {
+					setAuthError(WEAK_PASSWORD_MESSAGE);
+					return;
+				}
+				throw error;
+			}
+
 			setIsSignUpExpanded(false);
 			closeDialog();
 			setDest(null);
 			return;
 		}
 
-		await login(e.target.username.value, e.target.password.value);
+		try {
+			await login(e.target.username.value, e.target.password.value);
+		} catch {
+			setAuthError(LOGIN_ERROR_MESSAGE);
+			return;
+		}
 
 		if (dest === 'create') {
 			closeDialog();
@@ -45,6 +71,7 @@ export default function AuthForm() {
 
 	async function handleLogin(e) {
 		e.preventDefault();
+		setAuthError('');
 		if (e.currentTarget.name === 'google') {
 			try {
 				const user = await loginWithGoogle(); // Wait for the user data to be returned
@@ -69,6 +96,7 @@ export default function AuthForm() {
 	}
 
 	function closeDialog() {
+		setAuthError('');
 		playSound('pop-down');
 		dialog.current.classList.add('hide');
 		function handleAnimationEnd() {
@@ -126,10 +154,16 @@ export default function AuthForm() {
 						</div>
 					</div>
 
+					{authError && (
+						<p role="alert" className="mx-2 mb-4 max-w-xs rounded-md border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600">
+							{authError}
+						</p>
+					)}
+
 					<hr className='my-4' />
 
-					<button type='submit' name='signUp' className={`${isSignUpExpanded ? '' : 'hidden'} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Sign Up</button>
-					<button type='submit' name='login' className={`${isSignUpExpanded ? 'hidden' : ''} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Login</button>
+					<button type={isSignUpExpanded ? 'submit' : 'button'} name='signUp' className={`${isSignUpExpanded ? '' : 'hidden'} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Sign Up</button>
+					<button type={isSignUpExpanded ? 'button' : 'submit'} name='login' className={`${isSignUpExpanded ? 'hidden' : ''} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Login</button>
 					<div
 						className="flex justify-center items-center cursor-pointer"
 						onClick={() => setIsSignUpExpanded(!isSignUpExpanded)}

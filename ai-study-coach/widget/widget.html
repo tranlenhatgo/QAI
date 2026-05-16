@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Coach — Widget Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 40px;
+            background: #0f0f1a;
+            color: #e4e4e7;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p { color: #a0a0b0; font-size: 16px; line-height: 1.6; max-width: 500px; }
+        .tag {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 6px 14px;
+            background: rgba(108, 92, 231, 0.15);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            border-radius: 8px;
+            color: #a29bfe;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quiz Platform (mock page)</h1>
+    <p>This is a simulated host page. The AI Study Coach chat widget should appear in the bottom-right corner. Click the bubble to open it.</p>
+    <span class="tag">widget.html — development test page</span>
+
+    <script>
+        window.STUDY_COACH_CONFIG = {
+            userId: "test_user_001",
+            serverUrl: "ws://localhost:8000/ws/chat"
+        };
+    </script>
+    <script src="widget.js"></script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+/* ============================================
+   AI Study Coach – Chat Widget Styles
+   All classes prefixed with sc- for isolation
+   ============================================ */
+
+/* --- Bubble --- */
+.sc-bubble {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  border: none;
+  cursor: pointer;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: sc-bounce-in 0.6s ease forwards;
+}
+.sc-bubble:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(108, 92, 231, 0.6);
+}
+.sc-bubble:active {
+  transform: scale(0.95);
+}
+.sc-bubble svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+  transition: opacity 0.2s;
+}
+
+/* Badge */
+.sc-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  background: #ff4757;
+  border-radius: 50%;
+  border: 2px solid #1a1a2e;
+  display: none;
+  animation: sc-pop 0.3s ease;
+}
+.sc-badge.sc-visible {
+  display: block;
+}
+
+/* --- Panel --- */
+.sc-panel {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  width: 380px;
+  height: 520px;
+  background: #1a1a2e;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.sc-panel.sc-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* --- Header --- */
+.sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #16213e, #1a1a2e);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+.sc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sc-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e4e4e7;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.sc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #636e72;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.sc-status-dot.sc-connected {
+  background: #00b894;
+  box-shadow: 0 0 6px rgba(0, 184, 148, 0.6);
+}
+.sc-close-btn {
+  background: none;
+  border: none;
+  color: #a0a0b0;
+  cursor: pointer;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.sc-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* --- Messages --- */
+.sc-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+.sc-messages::-webkit-scrollbar {
+  width: 4px;
+}
+.sc-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sc-messages::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.3);
+  border-radius: 4px;
+}
+
+/* Message rows */
+.sc-msg {
+  display: flex;
+  animation: sc-fade-in 0.3s ease;
+}
+.sc-msg-user {
+  justify-content: flex-end;
+}
+.sc-msg-assistant {
+  justify-content: flex-start;
+}
+.sc-msg-error {
+  justify-content: center;
+}
+
+/* Bubbles */
+.sc-msg-bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.sc-msg-user .sc-msg-bubble {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.sc-msg-assistant .sc-msg-bubble {
+  background: #2d2d44;
+  color: #e4e4e7;
+  border-bottom-left-radius: 4px;
+}
+.sc-msg-error .sc-msg-bubble {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff6b81;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Action pills (agentic actions) */
+.sc-msg-action {
+  justify-content: center;
+}
+.sc-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.15), rgba(162, 155, 254, 0.1));
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  color: #a29bfe;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: sc-action-slide 0.4s ease;
+}
+.sc-action-icon {
+  font-size: 13px;
+}
+.sc-action-label {
+  font-weight: 500;
+}
+
+@keyframes sc-action-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Markdown inside messages */
+.sc-msg-bubble strong {
+  font-weight: 700;
+}
+.sc-msg-bubble code {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+.sc-msg-bubble ul,
+.sc-msg-bubble ol {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+.sc-msg-bubble li {
+  margin-bottom: 2px;
+}
+.sc-msg-bubble h1,
+.sc-msg-bubble h2,
+.sc-msg-bubble h3 {
+  margin: 8px 0 4px;
+  font-weight: 600;
+}
+.sc-msg-bubble h1 { font-size: 18px; }
+.sc-msg-bubble h2 { font-size: 16px; }
+.sc-msg-bubble h3 { font-size: 15px; }
+.sc-msg-bubble p {
+  margin: 4px 0;
+}
+
+/* Typing indicator */
+.sc-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+}
+.sc-typing-dot {
+  width: 7px;
+  height: 7px;
+  background: #a29bfe;
+  border-radius: 50%;
+  animation: sc-typing-bounce 1.2s infinite ease-in-out;
+}
+.sc-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.sc-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* --- Welcome message --- */
+.sc-welcome {
+  text-align: center;
+  padding: 40px 20px;
+  color: #a0a0b0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: sc-fade-in 0.5s ease;
+}
+.sc-welcome-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.sc-welcome h3 {
+  color: #e4e4e7;
+  font-size: 18px;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.sc-welcome p {
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* --- Input --- */
+.sc-input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 14px;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: #16213e;
+  flex-shrink: 0;
+}
+.sc-input {
+  flex: 1;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #e4e4e7;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  resize: none;
+  max-height: 100px;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sc-input::placeholder {
+  color: #636e72;
+}
+.sc-input:focus {
+  border-color: rgba(108, 92, 231, 0.5);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+}
+.sc-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sc-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.2s;
+}
+.sc-send-btn:hover {
+  transform: scale(1.08);
+}
+.sc-send-btn:active {
+  transform: scale(0.95);
+}
+.sc-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.sc-send-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+/* --- Animations --- */
+@keyframes sc-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sc-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sc-typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes sc-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(108, 92, 231, 0.45); }
+  50% { box-shadow: 0 4px 30px rgba(108, 92, 231, 0.75); }
+}
+.sc-bubble-pulse {
+  animation: sc-pulse 2s ease-in-out 3;
+}
+
+/* --- Responsive --- */
+@media (max-width: 480px) {
+  .sc-panel {
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+  .sc-bubble {
+    bottom: 16px;
+    right: 16px;
+  }
+}
