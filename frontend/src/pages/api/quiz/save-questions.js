@@ -1,11 +1,11 @@
-export default async function handler(req, res) {
+import withAuth from '@/lib/withAuth'
+
+async function handler(req, res) {
    if (req.method !== 'POST') {
       return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 });
    }
 
    try {
-      console.log('Incoming Request Body:', req.body); // Log the request body
-
       const response = await fetch(`${process.env.REST_API_URL}/question`, {
          method: 'POST',
          headers: {
@@ -15,7 +15,6 @@ export default async function handler(req, res) {
       });
 
       const data = await response.json();
-      console.log('Response from save-questions API:', data); // Log the response data
 
       if (!response.ok) {
          return res.status(response.status).json({
@@ -26,10 +25,12 @@ export default async function handler(req, res) {
 
       return res.status(200).json(data);
    } catch (err) {
-      console.error('Error in save-questions API:', err);
+      console.error('Error in save-questions API:', err.message);
       return res.status(500).json({
          message: 'Internal Server Error',
          statusCode: 500,
       });
    }
 }
+
+export default withAuth(handler)

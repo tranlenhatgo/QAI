@@ -26,7 +26,7 @@ const canvasStyles = {
 }
 
 export default function GameOver() {
-	const { queries, score, win, questions, setDecryptedAnswer, takeId, sendAsk } = useBoundStore(state => state)
+	const { queries, score, win, questions, setDecryptedAnswer, takeId, sendAsk, user } = useBoundStore(state => state)
 	const [expandedQuestionIndex, setExpandedQuestionIndex] = useState(null);
 	const { showAsk } = useState(false);
 	const refAnimationInstance = useRef(null)
@@ -98,12 +98,15 @@ export default function GameOver() {
 	}, [makeShot])
 
 	useEffect(() => {
-		if (queries.quizmode) saveAttempt(takeId, questions)
+		if (queries.quizmode && takeId) {
+			saveAttempt(takeId, questions)
+				.catch(err => console.warn('Could not save attempt:', err))
+		}
 		if (win === true) {
 			fire()
 			playSound('win', 0.2)
 		}
-	}, [win])
+	}, [win, takeId, questions, queries.quizmode, fire])
 
 	function closeDialog() {
 		playSound('pop', 0.2)
@@ -151,6 +154,11 @@ export default function GameOver() {
 						{finalImage()}
 						<h2 className="text-2xl font-bold">{finalTitle()}</h2>
 						<p className="text-center mb-3 whitespace-pre-line">{finalText()}</p>
+						{!user && queries.quizmode && (
+							<p className="text-sm text-gray-500 bg-yellow-50 p-3 rounded-md border border-yellow-200">
+								💡 Sign in to save your quiz results and track progress!
+							</p>
+						)}
 						<div className="flex gap-4 flex-wrap items-center justify-center">
 							<Link href="/" className="px-5 md:px-8 hover:opacity-75 bg-slate-200 py-3 rounded-md transition-colors">
 								<BiArrowBack color="#0f172a" className="text-xl mr-1 inline-block" title="" />

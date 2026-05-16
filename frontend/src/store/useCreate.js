@@ -76,10 +76,9 @@ export const useCreateQuestionsStore = (set, get) => ({
 		}
 
 		try {
-			const response = await saveQuestions(createdQuestions, quizId);
-			console.log("Questions saved successfully:", response);
+			await saveQuestions(createdQuestions, quizId);
 		} catch (error) {
-			console.error("Error saving questions:", error);
+			console.error("Error saving questions:", error.message);
 		}
 	},
 
@@ -91,7 +90,6 @@ export const useCreateQuestionsStore = (set, get) => ({
 		saveQuiz(roomName, roomDesc, startTime, endTime, categories, uid)
 			.then((response) => {
 				set({ quizId: response.quizId });
-				console.log("QuizId:", response.quizId);
 				if (response.statusCode >= 400) {
 					return set({ error: [true, response.message] });
 				}
@@ -123,10 +121,9 @@ export const useCreateQuestionsStore = (set, get) => ({
 		}
 
 		try {
-			const response = await updateQuestions(createdQuestions, quizId);
-			console.log("Questions saved successfully:", response);
+			await updateQuestions(createdQuestions, quizId);
 		} catch (error) {
-			console.error("Error saving questions:", error);
+			console.error("Error saving questions:", error.message);
 		}
 	},
 

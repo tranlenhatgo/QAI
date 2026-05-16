@@ -1,42 +1,76 @@
 import '@/styles/globals.css'
 import { Rubik } from 'next/font/google'
 import Head from 'next/head'
-import Script from 'next/script'
 import AuthForm from './../components/Form/AuthForm';
 import PlayForm from '@/components/Form/PlayForm';
 import CreateQuizRoomForm from '@/components/Form/CreateQuizRoomForm';
 import { useBoundStore } from '@/store/useBoundStore';
 import { useEffect } from 'react';
+import { auth } from '@/helpers/auth/firebase';
+import { onIdTokenChanged } from 'firebase/auth';
+import RequireAuth from '@/components/Auth/RequireAuth';
+import StudyCoachWidget from '@/components/Chat/StudyCoachWidget';
 const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
-	const { user, setUser } = useBoundStore(state => state);
+	const { user, setUser, setAuthReady, setChatConfig, hydrateChat } = useBoundStore(state => state);
+	const studyCoachHiddenPaths = ['/chat', '/play'];
+	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	
 	useEffect(() => {
-		if (user && sessionStorage.getItem('user')) {
+		const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+			setUser(firebaseUser ?? null);
 			try {
-				const user = JSON.parse(sessionStorage.getItem('user'));
-				setUser(user);
-			} catch {}
-		}
-	}, []);
+				if (firebaseUser) {
+					const token = await firebaseUser.getIdToken()
+					await fetch('/api/auth/set-token', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ token }),
+					})
+				} else {
+					await fetch('/api/auth/clear-token', { method: 'POST' })
+				}
+			} catch (error) {
+				console.error('Failed to sync auth token cookie', error)
+			} finally {
+				setAuthReady(true);
+			}
+		});
+
+		return () => unsubscribe();
+	}, [setUser, setAuthReady]);
+
+	useEffect(() => {
+		setChatConfig({
+			userId: user?.uid ?? 'anonymous',
+			serverUrl: studyCoachServerUrl,
+			transport: 'webhook',
+			hiddenPaths: studyCoachHiddenPaths,
+		})
+		hydrateChat()
+	}, [user?.uid, setChatConfig, hydrateChat, studyCoachServerUrl])
+
+	const content = Component.requireAuth ? (
+		<RequireAuth>
+			<Component {...pageProps} />
+		</RequireAuth>
+	) : (
+		<Component {...pageProps} />
+	);
 
 	return (
 		<>
 			<Head>
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
-			<Component {...pageProps} />
+			{content}
+			<StudyCoachWidget />
 			<PlayForm />
 			<AuthForm />
 			<CreateQuizRoomForm />
-			<Script id="study-coach-config" strategy="afterInteractive">
-				{`window.STUDY_COACH_CONFIG = {
-					userId: "${user?.uid || 'anonymous'}",
-					serverUrl: "ws://localhost:8000/ws/chat"
-				};`}
-			</Script>
-			<Script src="http://localhost:8000/static/widget.js" strategy="afterInteractive" />
 			<style jsx global>{`
         html {
           font-family: ${rubik.style.fontFamily};

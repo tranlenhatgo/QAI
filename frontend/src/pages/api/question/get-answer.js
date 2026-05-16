@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ decryptedCorrectAnswer });
    } catch (error) {
-      console.error('Error comparing answers:', error);
+      console.error('Error decrypting answer:', error.message);
       return res.status(500).json({ message: 'Internal Server Error', statusCode: 500 });
    }
 }

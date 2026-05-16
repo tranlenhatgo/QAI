@@ -15,23 +15,30 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: false,
-	// Allow ngrok and other external domains
 	async headers() {
 		return [
 			{
 				source: '/:path*',
 				headers: [
 					{
-						key: 'Access-Control-Allow-Origin',
-						value: '*',
+						key: 'X-Content-Type-Options',
+						value: 'nosniff',
 					},
 					{
-						key: 'Access-Control-Allow-Methods',
-						value: 'GET, POST, PUT, DELETE, OPTIONS',
+						key: 'X-Frame-Options',
+						value: 'DENY',
 					},
 					{
-						key: 'Access-Control-Allow-Headers',
-						value: 'X-Requested-With, Content-Type, Authorization',
+						key: 'Referrer-Policy',
+						value: 'strict-origin-when-cross-origin',
+					},
+					{
+						key: 'X-DNS-Prefetch-Control',
+						value: 'on',
+					},
+					{
+						key: 'Permissions-Policy',
+						value: 'camera=(), microphone=(), geolocation=()',
 					},
 				],
 			},
