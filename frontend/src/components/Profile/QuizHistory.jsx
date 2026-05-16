@@ -1,12 +1,13 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useBoundStore } from "@/store/useBoundStore";
 import categoriesJSON from "@/assets/categories.json";
 import { BsArrowRepeat } from "react-icons/bs";
 import QuizQuestionsModal from './QuizQuestionsModal'
+import ProfileLeaderboard from './ProfileLeaderboard'
 import { useRouter } from "next/router";
 
 export default function QuizHistory() {
-   const { quizzes, history, getQuizByUserId, getQuestionsByQuizId, quizQuestions, setCreatedQuestions, setUpdate } = useBoundStore(state => state);
+   const { quizzes, history, getQuizByUserId, getQuestionsByQuizId, quizQuestions, setCreatedQuestions, setUpdate, isAuthenticated } = useBoundStore(state => state);
    const [activeTab, setActiveTab] = useState('history');
    const [modalOpen, setModalOpen] = useState(false);
    const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -17,8 +18,8 @@ export default function QuizHistory() {
    useEffect(() => {
       (async () => {
          setLoading(true);
-         if (typeof getQuizByUserId === 'function') {
-            await getQuizByUserId(); // <-- Call the function!
+         if (isAuthenticated()) {
+            await getQuizByUserId();
          }
          setLoading(false);
       })();
@@ -45,16 +46,13 @@ export default function QuizHistory() {
    }
 
    return (
-      <aside className='bg-white rounded-md lg:shadow-md w-full lg:max-w-6xl mx-auto lg:col-start-1 lg:col-end-2 px-8 py-6 mt-10 flex flex-col justify-start text-slate-900'>
+      <aside className='bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg w-full px-6 py-6 flex flex-col justify-start text-slate-900 border border-blue-100'>
 
          {/* Tabs */}
-         <div className="flex space-x-8 border-b border-gray-300">
-            {/* <button className='hover:scale-105 transition-all p-1 bg-white rounded' onClick={getQuizByUserId}>
-               <BsArrowRepeat className='text-[20px]' color='#0f172a' title='Refresh' />
-            </button> */}
+         <div className="flex space-x-8 border-b-2 border-gray-300 mb-6">
             <button
-               className={`pb-2 text-lg font-medium ${activeTab === 'history'
-                  ? 'border-b-4 border-blue-500 text-blue-500'
+               className={`pb-3 text-base font-semibold transition-all ${activeTab === 'history'
+                  ? 'border-b-4 border-blue-600 text-blue-600'
                   : 'text-gray-500 hover:text-blue-500'
                   }`}
                onClick={() => setActiveTab('history')}
@@ -62,24 +60,32 @@ export default function QuizHistory() {
                Quiz History
             </button>
             <button
-               className={`pb-2 text-lg font-medium ${activeTab === 'created'
-                  ? 'border-b-4 border-blue-500 text-blue-500'
+               className={`pb-3 text-base font-semibold transition-all ${activeTab === 'created'
+                  ? 'border-b-4 border-blue-600 text-blue-600'
                   : 'text-gray-500 hover:text-blue-500'
                   }`}
                onClick={() => setActiveTab('created')}
             >
                Created Quizzes
             </button>
+            <button
+               className={`pb-3 text-base font-semibold transition-all ${activeTab === 'leaderboard'
+                  ? 'border-b-4 border-blue-600 text-blue-600'
+                  : 'text-gray-500 hover:text-blue-500'
+                  }`}
+               onClick={() => setActiveTab('leaderboard')}
+            >
+               Leaderboard
+            </button>
          </div>
 
          {/* Tab Content */}
          {activeTab === 'history' && (
-            <div className='overflow-y-auto max-h-[80vh] lg:max-h-[75vh]'>
-               <ul className='space-y-3'>
+            <div className='overflow-y-auto max-h-[calc(100vh-250px)]'>
+               <ul className='space-y-4'>
                   {historyToDisplay.map((quiz, index) => {
                      // Extract correctAnswers and totalQuestions from the score field
-                     const scoreField = quiz.score || '0/0'; // Fallback if score is null
-                     const [correctAnswers, totalQuestions] = scoreField.split('/').map(Number);
+                     const [correctAnswers, totalQuestions] = quiz.score.split('/').map(Number);
                      const percentage = ((correctAnswers / totalQuestions) * 100).toFixed(1);
 
                      // Determine the color class based on the percentage
@@ -90,8 +96,8 @@ export default function QuizHistory() {
                      };
 
                      return (
-                        <li key={index} className='p-3 border rounded-md flex items-center gap-4 mt-4'>
-                           <div className='relative w-24 h-24'>
+                        <li key={index} className='p-4 bg-white border border-blue-200 rounded-lg hover:shadow-md transition-shadow flex items-center gap-4'>
+                           <div className='relative w-20 h-20 flex-shrink-0'>
                               <svg className='w-full h-full' viewBox="0 0 36 36">
                                  <path
                                     className="text-gray-300"
@@ -113,20 +119,20 @@ export default function QuizHistory() {
                                     strokeDasharray={`${percentage}, 100`}
                                  />
                               </svg>
-                              <div className='absolute inset-0 flex items-center justify-center text-sm font-bold'>
+                              <div className='absolute inset-0 flex items-center justify-center text-xs font-bold'>
                                  {correctAnswers}/{totalQuestions}
                               </div>
                            </div>
-                           <div>
-                              <p><strong>Quiz:</strong> {quiz.quizTitle}</p>
-                              <p><strong>Date:</strong> {new Date(quiz.updatedAt).toLocaleDateString()}</p>
-                              <p><strong>Percentage:</strong> {percentage}%</p>
+                           <div className='flex-1 min-w-0'>
+                              <p className='font-bold text-slate-900 truncate'>{quiz.quizTitle}</p>
+                              <p className='text-sm text-gray-600'>{new Date(quiz.updatedAt).toLocaleDateString()}</p>
+                              <p className='text-sm font-semibold'><span className={getColorClass(percentage)}>{percentage}%</span></p>
                            </div>
                         </li>
                      );
                   })}
                   {historyToDisplay.length === 0 && (
-                     <li className='p-3 border rounded-md flex items-center gap-4'>
+                     <li className='p-4 bg-blue-50 border border-blue-200 rounded-lg text-center text-gray-500'>
                         <p>No quiz history available.</p>
                      </li>
                   )}
@@ -135,34 +141,32 @@ export default function QuizHistory() {
          )}
 
          {activeTab === 'created' && (
-            <div className='overflow-y-auto max-h-[80vh] lg:max-h-[75vh]'>
-               <ul className='space-y-3'>
+            <div className='overflow-y-auto max-h-[calc(100vh-250px)]'>
+               <ul className='space-y-4'>
                   {quizzesToDisplay.map((quiz, index) => (
-                     <li key={index} className='p-4 border rounded-md flex flex-col gap-4 relative mt-4'>
-                        <div className="flex justify-between items-start">
-                           <div>
-                              <p><strong>Quiz ID:</strong> {quiz.quiz_id}</p>
-                              <p><strong>Title:</strong> {quiz.title}</p>
-                              <p><strong>Description:</strong> {quiz.description}</p>
-                              <p>
-                                 <strong>Status:</strong>{' '}
+                     <li key={index} className='p-4 bg-white border border-blue-200 rounded-lg hover:shadow-md transition-shadow'>
+                        <div className="flex justify-between items-start gap-3">
+                           <div className='flex-1 min-w-0'>
+                              <p className='font-bold text-slate-900'>{quiz.title}</p>
+                              <p className='text-sm text-gray-600 line-clamp-2'>{quiz.description}</p>
+                              <p className='text-xs mt-2'>
                                  <span
-                                    className={`font-bold ${quiz.status === 'ACTIVE' ? 'text-green-500' :
-                                       quiz.status === 'INACTIVE' ? 'text-gray-500' :
-                                          quiz.status === 'PENDING' ? 'text-orange-500' :
-                                             'text-red-500' // For DELETED
+                                    className={`font-bold px-2 py-1 rounded-full ${quiz.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                                       quiz.status === 'INACTIVE' ? 'bg-gray-100 text-gray-700' :
+                                          quiz.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
+                                             'bg-red-100 text-red-700' // For DELETED
                                        }`}
                                  >
                                     {quiz.status}
                                  </span>
                               </p>
-                              <div className="flex flex-wrap gap-2 mt-2">
+                              <div className="flex flex-wrap gap-1 mt-2">
                                  {quiz.categories?.map((category, i) => {
                                     const categoryData = categoriesJSON.find(cat => cat.name.toUpperCase() === category.replace(/_/g, ' '));
                                     return (
                                        <div
                                           key={i}
-                                          className="w-10 h-10 flex items-center justify-center rounded-full"
+                                          className="w-8 h-8 flex items-center justify-center rounded-full shadow-sm"
                                           style={{
                                              backgroundColor: categoryData?.color || '#ccc',
                                           }}
@@ -171,49 +175,39 @@ export default function QuizHistory() {
                                           <img
                                              src={`/categories-icons/${category.toLowerCase().replace(/_/g, ' ')}.svg`}
                                              alt={category}
-                                             className="w-6 h-6"
+                                             className="w-5 h-5"
                                           />
                                        </div>
                                     );
                                  })}
                               </div>
                            </div>
-                           <div className="flex flex-col gap-2">
-                              <p className="text-sm">
-                                 <strong>Start Time:</strong>
-                                 <br />
-                                 <span className="text-blue-500">{new Date(quiz.start_time).toLocaleString()}</span>
-                              </p>
-                              <p className="text-sm mt-2">
-                                 <strong>End Time:</strong>
-                                 <br />
-                                 <span className="text-red-500">{new Date(quiz.end_time).toLocaleString()}</span>
-                              </p>
+                           <div className="flex flex-col gap-2 flex-shrink-0">
                               <button
-                                 className="btn-primary px-3 py-1 text-xs"
+                                 className="btn-primary px-3 py-1 text-xs rounded whitespace-nowrap"
                                  onClick={async () => {
                                     setPendingQuizId(quiz.quiz_id);
                                     await getQuestionsByQuizId(quiz.quiz_id);
                                  }}
                               >
-                                 View Questions
+                                 View
                               </button>
                               <button
-                                 className="btn-secondary px-3 py-1 text-xs"
+                                 className="btn-secondary px-3 py-1 text-xs rounded whitespace-nowrap"
                                  onClick={async () => {
                                     setUpdate(true);
                                     await setCreatedQuestions(quiz.quiz_id);
                                     router.push(`/create`);
                                  }}
                               >
-                                 Edit Quiz
+                                 Edit
                               </button>
                            </div>
                         </div>
                      </li>
                   ))}
                   {quizzesToDisplay.length === 0 && (
-                     <li className='p-3 border rounded-md flex items-center gap-4'>
+                     <li className='p-4 bg-blue-50 border border-blue-200 rounded-lg text-center text-gray-500'>
                         <p>No created quizzes available.</p>
                      </li>
                   )}
@@ -224,6 +218,12 @@ export default function QuizHistory() {
                   onClose={() => setModalOpen(false)}
                   quiz={quizQuestions}
                />
+            </div>
+         )}
+
+         {activeTab === 'leaderboard' && (
+            <div className='overflow-y-auto max-h-[calc(100vh-250px)]'>
+               <ProfileLeaderboard history={historyToDisplay} />
             </div>
          )}
       </aside>

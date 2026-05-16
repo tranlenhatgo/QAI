@@ -12,7 +12,6 @@ export default async function handler(req, res) {
    }
 
    try {
-      // Post to the /start endpoint with quizId and playerName
       const response = await fetch(`${process.env.REST_API_URL}/take-quiz/start`, {
          method: 'POST',
          headers: {
@@ -30,27 +29,23 @@ export default async function handler(req, res) {
       }
 
       const data = await response.json();
-
-      // Extract takeId and questions from the response
       const { takeId, questionResponseDtos } = data;
 
-      // Encrypt the correctAnswer field in each question
-      const encryptionKey = process.env.ANSWER_ENCRYPTION_KEY; // Ensure this is set in your .env file
+      const encryptionKey = process.env.ANSWER_ENCRYPTION_KEY;
       const encryptedQuestions = questionResponseDtos.map(question => ({
          id: question.id,
          quizId: question.quizId,
-         question: question.question, // Renamed from `question` to `content`
+         question: question.question,
          answers: question.answers,
-         correctAnswer: CryptoJS.AES.encrypt(question.correctAnswer, encryptionKey).toString(), // Encrypt the correct answer
+         correctAnswer: CryptoJS.AES.encrypt(question.correctAnswer, encryptionKey).toString(),
          userAnswer: '',
          answer: '',
          status: question.status,
       }));
 
-      // Return the takeId and encrypted questions
       return res.status(200).json({ takeId, questions: encryptedQuestions });
    } catch (error) {
-      console.error('Error starting the quiz:', error);
+      console.error('Error starting the quiz:', error.message);
       return res.status(500).json({
          message: 'Internal Server Error',
          statusCode: 500,

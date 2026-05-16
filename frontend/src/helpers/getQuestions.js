@@ -56,7 +56,7 @@ export default async function getQuestions (topics, qNumber) {
 			} else return data
 		})
 		.catch(err => {
-			console.log(err)
+			console.error('Error fetching IA questions:', err.message)
 			throw err
 		})
 

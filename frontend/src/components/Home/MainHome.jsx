@@ -5,7 +5,7 @@ import HomeHeader from './HomeHeader'
 import { useBoundStore } from '@/store/useBoundStore'
 
 export default function MainHome() {
-	const { setDest } = useBoundStore(state => state)
+	const { setDest, user } = useBoundStore(state => state)
 	function handleTitleHover(e) {
 		e.target.classList.add('jello-vertical')
 		e.target.style.color = categories[Math.floor(Math.random() * categories.length)].color
@@ -20,7 +20,6 @@ export default function MainHome() {
 	}
 	function handleCreate() {
 		playSound('pop');
-		const user = JSON.parse(sessionStorage.getItem('user')); // Check if the user is authenticated
 		if (user) {
 			document.getElementById('createQuizRoomDialog')?.showModal(); // Open the create quiz room dialog
 		} else {
@@ -34,7 +33,7 @@ export default function MainHome() {
 			<HomeHeader />
 			<article>
 				<h1 className='text-8xl font-medium w-full uppercase z-10 relative' translate='no'>
-					{'Quizz'.split('').map((letter, index) => (
+					{'Qraft'.split('').map((letter, index) => (
 						<span key={index} id={letter + index + 10} className='relative inline-block transition-all duration-300' onMouseEnter={handleTitleHover} onMouseLeave={handleTitleLeave}>
 							{letter}
 						</span>

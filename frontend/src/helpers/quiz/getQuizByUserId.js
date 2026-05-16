@@ -17,7 +17,6 @@ export default async function getQuizByUserId(userId) {
       }
 
       const data = await response.json();
-      console.log('Fetched quizzes:', data);
       return data; 
    } catch (error) {
       console.error('Error fetching quizzes by userId:', error);

@@ -1,0 +1,163 @@
+{
+  "apis": [
+    {
+      "name": "Create Questions",
+      "method": "POST",
+      "endpoint": "/question",
+      "description": "Create a list of questions for a quiz",
+      "contentType": "application/json",
+      "requestFormat": [
+        {
+          "quiz_id": "string",
+          "content": "string",
+          "answers": ["string"],
+          "correct_answer": "string"
+        }
+      ]
+    },
+    {
+      "name": "Get Questions by Quiz ID",
+      "method": "GET",
+      "endpoint": "/question/quizId/{quizId}",
+      "description": "Get list question by quiz ID",
+      "pathVariables": {
+        "quizId": "string"
+      }
+    },
+    {
+      "name": "Get Question by ID",
+      "method": "GET",
+      "endpoint": "/question/id={id}",
+      "description": "Get question by ID",
+      "pathVariables": {
+        "id": "string"
+      }
+    },
+    {
+      "name": "Update Questions",
+      "method": "POST",
+      "endpoint": "/question/update",
+      "description": "Update a list of questions for a quiz",
+      "contentType": "application/json",
+      "requestFormat": [
+        {
+          "questionId": "string (optional/nullable)",
+          "quizId": "string",
+          "content": "string",
+          "answers": ["string"],
+          "correctAnswer": "string"
+        }
+      ]
+    },
+    {
+      "name": "Create Quiz",
+      "method": "POST",
+      "endpoint": "/quiz",
+      "description": "Create a new quiz",
+      "contentType": "application/json",
+      "requestFormat": {
+        "user_id": "string",
+        "title": "string",
+        "description": "string",
+        "categories": ["string"],
+        "start_time": "string (ISO-8601 format)",
+        "end_time": "string (ISO-8601 format)"
+      }
+    },
+    {
+      "name": "Get Quiz by User ID",
+      "method": "GET",
+      "endpoint": "/quiz/user/{userId}",
+      "description": "Get quiz by user ID",
+      "pathVariables": {
+        "userId": "string"
+      }
+    },
+    {
+      "name": "Get Quiz by ID",
+      "method": "GET",
+      "endpoint": "/quiz/{id}",
+      "description": "Get quiz by ID",
+      "pathVariables": {
+        "id": "string"
+      }
+    },
+    {
+      "name": "Update Quiz",
+      "method": "PUT",
+      "endpoint": "/quiz/update/{id}",
+      "description": "Update quiz by ID",
+      "contentType": "application/json",
+      "pathVariables": {
+        "id": "string"
+      },
+      "requestFormat": {
+        "user_id": "string",
+        "title": "string",
+        "description": "string",
+        "categories": ["string"],
+        "start_time": "string (ISO-8601 format)",
+        "end_time": "string (ISO-8601 format)"
+      }
+    },
+    {
+      "name": "Start Quiz",
+      "method": "POST",
+      "endpoint": "/take-quiz/start",
+      "description": "Start a quiz",
+      "contentType": "application/json",
+      "requestFormat": {
+        "quizId": "string",
+        "playerId": "string",
+        "playerName": "string"
+      }
+    },
+    {
+      "name": "End Quiz",
+      "method": "POST",
+      "endpoint": "/take-quiz/end",
+      "description": "End a quiz",
+      "contentType": "application/json",
+      "requestFormat": {
+        "takeId": "string",
+        "takeQuestionSaveRequestDtos": [
+          {
+            "question_id": "string",
+            "answer": "string",
+            "check_answer": "string ('1' or '2' for correct, '-1' for incorrect, other for not answered)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Get User Quiz Profile",
+      "method": "GET",
+      "endpoint": "/user/quiz-profile",
+      "description": "Get quizzes created and taken by a user",
+      "queryParams": {
+        "userId": "string"
+      }
+    },
+    {
+      "name": "Upload File to n8n",
+      "method": "POST",
+      "endpoint": "/n8n/upload",
+      "description": "Forward file and quiz_id to n8n webhook",
+      "contentType": "multipart/form-data",
+      "formData": {
+        "quiz_id": "string",
+        "data": "file (binary)"
+      }
+    },
+    {
+      "name": "Get Question from n8n",
+      "method": "POST",
+      "endpoint": "/n8n/get-question",
+      "description": "Trigger n8n webhook to get questions for a quiz",
+      "contentType": "application/json",
+      "requestFormat": {
+        "quiz_id": "string"
+      }
+    }
+  ]
+}

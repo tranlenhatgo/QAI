@@ -1,22 +1,30 @@
 import Image from 'next/image'
 import playSound from '@/helpers/playSound'
+import { useBoundStore } from '@/store/useBoundStore'
 import soundOn from '../assets/sound-on.svg'
 import soundOff from '../assets/sound-off.svg'
 import { useEffect, useState } from 'react'
-import { MdInfo } from 'react-icons/md'
 import { GoAlert } from 'react-icons/go'
-import { BsFillStarFill, BsFillMoonFill } from 'react-icons/bs'
+import { FiMessageSquare, FiX } from 'react-icons/fi'
+import { useRouter } from 'next/router'
 
 export default function Footer({ alert = false }) {
-	const [sound, setSound] = useState(false)
+	const router = useRouter()
+	const { toggleChat, isOpen, hasUnread, chatConfig } = useBoundStore(state => state)
+	const [sound, setSound] = useState(true)
 	const [showInfo, setShowInfo] = useState(false)
 
 	useEffect(() => {
-		if (!localStorage.getItem('sound')) localStorage.setItem('sound', sound)
-		else setSound(localStorage.getItem('sound') === 'true')
+		const savedSound = localStorage.getItem('sound')
+		if (savedSound === null) {
+			localStorage.setItem('sound', 'true')
+			setSound(true)
+			return
+		}
+		setSound(savedSound === 'true')
 	}, [])
 
-	useEffect(() => localStorage.setItem('sound', sound), [sound])
+	useEffect(() => localStorage.setItem('sound', String(sound)), [sound])
 
 	function handleClick(info = false) {
 		info ? setShowInfo(!showInfo) : setSound(!sound)
@@ -25,29 +33,27 @@ export default function Footer({ alert = false }) {
 
 	function handleSoundON() {
 		setSound(true)
-		localStorage.setItem('sound', true)
+		localStorage.setItem('sound', 'true')
 		playSound('switch-on')
 	}
+
+	const isChatHidden = chatConfig?.hiddenPaths?.some(path => router.pathname === path)
 
 	return (
 		<footer className='fixed right-4 bottom-3 z-20'>
 			<nav>
 				<ul className='flex gap-4'>
 					<li className='relative'>
-						<button title='Show info' className={`align-middle relative z-20 hover:scale-105 p-1.5 bg-white rounded-md ${showInfo ? 'scale-110' : ''}`} onClick={() => handleClick(true)}>
-							{
-								alert
-									? <GoAlert className='text-[25px] mx-auto' color='#0f172a' />
-									: <MdInfo className='text-[25px]' style={{ color: '#1c233a' }} />
-							}
-						</button>
-						<p className={`absolute bottom-full -right-14 sm:bottom-auto sm:top-[2px] whitespace-pre sm:whitespace-nowrap text-sm md:text-base bg-white text-slate-900 rounded-md py-1 px-4 text-left transition-all ${showInfo ? 'opacity-100 -right-14  sm:!right-7 ' : 'opacity-0 right-0 pointer-events-none'}`}>
-							{
-								alert
-									? 'The questions made by AI may have errors. \nOnly some questions are made by IA'
-									: <span><a href="https://github.com/cosmoart/quiz-game" target="_blank" rel="noopener noreferrer" className={`bg-slate-200 px-1 rounded ${showInfo ? '' : 'hidden'}`}><BsFillStarFill className='inline-block mb-1' color='#e3b341' /> Star</a> - Made with ❤️ by <a href="https://github.com/cosmoart" target="_blank" rel="noreferrer" className={`underline ${showInfo ? '' : 'hidden'}`}>Cosmo</a> <a href="https://github.com/uQHan/Qao-Frontend" target="_blank" rel="noopener noreferrer" className={`ms-4 bg-slate-200 px-1 rounded ${showInfo ? '' : 'hidden'}`}><BsFillMoonFill className='inline-block mb-1' color='#e3b341' /> Star</a> - Roughly modified by <a href="https://github.com/uQHan" target="_blank" rel="noreferrer" className={`underline ${showInfo ? '' : 'hidden'}`}>uQHan</a></span>
-							}
-						</p>
+						{ alert &&
+							<>
+								<button title='Show info' className={`align-middle relative z-20 hover:scale-105 p-1.5 bg-white rounded-md ${showInfo ? 'scale-110' : ''}`} onClick={() => handleClick(true)}>
+									<GoAlert className='text-[25px] mx-auto' color='#0f172a' />
+								</button>
+								<p className={`absolute bottom-full -right-14 sm:bottom-auto sm:top-[2px] whitespace-pre sm:whitespace-nowrap text-sm md:text-base bg-white text-slate-900 rounded-md py-1 px-4 text-left transition-all ${showInfo ? 'opacity-100 -right-14  sm:!right-7 ' : 'opacity-0 right-0 pointer-events-none'}`}>
+									The questions made by AI may have errors. Only some questions are made by AI
+								</p>
+							</>
+						}
 					</li>
 
 					<li>
@@ -59,6 +65,20 @@ export default function Footer({ alert = false }) {
 							}
 						</button>
 					</li>
+
+					{!isChatHidden && (
+						<li className='relative'>
+							<button
+								type='button'
+								title={isOpen ? 'Close chat' : 'Open chat'}
+								onClick={toggleChat}
+								className='relative align-middle hover:scale-105 p-1.5 bg-white rounded-md text-slate-900'
+							>
+								{isOpen ? <FiX className='text-[25px]' /> : <FiMessageSquare className='text-[25px]' />}
+								<span className={`absolute -right-1 -top-1 h-3 w-3 rounded-full bg-emerald-500 border border-white ${hasUnread ? 'opacity-100' : 'opacity-0'}`} />
+							</button>
+						</li>
+					)}
 				</ul>
 			</nav>
 		</footer>

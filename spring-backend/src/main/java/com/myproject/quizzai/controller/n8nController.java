@@ -21,7 +21,6 @@ public class n8nController {
 
     private final n8nService n8nService;
 
-    @CrossOrigin(origins = "*") // Allow requests from all origins
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, Object>> upload(@RequestParam("quiz_id") String quizId,
                                                       @RequestParam("data") MultipartFile file) throws IOException {

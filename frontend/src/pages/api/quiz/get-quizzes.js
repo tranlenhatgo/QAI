@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+import withAuth from '@/lib/withAuth'
+
+async function handler(req, res) {
    if (req.method !== 'POST') {
       return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 });
    }
@@ -33,10 +35,12 @@ export default async function handler(req, res) {
       };
       return res.status(200).json(result);
    } catch (err) {
-      console.error('Error in get-quizzes API:', err);
+      console.error('Error in get-quizzes API:', err.message);
       return res.status(500).json({
          message: 'Internal Server Error',
          statusCode: 500,
       });
    }
 }
+
+export default withAuth(handler)

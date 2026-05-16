@@ -1,87 +1,91 @@
-import login from "@/helpers/auth/signIn"
 import loginWithGoogle from "@/helpers/auth/loginWithGoogle"
 import getQuizByUserId from "@/helpers/quiz/getQuizByUserId"
 import signUp from "@/helpers/auth/signUp"
 import signIn from "@/helpers/auth/signIn"
-import { getUserWithWallet } from "@/helpers/wallet/walletinit"
+import { signOut } from 'firebase/auth'
+import { auth } from '@/helpers/auth/firebase'
 
-const defaultFirebaseUser = {
-   "uid": "@@@",
-   "email": "@@@",
-   "emailVerified": true,
-   "displayName": "No user",
-   "isAnonymous": false,
-   "photoURL": "default-avatar.jpg",
-   "walletAddress": null
+async function setAuthCookieFromUser(user) {
+   if (!user) return
+   const token = await user.getIdToken()
+   await fetch('/api/auth/set-token', {
+      method: 'POST',
+      headers: {
+         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+   })
 }
 
 export const useAuthStore = (set, get) => ({
-   user: defaultFirebaseUser,
+   user: null,
    quizzes: [],
    history: [],
    hostId: null,
+   authReady: false,
    authloading: false,
    dest: null,
-   privateKeyToShow: null, // Store private key temporarily to show in popup
    setDest: (dest) => {
       set({ dest })
-   },
-   setPrivateKeyToShow: (privateKey) => {
-      set({ privateKeyToShow: privateKey })
    },
    setUser: (user) => {
       set({ user })
    },
+   setAuthReady: (authReady) => {
+      set({ authReady })
+   },
    login: async (username, password) => {
       set({ authloading: true })
-      const userCredential = await signIn(username, password)
-      // Merge Firebase user with wallet address
-      const userData = await getUserWithWallet(userCredential.user)
-      get().setUser(userData)
-      set({ authloading: false })
+      try {
+         const credential = await signIn(username, password)
+         set({ user: credential.user })
+         await setAuthCookieFromUser(credential.user)
+         return credential.user
+      } finally {
+         set({ authloading: false })
+      }
    },
    register: async (username, password) => {
       set({ authloading: true })
-      const { userCredential, wallet } = await signUp(username, password)
-      // Store private key to show in popup
-      set({ privateKeyToShow: wallet.privateKey })
-      // Merge Firebase user with wallet address
-      const userData = await getUserWithWallet(userCredential.user)
-      get().setUser(userData)
-      set({ authloading: false })
-      return wallet
+      try {
+         const credential = await signUp(username, password)
+         set({ user: credential.user })
+         await setAuthCookieFromUser(credential.user)
+         return credential.user
+      } finally {
+         set({ authloading: false })
+      }
    },
    logout: async () => {
       set({ authloading: true });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      set({ user: null });
-      set({ authloading: false });
+      try {
+         await signOut(auth)
+         await fetch('/api/auth/clear-token', { method: 'POST' })
+         set({ user: null })
+      } finally {
+         set({ authloading: false })
+      }
    },
    isAuthenticated: () => {
-      return get().user !== null;
+      return !!get().user;
    },
    loginWithGoogle: async () => {
       set({ authloading: true })
       try {
          const user = await loginWithGoogle()
-         if (!user) {
-            throw new Error('Login failed: No user returned')
-         }
-         // Merge Firebase user with wallet address
-         const userData = await getUserWithWallet(user)
-         get().setUser(userData)
+         get().setUser(user)
+         return user
+      } finally {
          set({ authloading: false })
-         return userData
-      } catch (error) {
-         console.error('Login with Google failed:', error)
-         set({ authloading: false })
-         throw error
       }
    },
    getQuizByUserId: async () => {
       const userId = get().user?.uid
+      if (!userId) {
+         set({ quizzes: [], history: [] })
+         return
+      }
       const data = await getQuizByUserId(userId)
-      console.log('data', data)
       const { quizzes, history } = data
       set({ quizzes })
       set({ history })

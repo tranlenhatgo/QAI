@@ -5,47 +5,82 @@ import playSound from '@/helpers/playSound';
 import { useBoundStore } from '@/store/useBoundStore';
 import PageLoading from '@/components/PageLoading';
 
+const WEAK_PASSWORD_MESSAGE = 'Must be at least 6 characters.';
+const LOGIN_ERROR_MESSAGE = 'Invalid email or password.';
+
 export default function AuthForm() {
-	const { dest, setDest, login, authloading, loginWithGoogle, logout, register, privateKeyToShow, setPrivateKeyToShow } = useBoundStore(state => state);
+	const { dest, setDest, login, register, authloading, loginWithGoogle } = useBoundStore(state => state);
 	const dialog = useRef(null);
-	const privateKeyDialog = useRef(null);
 	const router = useRouter();
+
+	// Whitelist of valid post-auth redirect destinations to prevent open redirects
+	const ALLOWED_DESTS = ['profile', 'create', 'play', 'chat'];
 
 	// State for expanding/collapsing the sign-up section
 	const [isSignUpExpanded, setIsSignUpExpanded] = useState(false);
-	const [copiedPrivateKey, setCopiedPrivateKey] = useState(false);
+	const [authError, setAuthError] = useState('');
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-		
-		if (isSignUpExpanded) {
-			// Handle sign up
-			await register(e.target.email.value, e.target.signupPassword.value);
-			// Show private key dialog
-			privateKeyDialog.current?.showModal();
-			closeDialog();
-		} else {
-			// Handle login
-			if (dest && dest !== 'create') {
-				await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(router.push('/' + dest));
-			} else if (dest === 'create') {
-				await login(e.target.username.value, e.target.password.value).then(closeDialog()).then(document.getElementById('createQuizRoomDialog')?.showModal());
+		setAuthError('');
+		const submitAction = e.nativeEvent?.submitter?.name;
+
+		if (submitAction === 'signUp') {
+			const password = e.target.signupPassword.value;
+
+			if (password.length < 6) {
+				setAuthError(WEAK_PASSWORD_MESSAGE);
+				return;
 			}
+
+			try {
+				await register(e.target.email.value, password);
+			} catch (error) {
+				if (error?.code === 'auth/weak-password') {
+					setAuthError(WEAK_PASSWORD_MESSAGE);
+					return;
+				}
+				throw error;
+			}
+
+			setIsSignUpExpanded(false);
+			closeDialog();
 			setDest(null);
+			return;
 		}
+
+		try {
+			await login(e.target.username.value, e.target.password.value);
+		} catch {
+			setAuthError(LOGIN_ERROR_MESSAGE);
+			return;
+		}
+
+		if (dest === 'create') {
+			closeDialog();
+			document.getElementById('createQuizRoomDialog')?.showModal();
+		} else if (dest && ALLOWED_DESTS.includes(dest)) {
+			closeDialog();
+			router.push('/' + dest);
+		} else {
+			closeDialog();
+		}
+
+		setDest(null);
 	}
 
 	async function handleLogin(e) {
 		e.preventDefault();
-		if (e.target.name === 'google') {
+		setAuthError('');
+		if (e.currentTarget.name === 'google') {
 			try {
 				const user = await loginWithGoogle(); // Wait for the user data to be returned
-				sessionStorage.setItem('user', JSON.stringify(user)); // Store the user in sessionStorage
+				if (!user) return;
 				closeDialog(); // Close the dialog
 				if (dest === 'create') {
-					document.getElementById('createQuizRoomDialog')?.showModal(); // Open the create quiz room dialog
-				} else if (dest) {
-					router.push('/' + dest); // Redirect to the destination
+					document.getElementById('createQuizRoomDialog')?.showModal();
+				} else if (dest && ALLOWED_DESTS.includes(dest)) {
+					router.push('/' + dest);
 				}
 			} catch (error) {
 				console.error('Google login failed:', error);
@@ -61,6 +96,7 @@ export default function AuthForm() {
 	}
 
 	function closeDialog() {
+		setAuthError('');
 		playSound('pop-down');
 		dialog.current.classList.add('hide');
 		function handleAnimationEnd() {
@@ -69,21 +105,6 @@ export default function AuthForm() {
 			dialog.current.removeEventListener('animationend', handleAnimationEnd);
 		}
 		dialog.current.addEventListener('animationend', handleAnimationEnd);
-	}
-
-	function closePrivateKeyDialog() {
-		playSound('pop-down');
-		setCopiedPrivateKey(false);
-		setPrivateKeyToShow(null);
-		privateKeyDialog.current?.close();
-	}
-
-	function copyPrivateKey() {
-		if (privateKeyToShow) {
-			navigator.clipboard.writeText(privateKeyToShow);
-			setCopiedPrivateKey(true);
-			setTimeout(() => setCopiedPrivateKey(false), 3000);
-		}
 	}
 
 	return (
@@ -133,10 +154,16 @@ export default function AuthForm() {
 						</div>
 					</div>
 
+					{authError && (
+						<p role="alert" className="mx-2 mb-4 max-w-xs rounded-md border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-600">
+							{authError}
+						</p>
+					)}
+
 					<hr className='my-4' />
 
-					<button type='submit' name='singUp' className={`${isSignUpExpanded ? '' : 'hidden'} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Sign Up</button>
-					<button type='submit' name='login' className={`${isSignUpExpanded ? 'hidden' : ''} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Login</button>
+					<button type={isSignUpExpanded ? 'submit' : 'button'} name='signUp' className={`${isSignUpExpanded ? '' : 'hidden'} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Sign Up</button>
+					<button type={isSignUpExpanded ? 'button' : 'submit'} name='login' className={`${isSignUpExpanded ? 'hidden' : ''} btn-primary uppercase py-3 px-6 w-full mb-5 tracking-widest`}>Login</button>
 					<div
 						className="flex justify-center items-center cursor-pointer"
 						onClick={() => setIsSignUpExpanded(!isSignUpExpanded)}
@@ -161,47 +188,6 @@ export default function AuthForm() {
 						</button>
 					</div>
 				</form>
-			</dialog>
-
-			{/* Private Key Dialog */}
-			<dialog ref={privateKeyDialog} className='fixed top-1/2 w-11/12 sm:w-[600px] left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 backdrop-blur-lg rounded-md py-9 px-8 md:px-11 z-50'>
-				<button className='absolute top-2 right-2 text-3xl hover:scale-110 transition-all' onClick={closePrivateKeyDialog}>
-					<IoCloseSharp />
-				</button>
-
-				<div className='flex flex-col gap-4'>
-					<h2 className='text-2xl font-bold text-center text-red-600'>⚠️ Important: Save Your Private Key</h2>
-					
-					<div className='bg-yellow-50 border-l-4 border-yellow-400 p-4'>
-						<p className='text-sm text-yellow-800 font-semibold'>
-							This is your ONLY chance to save your wallet's private key!
-						</p>
-						<ul className='list-disc list-inside text-sm text-yellow-700 mt-2 space-y-1'>
-							<li>Without this key, you cannot access your QRAFT tokens</li>
-							<li>We do NOT store this key - if you lose it, your tokens are lost forever</li>
-							<li>Never share this key with anyone</li>
-							<li>Store it in a secure password manager or write it down and keep it safe</li>
-						</ul>
-					</div>
-
-					<div className='bg-gray-100 p-4 rounded-md break-all font-mono text-sm'>
-						{privateKeyToShow}
-					</div>
-
-					<button
-						onClick={copyPrivateKey}
-						className='btn-primary py-3 px-6 w-full'
-					>
-						{copiedPrivateKey ? '✓ Copied!' : '📋 Copy Private Key'}
-					</button>
-
-					<button
-						onClick={closePrivateKeyDialog}
-						className='bg-red-500 text-white py-3 px-6 w-full rounded-md hover:bg-red-600 transition-colors font-semibold'
-					>
-						I have saved my private key
-					</button>
-				</div>
 			</dialog>
 		</>
 	);
