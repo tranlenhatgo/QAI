@@ -1,5 +1,9 @@
 # QAI — Setup & Run Guide
 
+## Dev note
+
+- Account: username: `User1`, email: `testuser1@gmail.com`, password: `testuser` (for testing only, no real user data)
+
 ## Prerequisites
 
 | Dependency | Version | Check |
