@@ -1,0 +1,142 @@
+{
+  "apis": [
+    {
+      "name": "Set Token",
+      "method": "POST",
+      "endpoint": "/api/auth/set-token",
+      "description": "Set JWT token in HttpOnly cookie",
+      "requestFormat": {
+        "token": "string"
+      }
+    },
+    {
+      "name": "Get Questions (AI Generate - Topics)",
+      "method": "POST",
+      "endpoint": "/api/questions",
+      "description": "Generate questions based on topics using Cohere AI",
+      "requestFormat": {
+        "topics": ["string"]
+      }
+    },
+    {
+      "name": "Get AI Question",
+      "method": "POST",
+      "endpoint": "/api/question/get-ai-question",
+      "description": "Fetch a generated question from the backend for a specific quiz",
+      "requestFormat": {
+        "id": "string (quizId)"
+      }
+    },
+    {
+      "name": "Get Questions by Quiz ID",
+      "method": "POST",
+      "endpoint": "/api/question/quiz-questions",
+      "description": "Fetch all questions for a specific quiz",
+      "requestFormat": {
+        "id": "string (quizId)"
+      }
+    },
+    {
+      "name": "Check Answer",
+      "method": "POST",
+      "endpoint": "/api/question/check-answer",
+      "description": "Verify if the selected answer matches the encrypted correct answer",
+      "requestFormat": {
+        "selectedAnswer": "string",
+        "correctAnswer": "string (encrypted)"
+      }
+    },
+    {
+      "name": "Get Correct Answer",
+      "method": "POST",
+      "endpoint": "/api/question/get-answer",
+      "description": "Decrypt and return the correct answer",
+      "requestFormat": {
+        "correctAnswer": "string (encrypted)"
+      }
+    },
+    {
+      "name": "Get Quizzes by User ID",
+      "method": "POST",
+      "endpoint": "/api/quiz/get-quizzes",
+      "description": "Fetch quizzes created and taken by a user",
+      "requestFormat": {
+        "id": "string (userId)"
+      }
+    },
+    {
+      "name": "Save Questions",
+      "method": "POST",
+      "endpoint": "/api/quiz/save-questions",
+      "description": "Save a list of questions for a quiz",
+      "requestFormat": {
+        "questions": [
+          {
+            "quiz_id": "string",
+            "content": "string",
+            "answers": ["string"],
+            "correct_answer": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Save Quiz",
+      "method": "POST",
+      "endpoint": "/api/quiz/save-quiz",
+      "description": "Create a new quiz",
+      "requestFormat": {
+        "user_id": "string",
+        "title": "string",
+        "description": "string",
+        "categories": ["string"],
+        "start_time": "string (ISO-8601)",
+        "end_time": "string (ISO-8601)"
+      }
+    },
+    {
+      "name": "Update Quiz Questions",
+      "method": "POST",
+      "endpoint": "/api/quiz/update-questions",
+      "description": "Update existing questions for a quiz",
+      "requestFormat": {
+        "questions": [
+          {
+            "questionId": "string | null",
+            "quizId": "string",
+            "content": "string",
+            "answers": ["string"],
+            "correctAnswer": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Take Quiz (Start)",
+      "method": "POST",
+      "endpoint": "/api/take/take-quiz",
+      "description": "Start a quiz session",
+      "requestFormat": {
+        "id": "string (quizId)",
+        "name": "string (playerName)",
+        "uid": "string (playerId)"
+      }
+    },
+    {
+      "name": "Save Attempt (End Quiz)",
+      "method": "POST",
+      "endpoint": "/api/take/save-attempt",
+      "description": "Save the results of a quiz attempt",
+      "requestFormat": {
+        "takeId": "string",
+        "takeQuestionSaveRequestDtos": [
+          {
+            "question_id": "string",
+            "answer": "string",
+            "check_answer": "number | string"
+          }
+        ]
+      }
+    }
+  ]
+}
