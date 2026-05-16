@@ -14,8 +14,10 @@ export default function App({ Component, pageProps }) {
 	
 	useEffect(() => {
 		if (user && sessionStorage.getItem('user')) {
-			const user = JSON.parse(sessionStorage.getItem('user'));
-			setUser(user);
+			try {
+				const user = JSON.parse(sessionStorage.getItem('user'));
+				setUser(user);
+			} catch {}
 		}
 	}, []);
 

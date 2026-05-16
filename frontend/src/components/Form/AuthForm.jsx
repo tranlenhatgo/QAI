@@ -28,7 +28,9 @@ export default function AuthForm() {
 		if (e.target.name === 'google') {
 			try {
 				const user = await loginWithGoogle(); // Wait for the user data to be returned
-				sessionStorage.setItem('user', JSON.stringify(user)); // Store the user in sessionStorage
+				if (user) {
+					sessionStorage.setItem('user', JSON.stringify(user)); // Store the user in sessionStorage
+				}
 				closeDialog(); // Close the dialog
 				if (dest === 'create') {
 					document.getElementById('createQuizRoomDialog')?.showModal(); // Open the create quiz room dialog

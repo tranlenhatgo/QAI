@@ -55,6 +55,7 @@ export const useAuthStore = (set, get) => ({
    },
    getQuizByUserId: async () => {
       const userId = get().user?.uid
+      if (!userId || userId === '@@@') return
       const data = await getQuizByUserId(userId)
       console.log('data', data)
       const { quizzes, history } = data

@@ -6,7 +6,7 @@ import QuizQuestionsModal from './QuizQuestionsModal'
 import { useRouter } from "next/router";
 
 export default function QuizHistory() {
-   const { quizzes, history, getQuizByUserId, getQuestionsByQuizId, quizQuestions, setCreatedQuestions, setUpdate } = useBoundStore(state => state);
+   const { quizzes, history, getQuizByUserId, getQuestionsByQuizId, quizQuestions, setCreatedQuestions, setUpdate, isAuthenticated } = useBoundStore(state => state);
    const [activeTab, setActiveTab] = useState('history');
    const [modalOpen, setModalOpen] = useState(false);
    const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -17,8 +17,8 @@ export default function QuizHistory() {
    useEffect(() => {
       (async () => {
          setLoading(true);
-         if (typeof getQuizByUserId === 'function') {
-            await getQuizByUserId(); // <-- Call the function!
+         if (isAuthenticated()) {
+            await getQuizByUserId();
          }
          setLoading(false);
       })();
