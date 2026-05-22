@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { ImInfinite } from 'react-icons/im'
 import { BiTimeFive } from 'react-icons/bi'
 import { TbDeviceGamepad2 } from 'react-icons/tb'
-import { FiMessageSquare, FiRefreshCw } from 'react-icons/fi'
+import { FiMessageCircle, FiMessageSquare, FiRefreshCw, FiZap } from 'react-icons/fi'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import { useBoundStore } from '@/store/useBoundStore'
 
@@ -32,6 +32,7 @@ export default function GameModes () {
 		ensureConversation,
 		connectChat,
 		disconnectChat,
+		setChatMode,
 		sendChatMessage,
 		setDraft,
 		newConversation,
@@ -62,6 +63,16 @@ export default function GameModes () {
 	)
 	const messages = activeConversation?.messages || []
 	const isWebhookMode = (chatConfig?.transport || 'webhook') === 'webhook'
+	const chatMode = chatConfig?.chatMode === 'agentic' ? 'agentic' : 'simple'
+	const modeDescription = chatMode === 'agentic'
+		? {
+			title: 'Agentic mode',
+			description: 'The coach can answer and prepare actions like navigation, quiz starts, or question generation.',
+		}
+		: {
+			title: 'Chat mode',
+			description: 'The coach answers as a normal study chat without asking the agent tool loop to take actions.',
+		}
 	const handleClearChat = () => {
 		newConversation('New chat')
 	}
@@ -86,15 +97,39 @@ export default function GameModes () {
 						<FiMessageSquare className='text-xl' />
 						<h3 className='text-base font-semibold text-white'>AI Study Coach</h3>
 					</div>
-					<button
-						type='button'
-						onClick={handleClearChat}
-						className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 ${isConnected ? 'bg-emerald-500' : 'bg-amber-500'}`}
-						title='Clear chat'
-						aria-label='Clear chat'
-					>
-						<FiRefreshCw className='text-base' />
-					</button>
+					<div className='flex items-center gap-2'>
+						<div className='grid grid-cols-2 gap-1 rounded-full bg-blue-900/25 p-1'>
+							<button
+								type='button'
+								onClick={() => setChatMode('simple')}
+								disabled={isStreaming}
+								aria-pressed={chatMode === 'simple'}
+								className={`inline-flex h-8 min-w-20 items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${chatMode === 'simple' ? 'bg-white text-blue-700 shadow-sm' : 'text-blue-100 hover:bg-white/10 hover:text-white'}`}
+							>
+								<FiMessageCircle />
+								<span>Chat</span>
+							</button>
+							<button
+								type='button'
+								onClick={() => setChatMode('agentic')}
+								disabled={isStreaming}
+								aria-pressed={chatMode === 'agentic'}
+								className={`inline-flex h-8 min-w-20 items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${chatMode === 'agentic' ? 'bg-white text-blue-700 shadow-sm' : 'text-blue-100 hover:bg-white/10 hover:text-white'}`}
+							>
+								<FiZap />
+								<span>Agentic</span>
+							</button>
+						</div>
+						<button
+							type='button'
+							onClick={handleClearChat}
+							className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 ${isConnected ? 'bg-emerald-500' : 'bg-amber-500'}`}
+							title='Clear chat'
+							aria-label='Clear chat'
+						>
+							<FiRefreshCw className='text-base' />
+						</button>
+					</div>
 				</div>
 				<div className='min-h-0 flex-1 px-4 py-4'>
 					<ChatTranscript
@@ -110,6 +145,12 @@ export default function GameModes () {
 						composerClassName='mt-4'
 						placeholder='Message AI Study Coach...'
 						compact={true}
+						emptyState={(
+							<div className='flex min-h-[15rem] flex-col items-center justify-center px-4 text-center'>
+								<p className='text-sm font-semibold text-blue-700'>{modeDescription.title}</p>
+								<p className='mt-2 max-w-md text-sm leading-6 text-slate-500'>{modeDescription.description}</p>
+							</div>
+						)}
 					/>
 				</div>
 			</section>

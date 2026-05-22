@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { FiSend } from 'react-icons/fi'
+import { FiMessageCircle, FiSend, FiZap } from 'react-icons/fi'
 import DOMPurify from 'dompurify'
 
 export function renderMarkdown(text) {
@@ -52,15 +52,19 @@ export default function ChatTranscript({
 	onSend,
 	isConnected,
 	isStreaming,
+	chatMode = 'simple',
+	onChatModeChange,
 	canSendWithoutSocket = true,
 	messageListClassName = 'space-y-3',
 	composerClassName = '',
 	placeholder = 'Ask a question…',
 	compact = false,
+	emptyState = null,
 }) {
 	const endRef = useRef(null)
 	const inputDisabled = isStreaming || (!isConnected && !canSendWithoutSocket)
 	const sendDisabled = isStreaming || (!isConnected && !canSendWithoutSocket) || !draft.trim()
+	const normalizedChatMode = chatMode === 'agentic' ? 'agentic' : 'simple'
 
 	useEffect(() => {
 		endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -70,6 +74,7 @@ export default function ChatTranscript({
 		<div className={`flex h-full min-h-0 flex-col ${compact ? 'gap-3' : 'gap-4'}`}>
 			<div className={`min-h-0 flex-1 overflow-y-auto ${compact ? 'px-0 py-0' : 'px-0 py-0'}`}>
 				<div className={messageListClassName}>
+					{messages.length === 0 && !streamingText && emptyState ? emptyState : null}
 					{messages.map((message, index) => (
 						<ChatMessageBubble key={`${message.id || message.role}-${index}`} role={message.role} content={message.content} />
 					))}
@@ -79,6 +84,30 @@ export default function ChatTranscript({
 			</div>
 
 			<div className={composerClassName}>
+				{onChatModeChange ? (
+					<div className="mb-3 grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-blue-900/30 p-1">
+						<button
+							type="button"
+							onClick={() => onChatModeChange('simple')}
+							disabled={isStreaming}
+							aria-pressed={normalizedChatMode === 'simple'}
+							className={`inline-flex min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${normalizedChatMode === 'simple' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+						>
+							<FiMessageCircle />
+							<span>Chat</span>
+						</button>
+						<button
+							type="button"
+							onClick={() => onChatModeChange('agentic')}
+							disabled={isStreaming}
+							aria-pressed={normalizedChatMode === 'agentic'}
+							className={`inline-flex min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${normalizedChatMode === 'agentic' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+						>
+							<FiZap />
+							<span>Agentic</span>
+						</button>
+					</div>
+				) : null}
 				<div className="flex items-end gap-3 rounded-2xl border border-white/10 bg-blue-600/80 p-2 shadow-inner shadow-black/10">
 					<textarea
 						value={draft}

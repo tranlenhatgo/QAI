@@ -56,6 +56,7 @@ export default function ChatPage() {
 		deleteConversation,
 		setSidebarSection,
 		setSetting,
+		setChatMode,
 		sendChatMessage,
 		setDraft,
 		chatConfig,
@@ -101,8 +102,9 @@ export default function ChatPage() {
 	const displayEmail = user?.email || 'No account connected'
 	const activeTitle = activeConversation?.title || 'New chat'
 	const isWebhookMode = (chatConfig?.transport || 'webhook') === 'webhook'
+	const chatMode = chatConfig?.chatMode === 'agentic' ? 'agentic' : 'simple'
 	const statusText = isConnected
-		? (isStreaming ? 'Thinking...' : (isWebhookMode ? 'Webhook API mode' : 'Connected'))
+		? (isStreaming ? 'Thinking...' : (chatMode === 'agentic' ? 'Agentic mode' : 'Chat mode'))
 		: 'Reconnecting...'
 
 	function handleLogout() {
@@ -240,7 +242,7 @@ export default function ChatPage() {
 									<h2 className="text-lg font-semibold text-white">{activeTitle}</h2>
 								</div>
 								<div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-blue-200 md:block">
-									{isConnected ? (isStreaming ? 'Generating response...' : (isWebhookMode ? 'Using webhook API' : 'Connected')) : 'Waiting for connection'}
+									{isConnected ? (isStreaming ? 'Generating response...' : (chatMode === 'agentic' ? 'Using agentic API' : 'Using chat API')) : 'Waiting for connection'}
 								</div>
 							</div>
 
@@ -262,6 +264,8 @@ export default function ChatPage() {
 										onSend={sendChatMessage}
 										isConnected={isConnected}
 										isStreaming={isStreaming}
+										chatMode={chatMode}
+										onChatModeChange={setChatMode}
 										canSendWithoutSocket={isWebhookMode}
 										messageListClassName={`space-y-4 ${settings.compactMode ? 'max-w-4xl' : 'max-w-5xl'} mx-auto`}
 										composerClassName="mt-5 mx-auto w-full max-w-5xl"
