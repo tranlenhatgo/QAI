@@ -14,7 +14,7 @@ const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
 	const { user, setUser, setAuthReady, setChatConfig, hydrateChat } = useBoundStore(state => state);
-	const studyCoachHiddenPaths = ['/chat', '/play'];
+	const studyCoachHiddenPaths = ['/', '/chat', '/play'];
 	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	
 	useEffect(() => {

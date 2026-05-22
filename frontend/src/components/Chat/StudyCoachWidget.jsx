@@ -15,6 +15,7 @@ export default function StudyCoachWidget() {
 		isStreaming,
 		draft,
 		setDraft,
+		setChatMode,
 		closeChat,
 		sendChatMessage,
 		conversations,
@@ -30,8 +31,9 @@ export default function StudyCoachWidget() {
 
 	const isHidden = chatConfig.hiddenPaths?.some(path => router.pathname === path)
 	const isWebhookMode = (chatConfig?.transport || 'webhook') === 'webhook'
+	const chatMode = chatConfig?.chatMode === 'agentic' ? 'agentic' : 'simple'
 	const statusText = isConnected
-		? (isStreaming ? 'Thinking...' : (isWebhookMode ? 'Webhook API mode' : 'Connected'))
+		? (isStreaming ? 'Thinking...' : (chatMode === 'agentic' ? 'Agentic mode' : 'Chat mode'))
 		: 'Reconnecting...'
 	const activeConversation = useMemo(
 		() => conversations.find(conversation => conversation.id === activeConversationId) || null,
@@ -83,6 +85,8 @@ export default function StudyCoachWidget() {
 					onSend={sendChatMessage}
 					isConnected={isConnected}
 					isStreaming={isStreaming}
+					chatMode={chatMode}
+					onChatModeChange={setChatMode}
 					canSendWithoutSocket={isWebhookMode}
 					messageListClassName="space-y-3"
 					composerClassName="mt-4"

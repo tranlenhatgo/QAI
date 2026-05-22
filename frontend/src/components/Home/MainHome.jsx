@@ -44,7 +44,7 @@ export default function MainHome() {
 					Play an infinite number of possible questions!
 				</p>
 			</article>
-			<div className='flex flex-col gap-4 mt-auto w-full max-w-md'>
+			<div className='sticky bottom-4 z-30 flex flex-col gap-4 mt-auto w-full max-w-md'>
 				<button onClick={handlePlay} id='play' href="play" className='btn-primary uppercase px-6 py-4 text-lg w-full' >
 					Play
 				</button>
