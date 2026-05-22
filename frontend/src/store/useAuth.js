@@ -34,10 +34,10 @@ export const useAuthStore = (set, get) => ({
    setAuthReady: (authReady) => {
       set({ authReady })
    },
-   login: async (username, password) => {
+   login: async (email, password) => {
       set({ authloading: true })
       try {
-         const credential = await signIn(username, password)
+         const credential = await signIn(email, password)
          set({ user: credential.user })
          await setAuthCookieFromUser(credential.user)
          return credential.user
@@ -45,10 +45,10 @@ export const useAuthStore = (set, get) => ({
          set({ authloading: false })
       }
    },
-   register: async (username, password) => {
+   register: async (email, password, displayName) => {
       set({ authloading: true })
       try {
-         const credential = await signUp(username, password)
+         const credential = await signUp(email, password, displayName)
          set({ user: credential.user })
          await setAuthCookieFromUser(credential.user)
          return credential.user

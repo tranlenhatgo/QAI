@@ -7,6 +7,19 @@ import PageLoading from '@/components/PageLoading';
 
 const WEAK_PASSWORD_MESSAGE = 'Must be at least 6 characters.';
 const LOGIN_ERROR_MESSAGE = 'Invalid email or password.';
+const SIGNUP_ERROR_MESSAGE = 'Could not create account. Please check your details.';
+
+function getAuthErrorMessage(error, fallbackMessage) {
+	if (error?.code === 'auth/weak-password') return WEAK_PASSWORD_MESSAGE;
+	if (error?.code === 'auth/invalid-email') return 'Enter a valid email address.';
+	if (error?.code === 'auth/email-already-in-use') return 'This email is already registered.';
+	if (error?.code === 'auth/network-request-failed') return 'Network error. Please try again.';
+	if (error?.code === 'auth/operation-not-allowed') return 'Email sign up is not enabled.';
+	if (error?.code === 'auth/invalid-credential' || error?.code === 'auth/user-not-found' || error?.code === 'auth/wrong-password') {
+		return LOGIN_ERROR_MESSAGE;
+	}
+	return fallbackMessage;
+}
 
 export default function AuthForm() {
 	const { dest, setDest, login, register, authloading, loginWithGoogle } = useBoundStore(state => state);
@@ -26,7 +39,9 @@ export default function AuthForm() {
 		const submitAction = e.nativeEvent?.submitter?.name;
 
 		if (submitAction === 'signUp') {
-			const password = e.target.signupPassword.value;
+			const email = e.currentTarget.elements.email.value;
+			const displayName = e.currentTarget.elements.signupUsername.value.trim();
+			const password = e.currentTarget.elements.signupPassword.value;
 
 			if (password.length < 6) {
 				setAuthError(WEAK_PASSWORD_MESSAGE);
@@ -34,13 +49,10 @@ export default function AuthForm() {
 			}
 
 			try {
-				await register(e.target.email.value, password);
+				await register(email, password, displayName);
 			} catch (error) {
-				if (error?.code === 'auth/weak-password') {
-					setAuthError(WEAK_PASSWORD_MESSAGE);
-					return;
-				}
-				throw error;
+				setAuthError(getAuthErrorMessage(error, SIGNUP_ERROR_MESSAGE));
+				return;
 			}
 
 			setIsSignUpExpanded(false);
@@ -50,9 +62,9 @@ export default function AuthForm() {
 		}
 
 		try {
-			await login(e.target.username.value, e.target.password.value);
-		} catch {
-			setAuthError(LOGIN_ERROR_MESSAGE);
+			await login(e.currentTarget.elements.loginEmail.value, e.currentTarget.elements.password.value);
+		} catch (error) {
+			setAuthError(getAuthErrorMessage(error, LOGIN_ERROR_MESSAGE));
 			return;
 		}
 
@@ -121,8 +133,8 @@ export default function AuthForm() {
 							{!isSignUpExpanded && ( // Render only when not in Sign-Up mode
 								<div className='flex flex-col gap-4'>
 									<label className='flex flex-col'>
-										<span className='font-semibold mb-2'>Username</span>
-										<input type='text' name='username' className='p-2 mx-2 border rounded' required />
+										<span className='font-semibold mb-2'>Email</span>
+										<input type='email' name='loginEmail' className='p-2 mx-2 border rounded' required />
 									</label>
 									<label className='flex flex-col'>
 										<span className='font-semibold mb-2'>Password</span>

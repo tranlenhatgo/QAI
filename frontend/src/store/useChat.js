@@ -67,6 +67,7 @@ function persistStorage(state) {
 		const payload = {
 			conversations: state.conversations,
 			activeConversationId: state.activeConversationId,
+			chatMode: state.chatConfig.chatMode,
 			settings: state.settings,
 			sidebarSection: state.sidebarSection,
 		}
@@ -229,6 +230,10 @@ export const useChatStore = (set, get) => ({
 				conversations,
 				activeConversationId,
 				sidebarSection: hydrated.sidebarSection || state.sidebarSection,
+				chatConfig: {
+					...state.chatConfig,
+					chatMode: hydrated.chatMode === 'agentic' ? 'agentic' : DEFAULT_CHAT_MODE,
+				},
 				settings: {
 					...state.settings,
 					...(hydrated.settings || {}),
@@ -264,6 +269,15 @@ export const useChatStore = (set, get) => ({
 	markUnread: () => set({ hasUnread: true }),
 	clearUnread: () => set({ hasUnread: false }),
 	setDraft: (draft) => set({ draft }),
+	setChatMode: (chatMode) => {
+		set(state => ({
+			chatConfig: {
+				...state.chatConfig,
+				chatMode: chatMode === 'agentic' ? 'agentic' : DEFAULT_CHAT_MODE,
+			},
+		}))
+		persistStorage(get())
+	},
 	setSidebarSection: (sidebarSection) => {
 		set({ sidebarSection })
 		persistStorage(get())

@@ -1,5 +1,10 @@
 # AGENTS.md
 
+## Codex Startup Instructions
+
+Before working on any task, read `CLAUDE.md` and follow it together with this file.
+
+
 ## Project: QAI — AI-Assisted Quiz Platform
 
 Three-component system: Spring Boot backend, Next.js frontend, FastAPI AI Study Coach.

@@ -72,8 +72,14 @@ async function handler(req, res) {
     return res.status(200).json(data)
   } catch (error) {
     const isTimeout = error?.name === 'AbortError'
+    console.error('[coach/chat] Failed to proxy Study Coach request', {
+      targetUrl,
+      error: error?.message || error,
+    })
     return res.status(isTimeout ? 504 : 500).json({
-      message: isTimeout ? 'Coach API timeout' : 'Internal Server Error',
+      message: isTimeout
+        ? 'Coach API timeout'
+        : `Unable to reach Study Coach API at ${targetUrl}`,
       statusCode: isTimeout ? 504 : 500,
     })
   } finally {
