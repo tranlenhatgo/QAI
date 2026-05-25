@@ -17,6 +17,7 @@ User → Chat Widget (WS) → FastAPI (:8000) → Quiz API (Spring Boot :8080) �
 ```
 
 **Key design principles:**
+
 - Use LLMs for natural language generation **and agentic tool selection**. The LLM decides *when* to use tools based on conversation context.
 - Weakness analysis, spaced repetition, and progress tracking are purely algorithmic (`server/learning/`). This is intentional — deterministic logic is faster, testable, and reliable.
 - Tool execution happens server-side (data fetching) and client-side (UI actions). The backend decides *what* to do; the frontend executes navigation/UI changes via the `onAction` callback.
@@ -29,13 +30,18 @@ User → Chat Widget (WS) → FastAPI (:8000) → Quiz API (Spring Boot :8080) �
 - `server/agent/prompts.py` — System prompts (`SYSTEM_PROMPT` + `AGENTIC_SYSTEM_PROMPT`) and context builder
 - `server/agent/tools.py` — Tool definitions registry (7 tools in OpenAI function-calling format)
 - `server/agent/tool_executor.py` — Executes tool calls; returns result text (for LLM) + `AgentAction` (for frontend)
-- `server/llm/external.py` — LLM client (LM Studio / Google via OpenAI-compatible API)
+- `server/llm/external.py` — LLM client (LM Studio / DeepSeek via OpenAI-compatible API)
+- `server/llm/deepseek.py` — DeepSeekProvider for Full tier (streaming + function calling)
+- `server/llm/lm_studio.py` — LMStudioProvider for Lite tier (local)
 - `server/quiz_client/client.py` — HTTP client wrapping Spring Boot quiz API
 - `server/learning/weakness.py` — Algorithmic weakness analyzer (no AI)
 - `server/models/schemas.py` — All Pydantic v2 models (chat, quiz API responses, analysis, agent actions)
 - `server/routes/chat.py` — `POST /chat` and `POST /chat/agentic` endpoints
+- `server/routes/generate.py` — `POST /generate/from-topics`, `/generate/from-file`, `/generate/get-question` — AI question generation (replaces n8n)
+- `server/routes/solve.py` — `POST /solve` — Step-by-step problem solving (structured 3-phase pipeline)
 - `server/routes/health.py` — `GET /health` with LLM status
 - `widget/` — Embeddable chat widget (JS/CSS) with action dispatch via `onAction` callback
+
 ## Running the Server
 
 ```bash

@@ -1,6 +1,6 @@
 import withAuth from '@/lib/withAuth'
 
-const DEFAULT_TIMEOUT_MS = 30000
+const DEFAULT_TIMEOUT_MS = Number(process.env.STUDY_COACH_TIMEOUT_MS || 180000)
 const DEFAULT_ALLOWED_HISTORY_ROLES = new Set(['user', 'assistant'])
 
 function normalizeHistory(history) {
@@ -21,10 +21,10 @@ async function handler(req, res) {
     return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 })
   }
 
-  const studyCoachApiUrl = process.env.STUDY_COACH_API_URL
-  const studyCoachApiKey = process.env.STUDY_COACH_API_KEY
+  const studyCoachApiUrl = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
+  const studyCoachApiKey = process.env.STUDY_COACH_API_KEY || process.env.COACH_API_KEY
 
-  if (!studyCoachApiUrl || !studyCoachApiKey) {
+  if (!studyCoachApiUrl) {
     return res.status(500).json({ message: 'Study coach API is not configured', statusCode: 500 })
   }
 
@@ -50,7 +50,7 @@ async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': studyCoachApiKey,
+        ...(studyCoachApiKey ? { 'X-API-Key': studyCoachApiKey } : {}),
       },
       body: JSON.stringify({
         user_id: userId,

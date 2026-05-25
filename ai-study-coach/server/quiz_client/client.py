@@ -67,6 +67,34 @@ class QuizAPIClient:
             resp.raise_for_status()
             return UserQuizProfile(**resp.json())
 
+    async def get_quiz_history(
+        self, user_id: str, limit: int = 10, category: str | None = None
+    ) -> list[dict]:
+        """Fetch quiz history for the tool interface. Returns simplified dicts."""
+        attempts = await self.get_player_history(user_id)
+        if not attempts:
+            return []
+
+        results = []
+        for attempt in attempts[:limit]:
+            entry = {
+                "quiz_id": attempt.quizId,
+                "title": attempt.quizTitle,
+                "score": attempt.score,
+                "status": attempt.status,
+                "date": attempt.updatedAt,
+            }
+            # Filter by category if requested
+            if category:
+                details = await self.get_quiz_details(attempt.quizId)
+                if details and details.categories:
+                    if category.lower() not in [c.lower() for c in details.categories]:
+                        continue
+                    entry["categories"] = details.categories
+            results.append(entry)
+
+        return results
+
 
 # Singleton instance
 quiz_client = QuizAPIClient()

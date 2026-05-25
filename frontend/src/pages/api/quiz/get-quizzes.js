@@ -5,6 +5,10 @@ async function handler(req, res) {
       return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 });
    }
 
+   if (!process.env.REST_API_URL) {
+      return res.status(500).json({ message: 'REST_API_URL is not configured', statusCode: 500 });
+   }
+
    const { id } = req.body;
 
    if (!id) {
@@ -12,14 +16,15 @@ async function handler(req, res) {
    }
 
    try {
-      const response = await fetch(`${process.env.REST_API_URL}/user/quiz-profile?userId=${id}`, {
+      const apiRoot = process.env.REST_API_URL.replace(/\/+$/, '');
+      const response = await fetch(`${apiRoot}/user/quiz-profile?userId=${encodeURIComponent(id)}`, {
          method: 'GET',
          headers: {
             'Content-Type': 'application/json',
          },
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
          return res.status(response.status).json({
@@ -37,7 +42,7 @@ async function handler(req, res) {
    } catch (err) {
       console.error('Error in get-quizzes API:', err.message);
       return res.status(500).json({
-         message: 'Internal Server Error',
+         message: `Unable to reach quiz profile API at ${process.env.REST_API_URL}`,
          statusCode: 500,
       });
    }

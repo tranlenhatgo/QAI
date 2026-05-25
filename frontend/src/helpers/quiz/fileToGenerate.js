@@ -2,7 +2,7 @@ export default async function fileToGenerate(file, quizId) {
     try {
         const formData = new FormData();
         formData.append('quiz_id', quizId);
-        formData.append('data', file);
+        formData.append('file', file);
 
         const response = await fetch('/api/quiz/upload', {
             method: 'POST',

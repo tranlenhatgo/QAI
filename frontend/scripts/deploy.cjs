@@ -1,36 +1,36 @@
 const hre = require("hardhat");
 
 async function main() {
-  console.log("Deploying QraftToken...");
+  console.log("Deploying QAIToken...");
 
   // Get the contract factory
-  const QraftToken = await hre.ethers.getContractFactory("QraftToken");
+  const QAIToken = await hre.ethers.getContractFactory("QAIToken");
   
   // Deploy the contract
-  const qraftToken = await QraftToken.deploy();
-  await qraftToken.waitForDeployment();
+  const qaiToken = await QAIToken.deploy();
+  await qaiToken.waitForDeployment();
 
-  const address = await qraftToken.getAddress();
-  console.log("QraftToken deployed to:", address);
+  const address = await qaiToken.getAddress();
+  console.log("QAIToken deployed to:", address);
 
   // Get deployment info
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deployed by:", deployer.address);
   
-  const balance = await qraftToken.balanceOf(deployer.address);
-  console.log("Deployer balance:", hre.ethers.formatUnits(balance, 18), "QRAFT");
+  const balance = await qaiToken.balanceOf(deployer.address);
+  console.log("Deployer balance:", hre.ethers.formatUnits(balance, 18), "QAI");
   
-  const contractBalance = await qraftToken.getContractBalance();
-  console.log("Contract balance:", hre.ethers.formatUnits(contractBalance, 18), "QRAFT");
+  const contractBalance = await qaiToken.getContractBalance();
+  console.log("Contract balance:", hre.ethers.formatUnits(contractBalance, 18), "QAI");
 
   // Fund the contract with tokens for rewards
-  console.log("\nFunding contract with 500,000 QRAFT for rewards...");
+  console.log("\nFunding contract with 500,000 QAI for rewards...");
   const fundAmount = hre.ethers.parseUnits("500000", 18);
-  const fundTx = await qraftToken.fundContract(fundAmount);
+  const fundTx = await qaiToken.fundContract(fundAmount);
   await fundTx.wait();
   
-  const newContractBalance = await qraftToken.getContractBalance();
-  console.log("Contract balance after funding:", hre.ethers.formatUnits(newContractBalance, 18), "QRAFT");
+  const newContractBalance = await qaiToken.getContractBalance();
+  console.log("Contract balance after funding:", hre.ethers.formatUnits(newContractBalance, 18), "QAI");
 
   // Save deployment info
   const fs = require('fs');
@@ -39,8 +39,8 @@ async function main() {
     contractAddress: address,
     deployer: deployer.address,
     deploymentTime: new Date().toISOString(),
-    tokenName: "Qraft Token",
-    tokenSymbol: "QRAFT",
+    tokenName: "QAI Token",
+    tokenSymbol: "QAI",
     initialSupply: "1000000",
     contractBalance: hre.ethers.formatUnits(newContractBalance, 18)
   };
