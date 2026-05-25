@@ -3,9 +3,11 @@ import PageFooter from '../PageFooter'
 import playSound from '@/helpers/playSound'
 import HomeHeader from './HomeHeader'
 import { useBoundStore } from '@/store/useBoundStore'
+import { useRouter } from 'next/router'
 
 export default function MainHome() {
 	const { setDest, user } = useBoundStore(state => state)
+	const router = useRouter()
 	function handleTitleHover(e) {
 		e.target.classList.add('jello-vertical')
 		e.target.style.color = categories[Math.floor(Math.random() * categories.length)].color
@@ -26,6 +28,10 @@ export default function MainHome() {
 			setDest('create'); // Set the destination for after login
 			document.getElementById('authDialog')?.showModal(); // Show the auth dialog
 		}
+	}
+	function handleCoach() {
+		playSound('pop')
+		router.push('/coach')
 	}
 
 	return (
@@ -50,6 +56,9 @@ export default function MainHome() {
 				</button>
 				<button onClick={handleCreate} id='create' href="create" className='btn-primary uppercase px-4 py-2 text-md w-full' >
 					Create
+				</button>
+				<button onClick={handleCoach} id='coach' className='btn-primary uppercase px-4 py-2 text-md w-full' >
+					AI Coach
 				</button>
 			</div>
 			<PageFooter />

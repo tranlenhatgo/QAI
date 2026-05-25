@@ -5,6 +5,7 @@ import { useQuestionsStore } from './useQuestions'
 import { useAuthStore } from './useAuth'
 import { useCreateQuestionsStore } from './useCreate'
 import { useChatStore } from './useChat'
+import { useCoachStore } from './useCoach'
 
 export const useBoundStore = create((...a) => ({
 	...useWildcardsStore(...a),
@@ -13,4 +14,5 @@ export const useBoundStore = create((...a) => ({
 	...useAuthStore(...a),
 	...useCreateQuestionsStore(...a),
 	...useChatStore(...a),
+	...useCoachStore(...a),
 }))
