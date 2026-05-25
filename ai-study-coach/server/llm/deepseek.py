@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import httpx
 
+from server.config import settings
 from server.llm.base import (
     ChunkType,
     LLMService,
@@ -56,7 +57,7 @@ class DeepSeekProvider(LLMService):
         tool_calls_buffer: list[dict] = []
 
         try:
-            async with httpx.AsyncClient(timeout=180) as client:
+            async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
                 async with client.stream(
                     "POST", self.base_url, json=payload, headers=headers
                 ) as resp:

@@ -6,6 +6,7 @@ from collections.abc import AsyncIterator
 
 import httpx
 
+from server.config import settings
 from server.llm.base import (
     ChunkType,
     LLMService,
@@ -41,7 +42,7 @@ class LMStudioProvider(LLMService):
         }
 
         try:
-            async with httpx.AsyncClient(timeout=180) as client:
+            async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
                 async with client.stream(
                     "POST",
                     f"{self.base_url}/chat/completions",

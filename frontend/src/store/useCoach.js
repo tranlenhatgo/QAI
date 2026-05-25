@@ -138,6 +138,9 @@ function normalizeQuestions(questions, topic) {
 }
 
 export const useCoachStore = (set, get) => ({
+	activeCoachFeature: 'overview',
+	coachTier: 'full',
+
 	generatedQuestions: [],
 	isGenerating: false,
 	generateTopic: 'Science',
@@ -162,6 +165,8 @@ export const useCoachStore = (set, get) => ({
 	isUploading: false,
 	uploadError: null,
 
+	setActiveCoachFeature: (activeCoachFeature) => set({ activeCoachFeature }),
+	setCoachTier: (coachTier) => set({ coachTier: coachTier === 'lite' ? 'lite' : 'full' }),
 	setGenerateTopic: (generateTopic) => set({ generateTopic }),
 	setGenerateCount: (generateCount) => set({ generateCount: clampCount(generateCount) }),
 	setCurrentProblem: (currentProblem) => set({ currentProblem }),

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Big Picture
-- This is a Next.js Pages Router frontend (no `app/`) for Qraft quiz play, quiz-room features, and the AI Coach dashboard.
+- This is a Next.js Pages Router frontend (no `app/`) for QAI quiz play, quiz-room features, and the AI Coach dashboard.
 - `src/pages/_app.js` mounts global dialogs once (`PlayForm`, `AuthForm`, `CreateQuizRoomForm`), and pages trigger them by DOM id.
 - State is centralized in merged Zustand slices via `src/store/useBoundStore.js`.
 - The app is a BFF frontend: browser -> `src/helpers/**` -> `src/pages/api/**` -> external REST services.

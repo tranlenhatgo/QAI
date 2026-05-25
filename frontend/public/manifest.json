@@ -1,6 +1,6 @@
 {
-  "name": "Qraft - Quiz and Trivia Game",
-  "short_name": "Qraft",
+  "name": "QAI - Quiz and Trivia Game",
+  "short_name": "QAI",
   "description": "Create and play interactive quizzes with AI-generated questions",
   "start_url": "/",
   "scope": "./",

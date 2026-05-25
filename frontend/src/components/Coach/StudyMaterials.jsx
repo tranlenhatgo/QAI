@@ -19,9 +19,10 @@ export default function StudyMaterials() {
 		uploadError,
 		uploadStudyMaterial,
 		removeDocument,
+		setActiveCoachFeature,
 	} = useBoundStore(state => state)
 
-	function handleFiles(files) {
+	async function handleFiles(files) {
 		const file = files?.[0]
 		if (!file) return
 		if (!user) {
@@ -29,7 +30,11 @@ export default function StudyMaterials() {
 			document.getElementById('authDialog')?.showModal()
 			return
 		}
-		uploadStudyMaterial(file)
+		const data = await uploadStudyMaterial(file)
+		if (data) {
+			setActiveCoachFeature('generate')
+			document.getElementById('coach-workspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+		}
 	}
 
 	return (

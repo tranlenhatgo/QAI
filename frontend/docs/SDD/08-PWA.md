@@ -12,7 +12,7 @@ The frontend is a Progressive Web App using `@ducanh2912/next-pwa` (Workbox-base
 
 | Property | Value |
 |----------|-------|
-| App name | Qraft |
+| App name | QAI |
 | Display | standalone |
 | Categories | education, games, entertainment |
 | Icons | Multiple resolutions (iOS, Android, Windows 11 tiles) |

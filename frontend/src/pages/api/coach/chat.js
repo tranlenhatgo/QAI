@@ -1,6 +1,6 @@
 import withAuth from '@/lib/withAuth'
 
-const DEFAULT_TIMEOUT_MS = 30000
+const DEFAULT_TIMEOUT_MS = Number(process.env.STUDY_COACH_TIMEOUT_MS || 180000)
 const DEFAULT_ALLOWED_HISTORY_ROLES = new Set(['user', 'assistant'])
 
 function normalizeHistory(history) {

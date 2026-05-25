@@ -7,11 +7,13 @@ class Settings(BaseSettings):
 
     # LM Studio (local LLM — Lite tier)
     lm_studio_url: str = "http://127.0.0.1:1234"
+    embedding_model: str = "text-embedding-nomic-embed-text-v1.5"
 
     # External LLM provider (Full tier)
     external_llm_provider: str = "deepseek"
     external_llm_api_key: str = ""  # DeepSeek API key for Full tier
     external_llm_model: str = ""  # e.g. "deepseek-v4-flash"
+    llm_timeout_seconds: float = 300.0
 
     # Supabase (pgvector RAG)
     supabase_url: str = ""

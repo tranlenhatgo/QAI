@@ -45,12 +45,12 @@ function TrendChart({ items }) {
 }
 
 export default function ProgressOverview() {
-	const { user, scoreHistory, weaknesses, streak, isLoadingProfile } = useBoundStore(state => state)
+	const { user, scoreHistory, weaknesses, streak, isLoadingProfile, setActiveCoachFeature } = useBoundStore(state => state)
 	const latestScore = scoreHistory[scoreHistory.length - 1]
 	const topWeaknesses = weaknesses.slice(0, 3)
 
-	function scrollToWeaknesses() {
-		document.getElementById('coach-weaknesses')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+	function openWeaknesses() {
+		setActiveCoachFeature('weaknesses')
 	}
 
 	return (
@@ -87,7 +87,7 @@ export default function ProgressOverview() {
 						<p className="text-sm font-semibold text-slate-800">Weak Topics</p>
 						<button
 							type="button"
-							onClick={scrollToWeaknesses}
+							onClick={openWeaknesses}
 							className="rounded-md px-2 py-1 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-50"
 						>
 							View

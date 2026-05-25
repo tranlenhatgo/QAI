@@ -5,7 +5,7 @@ export default function CoachPage() {
 	return (
 		<>
 			<Head>
-				<title>Qraft | AI Coach</title>
+				<title>QAI | AI Coach</title>
 			</Head>
 			<CoachDashboard />
 		</>

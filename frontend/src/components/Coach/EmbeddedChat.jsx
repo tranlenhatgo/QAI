@@ -24,6 +24,7 @@ export default function EmbeddedChat() {
 		streamingText,
 		conversations,
 		activeConversationId,
+		coachTier,
 	} = useBoundStore(state => state)
 
 	useEffect(() => {
@@ -32,6 +33,7 @@ export default function EmbeddedChat() {
 			userId: user?.uid ?? 'anonymous',
 			serverUrl: chatConfig.serverUrl,
 			transport: 'webhook',
+			tier: coachTier,
 			hiddenPaths: ['/', '/chat', '/play', '/coach'],
 		})
 		setChatSessionActive(true)
@@ -42,7 +44,7 @@ export default function EmbeddedChat() {
 			setChatSessionActive(false)
 			disconnectChat()
 		}
-	}, [chatReady, hydrateChat, setChatConfig, user?.uid, chatConfig.serverUrl, setChatSessionActive, ensureConversation, connectChat, disconnectChat])
+	}, [chatReady, hydrateChat, setChatConfig, user?.uid, chatConfig.serverUrl, coachTier, setChatSessionActive, ensureConversation, connectChat, disconnectChat])
 
 	const activeConversation = useMemo(
 		() => conversations.find(conversation => conversation.id === activeConversationId) || null,
@@ -51,6 +53,8 @@ export default function EmbeddedChat() {
 	const messages = activeConversation?.messages || []
 	const isWebhookMode = (chatConfig?.transport || 'webhook') === 'webhook'
 	const chatMode = chatConfig?.chatMode === 'agentic' ? 'agentic' : 'simple'
+	const tierLabel = coachTier === 'lite' ? 'Lite tier' : 'Full tier'
+	const modeLabel = chatMode === 'agentic' ? 'agentic mode' : 'chat mode'
 
 	return (
 		<section className="rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -59,7 +63,7 @@ export default function EmbeddedChat() {
 					<span className={`h-2.5 w-2.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
 					<div>
 						<p className="text-sm font-semibold text-slate-900">AI Study Coach</p>
-						<p className="text-xs text-slate-500">{isStreaming ? 'Thinking...' : chatMode === 'agentic' ? 'Agentic mode' : 'Chat mode'}</p>
+						<p className="text-xs text-slate-500">{isStreaming ? 'Thinking...' : `${tierLabel}, ${modeLabel}`}</p>
 					</div>
 				</div>
 				<button

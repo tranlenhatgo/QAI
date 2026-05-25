@@ -63,7 +63,7 @@ class ExternalLLMClient:
             "stream": False,
         }
 
-        async with httpx.AsyncClient(timeout=180) as client:
+        async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
             resp = await client.post(
                 self.base_url,
                 json=payload,
@@ -90,7 +90,7 @@ class ExternalLLMClient:
             "tool_choice": tool_choice,
         }
 
-        async with httpx.AsyncClient(timeout=180) as client:
+        async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
             resp = await client.post(
                 self.base_url,
                 json=payload,
@@ -135,7 +135,7 @@ class ExternalLLMClient:
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=180) as client:
+        async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
             async with client.stream(
                 "POST",
                 self.base_url,

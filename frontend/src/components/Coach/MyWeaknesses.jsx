@@ -21,6 +21,7 @@ export default function MyWeaknesses() {
 		isLoadingProfile,
 		practiceTopic,
 		isGenerating,
+		setActiveCoachFeature,
 	} = useBoundStore(state => state)
 
 	async function handlePractice(category) {
@@ -30,7 +31,8 @@ export default function MyWeaknesses() {
 			return
 		}
 		await practiceTopic(category)
-		document.getElementById('coach-generate')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+		setActiveCoachFeature('generate')
+		document.getElementById('coach-workspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 	}
 
 	return (

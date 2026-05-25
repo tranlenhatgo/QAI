@@ -1,7 +1,7 @@
 import withAuth from '@/lib/withAuth'
 
 const COACH_URL = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
-const TIMEOUT_MS = 60000
+const TIMEOUT_MS = Number(process.env.STUDY_COACH_TIMEOUT_MS || 180000)
 
 async function handler(req, res) {
 	if (req.method !== 'POST') {

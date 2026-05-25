@@ -25,7 +25,7 @@ async def get_embedding(text: str) -> list[float] | None:
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
                 url,
-                json={"input": text, "model": "text-embedding"},
+                json={"input": text, "model": settings.embedding_model},
             )
             if resp.status_code == 200:
                 data = resp.json()
