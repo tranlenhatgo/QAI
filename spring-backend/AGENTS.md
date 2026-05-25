@@ -1,8 +1,8 @@
 # AGENTS.md
 
 ## Purpose
-- Backend for an AI-assisted quiz platform: CRUD quiz/question data, run quiz-taking sessions, and proxy AI workflows via n8n.
-- Stack: Spring Boot 3.4, Java 17+ target, Firestore (no SQL datasource), RestTemplate-based webhook calls.
+- Backend for an AI-assisted quiz platform: CRUD quiz/question data, run quiz-taking sessions, and serve quiz data to the AI Study Coach.
+- Stack: Spring Boot 3.4, Java 17+ target, Firestore (no SQL datasource).
 
 ## Architecture map (what talks to what)
 - HTTP layer: `src/main/java/com/myproject/quizzai/controller/*Controller.java`.
@@ -28,8 +28,6 @@
 
 ## Integrations and local setup constraints
 - Firebase credentials are loaded from `src/main/resources/serviceAccountKey.json` at startup (`FirebaseConfiguration`).
-- n8n integration is local by default: `http://localhost:5678/webhook` in `n8nService`.
-- `n8nController` endpoints: `/n8n/upload` (multipart: `quiz_id`, `data`) and `/n8n/get-question`.
 
 ## Developer workflow (verified here)
 - Build without tests:

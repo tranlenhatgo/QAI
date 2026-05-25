@@ -28,7 +28,7 @@ export default function Profile() {
 	return (
 		<>
 			<Head>
-				<title>Qraft | Profile</title>
+					<title>QAI | Profile</title>
 			</Head>
 			{authloading && <PageLoading />}
 			{!authloading && <>

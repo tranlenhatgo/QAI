@@ -1,5 +1,7 @@
 import withAuth from '@/lib/withAuth'
 
+const COACH_URL = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
+
 // Disable Next.js body parser so we can forward the raw multipart stream
 export const config = {
   api: {
@@ -12,19 +14,19 @@ async function handler(req, res) {
     return res.status(405).json({ message: 'Only POST requests allowed', statusCode: 405 })
   }
 
-  const restApiUrl = process.env.REST_API_URL
-  if (!restApiUrl) {
-    return res.status(500).json({ message: 'REST_API_URL not configured', statusCode: 500 })
-  }
-
   try {
-    // Stream the raw request (including multipart headers) directly to the backend
-    const backendResponse = await fetch(`${restApiUrl}/n8n/upload`, {
+    const headers = {
+      // Forward the content-type (includes multipart boundary)
+      'content-type': req.headers['content-type'],
+    }
+    if (process.env.COACH_API_KEY) {
+      headers['X-API-Key'] = process.env.COACH_API_KEY
+    }
+
+    // Forward multipart stream to AI Study Coach
+    const backendResponse = await fetch(`${COACH_URL}/generate/from-file`, {
       method: 'POST',
-      headers: {
-        // Forward the content-type (includes multipart boundary)
-        'content-type': req.headers['content-type'],
-      },
+      headers,
       body: req,
       duplex: 'half',
     })
@@ -33,14 +35,14 @@ async function handler(req, res) {
 
     if (!backendResponse.ok) {
       return res.status(backendResponse.status).json({
-        message: data.message || 'Failed to upload file',
+        message: data.detail || data.message || 'Failed to generate questions from file',
         statusCode: backendResponse.status,
       })
     }
 
     return res.status(200).json(data)
   } catch (error) {
-    console.error('Error in upload proxy:', error.message)
+    console.error('Error in upload/generate:', error.message)
     return res.status(500).json({
       message: 'Internal Server Error',
       statusCode: 500,

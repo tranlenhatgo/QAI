@@ -13,7 +13,6 @@
 	"dependencies": {
 		"@ducanh2912/next-pwa": "^10.2.9",
 		"@next/font": "13.1.5",
-		"cohere-ai": "5.0.2",
 		"cookie": "^1.0.2",
 		"crypto-js": "^4.2.0",
 		"dompurify": "^3.4.1",

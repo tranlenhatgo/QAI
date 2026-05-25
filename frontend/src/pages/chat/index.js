@@ -118,7 +118,7 @@ export default function ChatPage() {
 	return (
 		<>
 			<Head>
-				<title>Qraft | Chat</title>
+				<title>QAI | Chat</title>
 			</Head>
 
 			{/* Header - matches ProfileHeader style */}

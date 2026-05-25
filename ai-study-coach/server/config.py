@@ -5,13 +5,22 @@ class Settings(BaseSettings):
     # Quiz API
     quiz_api_url: str = "http://localhost:8080"
 
-    # LM Studio (local LLM)
+    # LM Studio (local LLM — Lite tier)
     lm_studio_url: str = "http://127.0.0.1:1234"
+    embedding_model: str = "text-embedding-nomic-embed-text-v1.5"
 
-    # External LLM provider
-    external_llm_provider: str = "lm_studio"
-    external_llm_api_key: str = ""  # Only needed for cloud providers (Google, etc.)
-    external_llm_model: str = ""
+    # External LLM provider (Full tier)
+    external_llm_provider: str = "deepseek"
+    external_llm_api_key: str = ""  # DeepSeek API key for Full tier
+    external_llm_model: str = ""  # e.g. "deepseek-v4-flash"
+    llm_timeout_seconds: float = 300.0
+
+    # Supabase (pgvector RAG)
+    supabase_url: str = ""
+    supabase_key: str = ""
+
+    # Search API (web_search tool)
+    search_api_key: str = ""
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./study_coach.db"
@@ -24,5 +33,6 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8080"]
 
     model_config = {"env_file": ".env", "env_prefix": "COACH_"}
+
 
 settings = Settings()

@@ -3,9 +3,12 @@ import PageFooter from '../PageFooter'
 import playSound from '@/helpers/playSound'
 import HomeHeader from './HomeHeader'
 import { useBoundStore } from '@/store/useBoundStore'
+import { useRouter } from 'next/router'
+import { FiZap } from 'react-icons/fi'
 
 export default function MainHome() {
 	const { setDest, user } = useBoundStore(state => state)
+	const router = useRouter()
 	function handleTitleHover(e) {
 		e.target.classList.add('jello-vertical')
 		e.target.style.color = categories[Math.floor(Math.random() * categories.length)].color
@@ -27,13 +30,17 @@ export default function MainHome() {
 			document.getElementById('authDialog')?.showModal(); // Show the auth dialog
 		}
 	}
+	function handleCoach() {
+		playSound('pop')
+		router.push('/coach')
+	}
 
 	return (
 		<main className='mainHome bg-vertical-scroll-animation max-w-6xl relative  mx-auto w-full min-h-[25rem] flex gap-4 flex-col justify-between items-center px-5 md:px-10 py-20 lg:col-start-2 lg:row-start-1 lg:row-end-3 text-center text-white'>
 			<HomeHeader />
 			<article>
 				<h1 className='text-8xl font-medium w-full uppercase z-10 relative' translate='no'>
-					{'Qraft'.split('').map((letter, index) => (
+					{'QAI'.split('').map((letter, index) => (
 						<span key={index} id={letter + index + 10} className='relative inline-block transition-all duration-300' onMouseEnter={handleTitleHover} onMouseLeave={handleTitleLeave}>
 							{letter}
 						</span>
@@ -44,11 +51,17 @@ export default function MainHome() {
 					Play an infinite number of possible questions!
 				</p>
 			</article>
+			<button onClick={handleCoach} id='coach' className='btn-primary uppercase px-4 py-3 text-md w-full max-w-md !bg-emerald-500 before:!bg-emerald-700 ring-4 ring-white/80 shadow-[0_0_0_6px_rgba(16,185,129,0.28)] hover:!bg-emerald-400' >
+				<span className='inline-flex items-center justify-center gap-2'>
+					<FiZap className='text-lg' />
+					AI Coach
+				</span>
+			</button>
 			<div className='sticky bottom-4 z-30 flex flex-col gap-4 mt-auto w-full max-w-md'>
 				<button onClick={handlePlay} id='play' href="play" className='btn-primary uppercase px-6 py-4 text-lg w-full' >
 					Play
 				</button>
-				<button onClick={handleCreate} id='create' href="create" className='btn-primary uppercase px-4 py-2 text-md w-full' >
+				<button onClick={handleCreate} id='create' href="create" className='btn-primary uppercase px-6 py-4 text-lg w-full' >
 					Create
 				</button>
 			</div>

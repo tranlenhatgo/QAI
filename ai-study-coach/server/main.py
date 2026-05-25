@@ -3,13 +3,14 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from server.config import settings
-from server.routes import chat, health
+from server.routes import chat, health, generate, solve
+from server.ws.endpoint import ws_handler
 
 # Logging
 logging.basicConfig(
@@ -114,6 +115,15 @@ app.add_middleware(
 # Routes
 app.include_router(chat.router, tags=["Chat"])
 app.include_router(health.router, tags=["Health"])
+app.include_router(generate.router, tags=["Generation"])
+app.include_router(solve.router, tags=["Solve"])
+
+
+# WebSocket endpoint
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await ws_handler(websocket)
+
 
 # Serve widget static files
 app.mount("/static", StaticFiles(directory="widget"), name="static")

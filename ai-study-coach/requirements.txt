@@ -3,6 +3,8 @@ uvicorn[standard]==0.34.2
 httpx==0.28.1
 pydantic==2.11.1
 pydantic-settings==2.9.1
+python-multipart==0.0.29
 apscheduler==3.11.0
 websockets==15.0.1
 aiosqlite==0.21.0
+supabase==2.16.0
