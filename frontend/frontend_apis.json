@@ -13,7 +13,7 @@
       "name": "Get Questions (AI Generate - Topics)",
       "method": "POST",
       "endpoint": "/api/questions",
-      "description": "Generate questions based on topics using Cohere AI",
+      "description": "Generate questions based on topics using AI Study Coach (DeepSeek LLM)",
       "requestFormat": {
         "topics": ["string"]
       }

@@ -15,9 +15,9 @@ Three-component system: Spring Boot backend, Next.js frontend, FastAPI AI Study 
 Browser → Next.js (Pages Router, :3000)
             ├─→ Spring Boot (:8080) — quiz CRUD, take-quiz, user profile
             │     └─→ Firestore — quiz, question, take_quiz, take_question
-            │     └─→ n8n (:5678) — AI question generation webhooks
-            └─→ AI Study Coach (:8000) — WebSocket chat, LLM coaching
+            └─→ AI Study Coach (:8000) — WebSocket chat, LLM coaching, AI question generation
                   └─→ Spring Boot quiz API — fetch history, quiz details
+                  └─→ DeepSeek API — cloud LLM (Full tier)
                   └─→ LM Studio (:1234) — local LLM via OpenAI-compatible API
 ```
 
@@ -36,7 +36,7 @@ Browser → Next.js (Pages Router, :3000)
 - **Categories**: lowercase in Firestore, enum in Java, string lists in Python
 - **API error shape**: `{ message, statusCode }` from Spring Boot, consumed by both frontend and coach
 - **Auth**: Firebase client-side (frontend) + FirebaseAdmin server-side (Spring Boot); coach uses `X-API-Key`
-- **n8n**: `http://localhost:5678/webhook` — AI question generation pipeline, called by both frontend and backend
+- **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints (DeepSeek LLM)
 
 ## Data Flow: Quiz Completion → Coach
 

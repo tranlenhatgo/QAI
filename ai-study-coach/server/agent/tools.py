@@ -1,7 +1,7 @@
 """Tool definitions for the agentic study coach.
 
 Each tool is defined in OpenAI function-calling format so it works
-with both Groq and Google Gemini via their OpenAI-compatible endpoints.
+with both local (LM Studio) and DeepSeek via their OpenAI-compatible endpoints.
 """
 
 # All available tools the coach can use

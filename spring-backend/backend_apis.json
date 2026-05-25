@@ -137,27 +137,6 @@
       "queryParams": {
         "userId": "string"
       }
-    },
-    {
-      "name": "Upload File to n8n",
-      "method": "POST",
-      "endpoint": "/n8n/upload",
-      "description": "Forward file and quiz_id to n8n webhook",
-      "contentType": "multipart/form-data",
-      "formData": {
-        "quiz_id": "string",
-        "data": "file (binary)"
-      }
-    },
-    {
-      "name": "Get Question from n8n",
-      "method": "POST",
-      "endpoint": "/n8n/get-question",
-      "description": "Trigger n8n webhook to get questions for a quiz",
-      "contentType": "application/json",
-      "requestFormat": {
-        "quiz_id": "string"
-      }
     }
   ]
 }

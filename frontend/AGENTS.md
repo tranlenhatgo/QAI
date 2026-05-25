@@ -21,8 +21,8 @@
 - Existing UI logic relies on direct DOM operations (`document.getElementById`, `querySelectorAll`) for dialogs, keyboard shortcuts, and animation classes.
 
 ## Integrations and Env
-- Required env vars discovered in code: `REST_API_URL`, `NEXT_PUBLIC_REST_API_URL`, `ANSWER_ENCRYPTION_KEY`, `COHERE_API_KEY`.
-- AI question generation uses both local Cohere endpoint (`src/pages/api/questions.js`) and backend n8n endpoints (`src/pages/api/question/get-ai-question.js`, `src/helpers/quiz/fileToGenerate.js`).
+- Required env vars discovered in code: `REST_API_URL`, `NEXT_PUBLIC_REST_API_URL`, `ANSWER_ENCRYPTION_KEY`, `STUDY_COACH_API_URL` (or `NEXT_PUBLIC_STUDY_COACH_API_URL`), `COACH_API_KEY`.
+- AI question generation calls AI Study Coach `/generate/from-topics` and `/generate/from-file` endpoints (replaced Cohere + n8n).
 - Firebase auth is client-side in `src/helpers/auth/firebase.js`; session auth UX uses `sessionStorage.user` + `dest` redirect state in `useAuth`.
 - PWA is enabled through `next.config.js` (`@ducanh2912/next-pwa`) and disabled in development.
 

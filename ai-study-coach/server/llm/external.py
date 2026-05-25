@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 # Provider configs
 PROVIDERS = {
-    "google": {
-        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-        "default_model": "gemini-2.5-flash",
+    "deepseek": {
+        "base_url": "https://api.deepseek.com/chat/completions",
+        "default_model": "deepseek-v4-flash",
         "requires_auth": True,
     },
     "lm_studio": {
@@ -36,7 +36,7 @@ class ExternalLLMClient:
         self.api_key = api_key if api_key is not None else settings.external_llm_api_key
         self.model = model or settings.external_llm_model
 
-        self._provider_config = PROVIDERS.get(self.provider, PROVIDERS["google"])
+        self._provider_config = PROVIDERS.get(self.provider, PROVIDERS["deepseek"])
         if self.provider == "lm_studio":
             self.base_url = f"{settings.lm_studio_url.rstrip('/')}/v1/chat/completions"
         else:
