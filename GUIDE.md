@@ -166,6 +166,24 @@ Terminal 3: `cd ai-study-coach && venv\Scripts\activate && python -m uvicorn ser
 
 ---
 
+## Optional: Firestore MCP
+
+The repo includes `firestore-mcp/`, a Python MCP server for direct CRUD access to QAI Firestore collections:
+
+```bash
+cd firestore-mcp
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+python server.py
+```
+
+By default it uses `spring-backend/src/main/resources/serviceAccountKey.json`.
+
+Important: this MCP bypasses Spring Boot validation and can permanently delete Firestore documents. Use the QAI schema field names documented in `firestore-mcp/README.md`.
+
+---
+
 ## 5. Integration Flow (How Components Connect)
 
 ```

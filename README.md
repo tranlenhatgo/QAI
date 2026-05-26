@@ -12,6 +12,7 @@ An interactive quiz platform with AI-powered study coaching, spaced repetition, 
 - **Weakness Detection** — Algorithmic analysis of quiz history to identify weak areas
 - **Step-by-Step Solver** — AI breaks down complex problems into guided steps
 - **Notifications** — Review reminders and progress milestones
+- **Firestore MCP** — Direct MCP CRUD tools for QAI Firestore collections
 - **PWA** — Installable, offline-capable progressive web app
 
 ## Architecture
@@ -70,6 +71,7 @@ QAI/
 ├── spring-backend/    Spring Boot 3.4, Firestore, REST API
 ├── frontend/          Next.js Pages Router, Zustand, Tailwind
 ├── ai-study-coach/    FastAPI, SM-2, LLM agent, WebSocket
+├── firestore-mcp/     Python MCP server for Firestore CRUD tools
 ├── AGENTS.md          Project conventions for AI agents
 ├── CLAUDE.md          Behavioral guidelines
 ├── GUIDE.md           Detailed setup & run guide

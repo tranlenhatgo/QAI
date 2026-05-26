@@ -1,3 +1,12 @@
 .codegraph/
 .cursor/
 .playwright-mcp/
+.vscode/
+firestore-mcp/
+
+# Python local artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+firestore-mcp/.venv/
+firestore-mcp/venv/

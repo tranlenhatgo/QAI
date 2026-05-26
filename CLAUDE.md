@@ -75,7 +75,47 @@ Before changing code:
 After changing files:
 - Run `codegraph sync .` if the index may be stale.
 
-## 6. Goal-Driven Execution
+## 6. Firestore MCP Usage
+
+**AI agents can use the local `firestore-mcp` server for QAI Firestore CRUD.**
+
+This project includes a Python MCP server in `firestore-mcp/` that exposes direct Firestore tools for the allowed QAI collections:
+- `quiz`
+- `question`
+- `take_quiz`
+- `take_question`
+- `review_schedule`
+- `notification`
+
+Available tools:
+- `firestore_list_collections`
+- `firestore_get_document`
+- `firestore_query_documents`
+- `firestore_create_document`
+- `firestore_update_document`
+- `firestore_delete_document`
+
+Local setup:
+- Dependencies are installed in `firestore-mcp/.venv/`.
+- VS Code/Copilot workspace config lives at `.vscode/mcp.json`.
+- Codex user config can register the same server from `C:\Users\miumu\.codex\config.toml`.
+- Default Firebase credential path is `spring-backend/src/main/resources/serviceAccountKey.json`.
+
+Safety rules:
+- Treat `firestore-mcp` as direct database access. It bypasses Spring Boot validation.
+- Preserve QAI Firestore field names exactly, including snake_case and camelCase fields already used by the schema.
+- Prefer read-only tools first when investigating data.
+- Use create/update/delete only when the user explicitly asks for database mutation or the task clearly requires it.
+- `firestore_delete_document` is a permanent delete. Confirm the target collection and document ID before using it.
+
+Example agent requests:
+```text
+Use qai-firestore to list the allowed Firestore collections.
+Use qai-firestore to query notification where user_id == "abc123", limit 10.
+Use qai-firestore to update notification a1b2c3d4 with read=true.
+```
+
+## 7. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
