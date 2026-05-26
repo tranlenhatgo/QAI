@@ -26,7 +26,18 @@ class QuizAPIClient:
                 timeout=10,
             )
             if resp.status_code == 404:
-                return []
+                profile_resp = await client.get(
+                    f"{self.base_url}/user/quiz-profile",
+                    params={"userId": player_id},
+                    timeout=10,
+                )
+                if profile_resp.status_code == 404:
+                    return []
+                profile_resp.raise_for_status()
+                return [
+                    TakeQuizResponse(**item)
+                    for item in profile_resp.json().get("quizzesTaken", [])
+                ]
             resp.raise_for_status()
             return [TakeQuizResponse(**item) for item in resp.json()]
 

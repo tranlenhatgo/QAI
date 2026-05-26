@@ -1,5 +1,8 @@
 package com.myproject.quizzai.utils;
 
+import com.google.cloud.Timestamp;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -11,5 +14,11 @@ public class TimeUtils {
         return now.format(formatter);
     }
 
+    public static String toIsoString(Timestamp timestamp) {
+        if (timestamp == null) {
+            return null;
+        }
+        return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos()).toString();
+    }
 
 }

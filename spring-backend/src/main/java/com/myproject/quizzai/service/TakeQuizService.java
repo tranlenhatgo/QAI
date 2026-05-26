@@ -7,6 +7,7 @@ import com.myproject.quizzai.model.Quiz;
 import com.myproject.quizzai.model.Status;
 import com.myproject.quizzai.model.TakeQuiz;
 import com.myproject.quizzai.utils.IdUtil;
+import com.myproject.quizzai.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -130,6 +131,9 @@ public class TakeQuizService {
         List<TakeQuizResponseDto> takeQuizResponseDtos = new ArrayList<>();
 
         for (TakeQuiz takeQuiz : takeQuizzes) {
+            if (takeQuiz.getScore() == null || takeQuiz.getScore().isBlank()) {
+                continue;
+            }
             String quizId = takeQuiz.getQuiz_id();
             QuizResponseDto quizResponse = quizService.getQuizById(quizId);
 
@@ -140,7 +144,7 @@ public class TakeQuizService {
                     .quizTitle(quizTitle)
                     .score(takeQuiz.getScore())
                     .status(takeQuiz.getStatus().toString())
-                    .updatedAt(takeQuiz.getUpdated_at().toString())
+                    .updatedAt(TimeUtils.toIsoString(takeQuiz.getUpdated_at()))
                     .build();
 
             takeQuizResponseDtos.add(takeQuizResponseDto);

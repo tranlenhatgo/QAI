@@ -207,7 +207,7 @@ class QuizHistoryTool(BaseTool):
         if subject:
             params["subject"] = subject
         
-        response = await self.java_client.get("/api/quiz-history", params=params)
+        response = await self.java_client.get(f"/take-quiz/player/{user_id}")
         
         # Format for LLM consumption
         results = response.json()

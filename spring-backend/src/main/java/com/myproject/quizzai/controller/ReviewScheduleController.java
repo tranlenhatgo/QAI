@@ -41,6 +41,22 @@ public class ReviewScheduleController {
         return ResponseEntity.ok(schedules);
     }
 
+    @GetMapping
+    @Operation(summary = "Get all review schedules")
+    public ResponseEntity<List<ReviewScheduleResponseDto>> getAll() {
+        logger.info("getAll() review schedules");
+        List<ReviewScheduleResponseDto> schedules = reviewScheduleService.getAll();
+        return ResponseEntity.ok(schedules);
+    }
+
+    @GetMapping("/due")
+    @Operation(summary = "Get all due review schedules")
+    public ResponseEntity<List<ReviewScheduleResponseDto>> getAllDue() {
+        logger.info("getAllDue() review schedules");
+        List<ReviewScheduleResponseDto> schedules = reviewScheduleService.getAllDue();
+        return ResponseEntity.ok(schedules);
+    }
+
     @GetMapping("/user/{userId}/due")
     @Operation(summary = "Get due review schedules for a user (next_review <= now)")
     public ResponseEntity<List<ReviewScheduleResponseDto>> getDueByUserId(@PathVariable String userId) {

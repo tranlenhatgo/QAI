@@ -44,7 +44,7 @@
 - **Question creation/update**: `POST /question`, `POST /question/update` → `QuestionService` → collection `question`
 - **Play flow**: `POST /take-quiz/start` creates `take_quiz` (status `PENDING`) and returns quiz questions
 - **End flow**: `POST /take-quiz/end` saves answers into `take_question`, computes score (`"x/y"`), updates `take_quiz` status/score, then `WebhookService` fires webhook to AI Coach
-- **Review schedule**: `PUT /review-schedule/{id}` updates interval/easiness/next_review (called by AI Coach after SM-2 computation)
+- **Review schedule**: `POST /review-schedule` upserts interval/easiness/next_review (called by AI Coach after SM-2 computation)
 - **Notifications**: `POST /notification/` creates notification (called by AI Coach scheduler), `GET /notification/user/{id}/unread` returns unread, `PATCH /notification/{id}/read` marks read
 - **User profile**: `GET /user/quiz-profile` composes data from both `QuizService` and `TakeQuizService`
 
@@ -68,6 +68,7 @@
 - Category input arrives as `List<String>` and is converted to enum values in DTO getter (`QuizCreationRequestDto.getCategories()`).
 - Service methods often use `@SneakyThrows` and synchronous `.get()` on Firestore futures; keep async assumptions explicit if refactoring.
 - Score format is always `"correct/total"` string (e.g., "7/10").
+- AI Coach history reads `GET /take-quiz/player/{playerId}` and falls back to `GET /user/quiz-profile?userId=`.
 
 ## Integrations and local setup constraints
 

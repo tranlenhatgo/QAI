@@ -62,7 +62,7 @@ async def store_notification(user_id: str, notification: dict) -> None:
     try:
         payload = {
             "user_id": user_id,
-            "type": notification.get("type", "REVIEW_DUE"),
+            "type": notification.get("type", "REVIEW_DUE").upper(),
             "title": notification.get("type", "Review Due").replace("_", " ").title(),
             "message": notification.get("message", ""),
             "expires_at": (datetime.now() + timedelta(days=7)).isoformat() + "Z",
@@ -117,7 +117,7 @@ async def check_due_reviews() -> None:
                     (datetime.now() - item.next_review).days > 1 for item in due_items
                 )
                 notification = {
-                    "type": "due_reviews",
+                    "type": "REVIEW_DUE",
                     "due_categories": due_categories,
                     "message": f"You have {len(due_items)} topic(s) due for review: {', '.join(due_categories)}",
                     "priority": "high" if overdue else "normal",

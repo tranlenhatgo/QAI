@@ -7,6 +7,7 @@ import com.myproject.quizzai.dto.NotificationCreateDto;
 import com.myproject.quizzai.dto.NotificationResponseDto;
 import com.myproject.quizzai.model.Notification;
 import com.myproject.quizzai.utils.IdUtil;
+import com.myproject.quizzai.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -108,8 +109,8 @@ public class NotificationService {
                 .title(n.getTitle())
                 .message(n.getMessage())
                 .read(n.isRead())
-                .created_at(n.getCreated_at() != null ? n.getCreated_at().toString() : null)
-                .expires_at(n.getExpires_at() != null ? n.getExpires_at().toString() : null)
+                .created_at(TimeUtils.toIsoString(n.getCreated_at()))
+                .expires_at(TimeUtils.toIsoString(n.getExpires_at()))
                 .build();
     }
 

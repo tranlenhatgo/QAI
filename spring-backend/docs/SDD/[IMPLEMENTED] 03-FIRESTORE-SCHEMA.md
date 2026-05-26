@@ -57,7 +57,7 @@ All persistence uses **Google Firestore** (NoSQL document database). Each entity
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | string | 8-char UUID |
-| `take_quiz_id` | string | Parent session ID |
+| `take_id` | string | Parent `take_quiz` session ID |
 | `question_id` | string | Question being answered |
 | `answer` | string | Student's answer |
 | `check_answer` | string | `"1"` or `"2"` = correct, `"-1"` = incorrect |
@@ -69,7 +69,7 @@ All persistence uses **Google Firestore** (NoSQL document database). Each entity
 ```
 quiz (1) ──→ (N) question        (via quiz_id)
 quiz (1) ──→ (N) take_quiz       (via quiz_id)
-take_quiz (1) ──→ (N) take_question  (via take_quiz_id)
+take_quiz (1) ──→ (N) take_question  (via take_id)
 question (1) ──→ (N) take_question   (via question_id)
 ```
 
@@ -95,7 +95,7 @@ question (1) ──→ (N) take_question   (via question_id)
 | `repetitions` | number | Consecutive successful reviews |
 | `next_review` | Timestamp | When this category is due for review |
 | `last_reviewed` | Timestamp | When the user last reviewed this category |
-| `last_score` | string | Score in "correct/total" format |
+| `last_score` | string | Last category accuracy as decimal string (legacy "correct/total" also accepted by Coach) |
 | `updated_at` | Timestamp | Last update timestamp |
 
 **Unique constraint**: One document per `(user_id, category)` pair — upsert logic in service.

@@ -26,6 +26,7 @@
 |--------|----------|-------------|
 | POST | `/take-quiz/start` | Start a quiz session (creates `take_quiz` record) |
 | POST | `/take-quiz/end` | Submit answers, compute score, update status |
+| GET | `/take-quiz/player/{playerId}` | Completed quiz attempts for AI Coach history |
 
 ### User (`/user`)
 
@@ -54,7 +55,7 @@
 **Response** (`QuizResponseDto`):
 ```json
 {
-  "id": "q1a2b3c4",
+  "quiz_id": "q1a2b3c4",
   "host_id": "abc12345",
   "title": "My Quiz",
   "description": "A sample quiz",
@@ -96,11 +97,21 @@
 }
 ```
 
-**Response** (`TakeQuizResponseDto`):
+**Response**:
 ```json
 {
+  "message": "Quiz ended successfully"
+}
+```
+
+**History Response** (`GET /take-quiz/player/{playerId}` returns `TakeQuizResponseDto[]`):
+```json
+{
+  "quizId": "q1a2b3c4",
+  "quizTitle": "My Quiz",
   "score": "7/10",
-  "status": "COMPLETED"
+  "status": "ACTIVE",
+  "updatedAt": "2024-01-01T11:00:00Z"
 }
 ```
 
@@ -124,7 +135,8 @@ The AI Study Coach (`server/quiz_client/`) calls these endpoints:
 
 | Endpoint | Purpose in Coach |
 |----------|-----------------|
-| `GET /quiz/user/{userId}` | Fetch student's quiz history for analysis |
+| `GET /quiz/user/{userId}` | Fetch quizzes created by a user |
+| `GET /take-quiz/player/{playerId}` | Fetch completed attempts for progress/weakness analysis |
 | `GET /quiz/{id}` | Get quiz details for context |
 | `GET /question/quizId/{quizId}` | Get questions for a specific quiz |
 | `GET /user/quiz-profile?userId=` | Full profile for coaching insights |

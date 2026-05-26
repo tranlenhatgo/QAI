@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.myproject.quizzai.model.TakeQuiz;
+import com.myproject.quizzai.utils.TimeUtils;
 
 import java.util.Map;
 
@@ -45,14 +46,13 @@ public class WebhookService {
         }
 
         try {
+            String completedAt = TimeUtils.toIsoString(takeQuiz.getEnd_time());
             Map<String, Object> payload = Map.of(
                 "user_id", takeQuiz.getPlayer_id(),
                 "quiz_id", quizId,
                 "score", takeQuiz.getScore(),
                 "category", category != null ? category : "unknown",
-                "completed_at", takeQuiz.getEnd_time() != null
-                    ? takeQuiz.getEnd_time().toString()
-                    : ""
+                "completed_at", completedAt != null ? completedAt : ""
             );
 
             HttpHeaders headers = new HttpHeaders();

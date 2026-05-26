@@ -51,10 +51,11 @@ POST /take-quiz/end { takeId, takeQuestionSaveRequestDtos[] }
     → For each answer:
       → IdUtil.generateId() → take_question ID
       → Saves to take_question collection
-    → Counts correct answers (check_answer == "1" or "2")
+    → Counts correct answers (check_answer == "CORRECT")
     → Computes score string: "correct/total"
-    → Updates take_quiz: status=COMPLETED, score, end_time=now
-  ← TakeQuizResponseDto { score, status, ... }
+    → Updates take_quiz: status=ACTIVE, score, end_time=now
+    → Sends AI Coach webhook for spaced repetition
+  ← { message: "Quiz ended successfully" }
 ```
 
 ---

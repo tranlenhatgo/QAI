@@ -92,12 +92,12 @@ Everything that touches I/O should be async:
 ```python
 # ✅ Correct:
 async def execute(self, arguments: dict) -> str:
-    response = await self.client.get("/api/quiz-history")
+    response = await self.client.get(f"/take-quiz/player/{user_id}")
     return self._format(response.json())
 
 # ❌ Wrong:
 def execute(self, arguments: dict) -> str:
-    response = requests.get("/api/quiz-history")  # Blocks event loop!
+    response = requests.get(f"/take-quiz/player/{user_id}")  # Blocks event loop!
     return self._format(response.json())
 ```
 

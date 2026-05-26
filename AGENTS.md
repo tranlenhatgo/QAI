@@ -45,7 +45,7 @@ Browser → Next.js (Pages Router, :3000)
 1. Frontend submits answers via `take-quiz/end` → Spring Boot computes score
 2. Spring Boot `WebhookService` fires `POST /webhook/quiz-completed` → AI Coach
 3. Coach updates spaced repetition schedule (SM-2): new interval, easiness, next_review
-4. Coach persists updated `ReviewSchedule` via Spring Boot `PUT /review-schedule/{id}`
+4. Coach persists updated `ReviewSchedule` via Spring Boot `POST /review-schedule` upsert
 5. Scheduler (hourly) checks due reviews → creates `Notification` documents
 6. Frontend `NotificationBell` polls notifications → user sees review reminders
 7. User clicks [Review] → plays review quiz → loop back to step 1

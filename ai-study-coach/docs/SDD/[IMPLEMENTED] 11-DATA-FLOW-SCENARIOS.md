@@ -114,7 +114,7 @@
 │                                                                          │
 │  Emits: {"type": "stage", "stage": "fetching_data", "status": "start"}  │
 │                                                                          │
-│  HTTP GET → Java BE: /api/quiz-history?userId=u123&limit=20&subject=math │
+│  HTTP GET → Java BE: /take-quiz/player/u123                              │
 │  Response: [                                                             │
 │    {"quiz_title": "Algebra Quiz 3", "score": 4, "total": 10, ...},      │
 │    {"quiz_title": "Geometry Basics", "score": 8, "total": 10, ...},      │
@@ -402,7 +402,7 @@ Step 5: Emits {"type": "error", "code": "rate_limit",
 │  → Parse score "7/10" → accuracy 0.7                                     │
 │  → Fetch existing ReviewItem for (user_id, category) from Firestore      │
 │  → Apply SM-2: compute new easiness, interval, next_review date          │
-│  → Persist updated ReviewItem via Spring Boot PUT /review-schedule/{id}  │
+│  → Persist updated ReviewItem via Spring Boot POST /review-schedule      │
 │                                                                          │
 └──────────────────────────────────────┬──────────────────────────────────┘
                                        ↓

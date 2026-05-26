@@ -227,8 +227,7 @@ async def _weakness_workflow(self, messages, intent_result, on_event, cancelled)
     
     # Code fetches data (not LLM)
     quiz_history = await self.java_client.get(
-        "/api/quiz-history",
-        params={"userId": self.user_id, "limit": 20}
+        f"/take-quiz/player/{self.user_id}"
     )
     
     await on_event({"type": "stage", "stage": "fetching_data", "status": "end"})
@@ -284,10 +283,10 @@ async def _recommend_workflow(self, messages, intent_result, on_event, cancelled
     
     # Fetch both history and available quizzes
     quiz_history = await self.java_client.get(
-        "/api/quiz-history", params={"userId": self.user_id, "limit": 10}
+        f"/take-quiz/player/{self.user_id}"
     )
     available_quizzes = await self.java_client.get(
-        "/api/quizzes/available", params={"userId": self.user_id}
+        f"/user/quiz-profile?userId={self.user_id}"
     )
     
     await on_event({"type": "stage", "stage": "fetching_data", "status": "end"})

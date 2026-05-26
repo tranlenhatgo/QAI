@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import com.myproject.quizzai.utils.TimeUtils;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,8 +63,8 @@ public class QuizService {
                         .description(quiz.getDescription())
                         .status(quiz.getStatus().name())
                         .categories(quiz.getCategories().stream().map(Category::getName).toList())
-                        .start_time(String.valueOf(quiz.getStart_time()))
-                        .end_time(String.valueOf(quiz.getEnd_time()))
+                        .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                        .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
                         .build())
                 .toList();
     }
@@ -82,8 +83,8 @@ public class QuizService {
                 .description(quiz.getDescription())
                 .status(quiz.getStatus().name())
                 .categories(quiz.getCategories().stream().map(Category::getName).toList())
-                .start_time(String.valueOf(quiz.getStart_time()))
-                .end_time(String.valueOf(quiz.getEnd_time()))
+                .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
                 .build();
     }
 

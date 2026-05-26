@@ -264,7 +264,7 @@ async def test_lite_weakness_fetches_from_java_be():
     )
     
     # Verify Java BE was called
-    assert mock_java.get_called_with("/api/quiz-history")
+    assert mock_java.get_called_with("/take-quiz/player/u123")
     
     # Verify stage events
     stages = [e for e in events if e["type"] == "stage"]

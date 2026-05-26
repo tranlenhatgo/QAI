@@ -4,7 +4,7 @@
 
 After a quiz is completed (`EndQuiz`), send a webhook notification to the AI Study Coach service so it can update spaced repetition schedules, recompute mastery, and prepare proactive coaching context.
 
-**Status: ❌ Not Implemented** — `TakeQuizService.EndQuiz()` saves to Firestore but does not notify any external service.
+**Status: ✅ Implemented** — `TakeQuizService.EndQuiz()` saves to Firestore and notifies AI Coach through `WebhookService`.
 
 **Depends on**: AI Coach `POST /webhook/quiz-completed` endpoint (AI Coach SDD 17).
 

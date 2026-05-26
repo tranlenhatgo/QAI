@@ -136,14 +136,35 @@ class SpacedRepetitionScheduler:
 _BASE_URL = settings.quiz_api_url
 
 
+def _parse_datetime(value: str | None) -> datetime | None:
+    """Parse ISO timestamps from Spring Boot DTOs."""
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+    except (ValueError, TypeError):
+        return None
+
+
+def _parse_last_score(value) -> float:
+    """Accept persisted score as accuracy float string or legacy correct/total string."""
+    if isinstance(value, (int, float)):
+        return float(value)
+    if not isinstance(value, str) or not value.strip():
+        return 0.0
+    text = value.strip()
+    if "/" in text:
+        correct, total = _parse_score(text)
+        return correct / total if total > 0 else 0.0
+    try:
+        return float(text)
+    except ValueError:
+        return 0.0
+
+
 def _response_to_item(data: dict) -> ReviewItem:
     """Convert Spring Boot ReviewScheduleResponseDto to ReviewItem."""
-    next_review = datetime.now()
-    if data.get("next_review"):
-        try:
-            next_review = datetime.fromisoformat(data["next_review"].replace("Z", "+00:00")).replace(tzinfo=None)
-        except (ValueError, TypeError):
-            pass
+    next_review = _parse_datetime(data.get("next_review")) or datetime.now()
 
     return ReviewItem(
         category=data.get("category", ""),
@@ -151,7 +172,7 @@ def _response_to_item(data: dict) -> ReviewItem:
         interval_days=data.get("interval_days", 0),
         easiness=data.get("easiness", 2.5),
         repetitions=data.get("repetitions", 0),
-        last_score=data.get("last_score", 0.0) if isinstance(data.get("last_score"), (int, float)) else 0.0,
+        last_score=_parse_last_score(data.get("last_score")),
     )
 
 
@@ -194,12 +215,6 @@ async def save_schedule(user_id: str, items: list[ReviewItem]) -> None:
         logger.warning("Failed to save schedule for user=%s: %s", user_id, e)
 
 
-async def load_all_schedules() -> dict[str, list[ReviewItem]]:
-    """Load all user schedules — not supported via REST, returns empty for batch."""
-    logger.warning("load_all_schedules() not supported with Firestore backend")
-    return {}
-
-
 def _parse_score(score: str) -> tuple[int, int]:
     """Parse score string like '3/5' into (correct, total)."""
     try:
@@ -207,6 +222,25 @@ def _parse_score(score: str) -> tuple[int, int]:
         return int(parts[0]), int(parts[1])
     except (ValueError, IndexError):
         return 0, 0
+
+
+async def load_all_schedules() -> dict[str, list[ReviewItem]]:
+    """Load all user schedules from Spring Boot and group by user_id."""
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(f"{_BASE_URL}/review-schedule")
+            if resp.status_code != 200:
+                return {}
+
+            grouped: dict[str, list[ReviewItem]] = defaultdict(list)
+            for row in resp.json():
+                user_id = row.get("user_id")
+                if user_id:
+                    grouped[user_id].append(_response_to_item(row))
+            return dict(grouped)
+    except httpx.HTTPError as e:
+        logger.warning("Failed to load all schedules: %s", e)
+        return {}
 
 
 async def on_quiz_completed(user_id: str, category: str, score: str) -> ReviewItem:

@@ -62,7 +62,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 - Top 3 weak topics (lowest scores) as colored badges
 - Study streak counter (consecutive days with activity)
 
-**Data source**: `GET /user/quiz-profile?userId=` → aggregate scores by date and category.
+**Data source**: `GET /api/coach/progress/{userId}` → AI Coach aggregates Spring quiz history.
 
 **Interactions**:
 
@@ -138,7 +138,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 - Color-coded: red (< 50%), amber (50-75%), green (> 75%)
 - [Practice this] button on weak topics
 
-**Data source**: `GET /user/quiz-profile?userId=` → group `take_quiz` by category, average scores
+**Data source**: `GET /api/coach/progress/{userId}` → group `take_quiz` by category, average scores
 
 **Interactions**:
 
@@ -265,10 +265,10 @@ Zustand slice: `useCoach` (in `src/store/useCoach.js`)
 | Generate from file | `POST /generate/from-file` | AI Coach |
 | Solve problem (REST) | `POST /solve` | AI Coach |
 | Solve problem (stream) | WebSocket stage events | AI Coach |
-| Fetch weaknesses | `GET /user/quiz-profile?userId=` | Spring Boot |
+| Fetch weaknesses | `GET /api/coach/progress/{userId}` | AI Coach |
 | Save generated quiz | `POST /quiz` + `POST /question` | Spring Boot |
 | Upload document | (planned) `POST /rag/upload` | AI Coach |
-| Fetch progress | `GET /user/quiz-profile?userId=` | Spring Boot |
+| Fetch progress | `GET /api/coach/progress/{userId}` | AI Coach |
 | Fetch due reviews | `GET /api/coach/review-schedule/user/{userId}/due` | Spring Boot (via BFF) |
 | Complete review | `POST /api/coach/review-completed` | AI Coach (via BFF) |
 | Fetch notifications | `GET /api/coach/notifications/{userId}` | Spring Boot (via BFF) |
