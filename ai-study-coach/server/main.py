@@ -136,6 +136,11 @@ async def websocket_endpoint(websocket: WebSocket):
     await ws_handler(websocket)
 
 
+@app.websocket("/ws/chat")
+async def websocket_chat_endpoint(websocket: WebSocket):
+    await ws_handler(websocket)
+
+
 # Serve widget static files
 app.mount("/static", StaticFiles(directory="widget"), name="static")
 
@@ -147,4 +152,3 @@ async def root():
         "version": "0.1.0",
         "docs": "/docs",
     }
-

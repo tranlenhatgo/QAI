@@ -4,8 +4,10 @@
   // ─── Config ────────────────────────────────────────────
   const config = window.STUDY_COACH_CONFIG || {};
   const userId = config.userId || 'anonymous';
-  const wsUrl = config.serverUrl || 'ws://localhost:8000/ws/chat';
-  const httpUrl = wsUrl.replace(/^ws/, 'http').replace(/\/ws\/chat$/, '/chat');
+  const apiKey = config.apiKey || config.api_key || '';
+  const wsUrl = resolveWsUrl(config.serverUrl || 'ws://localhost:8000/ws');
+  const tier = config.tier === 'lite' ? 'lite' : 'full';
+  let mode = config.mode === 'agentic' ? 'agentic' : 'chat';
 
   // ─── State ─────────────────────────────────────────────
   let ws = null;
@@ -19,6 +21,34 @@
   let reconnectTimer = null;
   let hasUnread = false;
   const MAX_RECONNECT_DELAY = 30000;
+
+  function normalizeServerRoot(serverUrl) {
+    return String(serverUrl || 'ws://localhost:8000/ws')
+      .trim()
+      .replace(/\/+$/, '')
+      .replace(/\/ws\/chat$/i, '')
+      .replace(/\/ws$/i, '')
+      .replace(/\/chat\/agentic$/i, '')
+      .replace(/\/chat$/i, '');
+  }
+
+  function appendQueryParam(url, key, value) {
+    if (!value) return url;
+    return url + (url.includes('?') ? '&' : '?') + encodeURIComponent(key) + '=' + encodeURIComponent(value);
+  }
+
+  function resolveWsUrl(serverUrl) {
+    const root = normalizeServerRoot(serverUrl);
+    let url;
+    if (/^ws(s)?:\/\//i.test(root)) {
+      url = root + '/ws';
+    } else if (/^http(s)?:\/\//i.test(root)) {
+      url = root.replace(/^http:\/\//i, 'ws://').replace(/^https:\/\//i, 'wss://') + '/ws';
+    } else {
+      url = 'ws://' + root + '/ws';
+    }
+    return appendQueryParam(url, 'api_key', apiKey);
+  }
 
   // ─── Inject CSS ────────────────────────────────────────
   function injectCSS() {
@@ -196,8 +226,14 @@
 
     ws.onopen = () => {
       console.log('[StudyCoach] WS connected');
-      setConnected(true);
       reconnectAttempts = 0;
+      ws.send(JSON.stringify({
+        type: 'session_start',
+        tier,
+        mode,
+        user_id: userId,
+        kb_id: config.kbId || '',
+      }));
     };
 
     ws.onmessage = (event) => {
@@ -248,14 +284,24 @@
   // ─── Message Handling ──────────────────────────────────
   function handleServerMessage(data) {
     switch (data.type) {
+      case 'session_ack':
+        mode = data.mode === 'agentic' ? 'agentic' : 'chat';
+        setConnected(true);
+        break;
+      case 'content':
       case 'token':
         handleToken(data.content);
+        break;
+      case 'stage':
+        break;
+      case 'tool':
+        handleTool(data);
         break;
       case 'done':
         handleDone(data.weaknesses);
         break;
       case 'error':
-        handleError(data.content);
+        handleError(data.message || data.content || 'Something went wrong.');
         break;
       default:
         console.warn('[StudyCoach] Unknown message type:', data.type);
@@ -315,6 +361,16 @@
     scrollToBottom();
   }
 
+  function handleTool(data) {
+    const toolName = data.tool_name || 'tool';
+    const label = data.status === 'calling'
+      ? 'Using ' + toolName
+      : data.status === 'error'
+        ? toolName + ' failed'
+        : toolName + ' finished';
+    appendMessage('assistant', label);
+  }
+
   // ─── Send Message ──────────────────────────────────────
   function sendMessage(text) {
     text = text.trim();
@@ -335,40 +391,19 @@
 
     // Send via WS
     const payload = {
-      user_id: userId,
-      message: text,
+      type: 'user_message',
+      content: text,
       history: history.slice(0, -1), // send history without the current message
     };
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(payload));
     } else {
-      // HTTP fallback
-      httpFallback(payload);
+      removeTypingIndicator();
+      appendMessage('error', 'WebSocket is not connected. Reconnecting...');
+      scheduleReconnect();
     }
 
-    scrollToBottom();
-  }
-
-  async function httpFallback(payload) {
-    try {
-      const resp = await fetch(httpUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json();
-      removeTypingIndicator();
-      if (data.content) {
-        const el = appendMessage('assistant', '');
-        const bubble = el.querySelector('.sc-msg-bubble');
-        bubble.innerHTML = renderMarkdown(data.content);
-        history.push({ role: 'assistant', content: data.content });
-      }
-    } catch (e) {
-      removeTypingIndicator();
-      appendMessage('error', 'Failed to reach the server. Please try again.');
-    }
     scrollToBottom();
   }
 

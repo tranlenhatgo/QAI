@@ -4,6 +4,8 @@ import logging
 
 from fastapi import WebSocket, WebSocketDisconnect
 
+from server.config import settings
+from server.llm.base import Message, Role
 from server.router import resolve_capability, Tier, Mode
 from server.ws import session_ack, error_event, done_event
 from server.ws.session import Session
@@ -17,6 +19,16 @@ async def ws_handler(websocket: WebSocket):
     session: Session | None = None
 
     try:
+        if settings.api_key:
+            api_key = (
+                websocket.query_params.get("api_key")
+                or websocket.headers.get("x-api-key", "")
+            )
+            if api_key != settings.api_key:
+                await websocket.send_json(error_event("auth", "Invalid or missing API key"))
+                await websocket.close(code=1008)
+                return
+
         # 1. Wait for session_start
         raw = await websocket.receive_json()
         if raw.get("type") != "session_start":
@@ -27,8 +39,14 @@ async def ws_handler(websocket: WebSocket):
             return
 
         # 2. Create session
-        tier = Tier(raw.get("tier", "full"))
-        mode = Mode(raw.get("mode", "chat"))
+        try:
+            tier = Tier(raw.get("tier", "lite"))
+            mode = Mode(raw.get("mode", "chat"))
+        except ValueError:
+            await websocket.send_json(error_event("protocol", "Invalid tier or mode"))
+            await websocket.close()
+            return
+
         user_id = raw.get("user_id", "")
         kb_id = raw.get("kb_id", "")
 
@@ -69,13 +87,20 @@ async def ws_handler(websocket: WebSocket):
                 if not content:
                     await websocket.send_json(done_event())
                     continue
+                history = _coerce_history(raw.get("history"))
+                if history:
+                    session.messages = history
                 await _handle_user_message(websocket, session, content)
 
             elif msg_type == "stop":
                 session.cancel()
 
             elif msg_type == "mode_switch":
-                new_mode = raw.get("mode", "chat")
+                try:
+                    new_mode = Mode(raw.get("mode", "chat")).value
+                except ValueError:
+                    await websocket.send_json(error_event("protocol", "Invalid mode"))
+                    continue
                 session.switch_mode(new_mode)
                 tool_names = (
                     session.capability.tool_names()
@@ -118,3 +143,27 @@ async def _handle_user_message(websocket: WebSocket, session: Session, content: 
         await websocket.send_json(error_event("internal", str(e)))
 
     await websocket.send_json(done_event(cancelled=session.cancelled))
+
+
+def _coerce_history(raw_history) -> list[Message]:
+    """Convert optional client-side chat history into LLM messages."""
+    if not isinstance(raw_history, list):
+        return []
+
+    role_map = {
+        "system": Role.SYSTEM,
+        "user": Role.USER,
+        "assistant": Role.ASSISTANT,
+    }
+    messages: list[Message] = []
+
+    for item in raw_history:
+        if not isinstance(item, dict):
+            continue
+        role = role_map.get(str(item.get("role", "")).lower())
+        content = item.get("content")
+        if role is None or not isinstance(content, str) or not content.strip():
+            continue
+        messages.append(Message(role=role, content=content.strip()))
+
+    return messages[-20:]

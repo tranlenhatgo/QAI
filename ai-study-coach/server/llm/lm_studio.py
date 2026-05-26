@@ -23,7 +23,7 @@ class LMStudioProvider(LLMService):
 
     def __init__(self, base_url: str = "http://localhost:1234/v1", model: str = ""):
         self.base_url = base_url.rstrip("/")
-        self.model = model or "default"
+        self.model = model.strip() if model else ""
 
     async def complete(
         self,
@@ -33,22 +33,25 @@ class LMStudioProvider(LLMService):
         max_tokens: int = 2048,
     ) -> AsyncIterator[StreamChunk]:
         """Stream tokens from LM Studio. Ignores tools (local models can't handle them)."""
-        payload = {
-            "model": self.model,
-            "messages": [self._format_msg(m) for m in messages],
-            "stream": True,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        }
-
         try:
             async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
+                payload = {
+                    "model": await self._resolve_model(client),
+                    "messages": [self._format_msg(m) for m in messages],
+                    "stream": True,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                }
                 async with client.stream(
                     "POST",
                     f"{self.base_url}/chat/completions",
                     json=payload,
                 ) as resp:
-                    resp.raise_for_status()
+                    if resp.status_code >= 400:
+                        body = (await resp.aread()).decode("utf-8", errors="replace")
+                        raise RuntimeError(
+                            f"LM Studio request failed ({resp.status_code}): {body}"
+                        )
                     async for line in resp.aiter_lines():
                         if not line.startswith("data: "):
                             continue
@@ -67,6 +70,25 @@ class LMStudioProvider(LLMService):
             raise ConnectionError(
                 "LM Studio is not running. Start LM Studio and load a model."
             )
+
+    async def _resolve_model(self, client: httpx.AsyncClient) -> str:
+        """Use configured model, or choose the first loaded chat model from LM Studio."""
+        if self.model:
+            return self.model
+
+        resp = await client.get(f"{self.base_url}/models")
+        resp.raise_for_status()
+        models = resp.json().get("data", [])
+        for model in models:
+            model_id = str(model.get("id", "")).strip()
+            if model_id and "embed" not in model_id.lower():
+                self.model = model_id
+                logger.info("Using LM Studio model: %s", self.model)
+                return self.model
+
+        raise RuntimeError(
+            "No LM Studio chat model is loaded. Load a chat model or set COACH_EXTERNAL_LLM_MODEL."
+        )
 
     def _format_msg(self, msg: Message) -> dict:
         """Convert Message to OpenAI dict format."""

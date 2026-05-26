@@ -29,7 +29,7 @@ The chat widget is configured at app root:
 | -------- | -------- | --------- |
 | Server URL | `NEXT_PUBLIC_STUDY_COACH_API_URL` | `http://localhost:8000` |
 | User ID | From auth store | — |
-| Transport | `webhook` | — |
+| Transport | `websocket` | Direct AI Coach `/ws` streaming |
 | Hidden paths | `[/, /chat, /play]` | Widget hidden on these pages |
 
 `hydrateChat()` is called on mount to restore conversations from localStorage.

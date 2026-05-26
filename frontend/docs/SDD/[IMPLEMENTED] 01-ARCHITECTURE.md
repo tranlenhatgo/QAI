@@ -26,7 +26,7 @@ The QAI frontend is a **Next.js Pages Router** application serving as the primar
 │  /api/quiz/*       │                    │                           │
 │  /api/question/*   │                    │                           │
 │  /api/take/*       │                    │                           │
-│  /api/coach/chat   │                    │                           │
+│  /api/coach/*      │                    │                           │
 │  /api/questions    │                    │                           │
 └────────┬───────────┴────────────────────┴───────────┬───────────────┘
          │                                            │

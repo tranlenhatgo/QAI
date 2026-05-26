@@ -139,7 +139,7 @@ function normalizeQuestions(questions, topic) {
 
 export const useCoachStore = (set, get) => ({
 	activeCoachFeature: 'overview',
-	coachTier: 'full',
+	coachTier: process.env.NEXT_PUBLIC_STUDY_COACH_TIER === 'full' ? 'full' : 'lite',
 
 	generatedQuestions: [],
 	isGenerating: false,

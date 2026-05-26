@@ -181,7 +181,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 - Connection status indicator
 - Minimize/maximize toggle
 
-**Data source**: WebSocket `ws://{COACH_URL}/ws/chat` + HTTP fallback
+**Data source**: WebSocket `ws://{COACH_URL}/ws`
 
 **Interactions**:
 
@@ -251,7 +251,7 @@ Zustand slice: `useCoach` (in `src/store/useCoach.js`)
 
   // UI state
   activeCoachFeature: 'overview',
-  coachTier: 'full',
+  coachTier: 'lite',
 }
 ```
 

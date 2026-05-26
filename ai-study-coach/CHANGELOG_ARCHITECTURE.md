@@ -403,7 +403,7 @@ Response: `{ "problem", "analysis", "steps[]", "final_answer", "confidence" }`
 
 ## What's Still Needed
 
-- [ ] Frontend widget integration (connect to `/ws` instead of REST `/chat`)
+- [x] Frontend widget integration (connects to `/ws` instead of REST `/chat`)
 - [ ] Supabase schema migration (create `documents` + `document_chunks` tables + `match_documents` RPC)
 - [ ] Web search API integration (SerpAPI / Brave Search)
 - [ ] `QuizGenerator` wired into router as additional mode

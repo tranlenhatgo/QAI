@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-AI Study Coach — a FastAPI microservice (Python 3.12+) providing personalized study guidance powered by LLM inference. Integrates with an external Spring Boot quiz platform via REST, streams coaching responses over WebSocket/HTTP, and uses algorithmic learning science (weakness detection, spaced repetition) alongside LLM-generated advice. The coach operates as an **agentic system** — it can take actions on the quiz platform (navigate pages, start quizzes, generate questions) via LLM function calling (tool use).
+AI Study Coach — a FastAPI microservice (Python 3.12+) providing personalized study guidance powered by LLM inference. Integrates with an external Spring Boot quiz platform via REST, streams coaching responses over WebSocket, and uses algorithmic learning science (weakness detection, spaced repetition) alongside LLM-generated advice. The coach operates as an **agentic system** — it can use tools for retrieval, reasoning, recommendations, and quiz-history analysis.
 
 ## Architecture & Data Flow
 
@@ -45,7 +45,7 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/learning/progress.py` — ProgressTracker: mastery, velocity, streaks, trends
 - `server/scheduler/scheduler.py` — APScheduler: hourly due-review check + daily progress snapshot
 - `server/models/schemas.py` — All Pydantic v2 models (chat, quiz API responses, analysis, agent actions, webhook, notifications)
-- `server/routes/chat.py` — `POST /chat` and `POST /chat/agentic` endpoints
+- `server/routes/chat.py` — compatibility `POST /chat` and `POST /chat/agentic` endpoints
 - `server/routes/generate.py` — `POST /generate/from-topics`, `/generate/from-file`, `/generate/get-question` — AI question generation
 - `server/routes/solve.py` — `POST /solve` — Step-by-step problem solving (structured 3-phase pipeline)
 - `server/routes/progress.py` — `GET /progress/{user_id}` — Progress metrics + due reviews
@@ -90,7 +90,7 @@ Integration tests require LM Studio running with a model loaded.
 - **Async everywhere**: All HTTP calls use `httpx.AsyncClient`. All route handlers and client methods are `async`.
 - **Error handling**: Quiz client returns empty list or `None` on 404 — never raises for missing data. LLM errors in `handle_chat()` return user-friendly `ChatResponse` with error message rather than raising. Agentic flow falls back to non-agentic on error.
 - **Lazy imports**: `analyze_weaknesses` and `execute_tool` are imported inside handler functions to avoid circular imports at startup — preserve this pattern.
-- **API key auth**: Protected endpoints (`/chat`, `/chat/agentic`) require `X-API-Key` header when `COACH_API_KEY` is set. Public endpoints (`/`, `/health`, `/docs`) are always open.
+- **API key auth**: Protected HTTP endpoints (`/chat`, `/chat/agentic`) require `X-API-Key` when `COACH_API_KEY` is set. WebSocket clients pass the same key as `?api_key=...` because browsers cannot set custom WebSocket headers. Public endpoints (`/`, `/health`, `/docs`) are always open.
 - **Widget onAction**: The chat widget dispatches `AgentAction` objects to the host page via `window.STUDY_COACH_CONFIG.onAction` callback. The host app is responsible for executing UI actions (navigation, quiz starting, etc.).
 - **Score format**: Quiz scores are strings like `"3/5"` — parsed by `_parse_score()` in `weakness.py`.
 
@@ -111,7 +111,8 @@ Integration tests require LM Studio running with a model loaded.
 | Endpoint | Method | Auth | Purpose |
 | --- | --- | --- | --- |
 | `/health` | GET | Public | Health check + LLM status |
-| `/chat/{mode}` | POST | X-API-Key | Chat (mode: chat/agentic) |
+| `/ws` | WebSocket | `api_key` query | Streaming chat (session_start, user_message, mode_switch) |
+| `/chat/{mode}` | POST | X-API-Key | Compatibility chat (mode: chat/agentic) |
 | `/generate/from-topics` | POST | X-API-Key | Generate questions from topic list |
 | `/generate/from-file` | POST | X-API-Key | Generate questions from uploaded file |
 | `/generate/get-question` | POST | X-API-Key | Generate single question |

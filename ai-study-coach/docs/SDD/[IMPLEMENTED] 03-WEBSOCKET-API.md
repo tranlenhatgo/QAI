@@ -10,6 +10,8 @@ Define the WebSocket communication protocol between the Next.js frontend and the
 
 **Endpoint**: `ws://localhost:8000/ws`
 
+If `COACH_API_KEY` is configured, browser clients authenticate with `ws://localhost:8000/ws?api_key=...` because the WebSocket API cannot set `X-API-Key` headers from the browser.
+
 **Connection flow**:
 
 ```text
@@ -49,6 +51,7 @@ class UserMessage:
     """A user chat message."""
     type: Literal["user_message"] = "user_message"
     content: str = ""
+    history: list[dict] = None  # Optional: localStorage conversation replay after reconnect
     attachments: list[str] = None  # Optional: file URLs for context
 
 @dataclass  

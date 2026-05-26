@@ -39,8 +39,8 @@ GET /health
 | `external_llm` | `"configured"` or `"not configured"` |
 
 ---
-## 3. Chat (Simple)
-**Send a message and get a full response from the study coach.**
+## 3. Chat (Simple HTTP Compatibility)
+**Compatibility endpoint for non-streaming clients. The frontend and widgets use WebSocket chat by default.**
 ```
 POST /chat
 Content-Type: application/json
@@ -82,8 +82,8 @@ To continue a conversation, pass previous messages in `history`:
 }
 ```
 ---
-## 4. Chat Agentic (Tool Use)
-**Send a message and get a response with tool-use actions.** The coach can decide to navigate pages, start quizzes, generate questions, etc.
+## 4. Chat Agentic (HTTP Compatibility)
+**Compatibility endpoint for non-streaming tool-use clients. The frontend and widgets use WebSocket chat by default.** The coach can decide to navigate pages, start quizzes, generate questions, etc.
 ```
 POST /chat/agentic
 Content-Type: application/json
@@ -145,59 +145,51 @@ Copy these into Postman to trigger different tools:
 ## 5. WebSocket Chat (Streaming)
 **Real-time streaming chat with agentic actions.** Use Postman's WebSocket feature or a WebSocket client.
 ```
-WS ws://localhost:8000/ws/chat
+WS ws://localhost:8000/ws
 ```
 ### Connect
-Open a WebSocket connection to `ws://localhost:8000/ws/chat`.
+Open a WebSocket connection to `ws://localhost:8000/ws`. If `COACH_API_KEY` is set on the AI Coach service, connect with `?api_key=YOUR_KEY`.
+### Start a Session
+```json
+{"type": "session_start", "tier": "full", "mode": "agentic", "user_id": "test_user_001"}
+```
 ### Send a Message
 ```json
-{
-    "user_id": "test_user_001",
-    "message": "What are my weakest subjects?",
-    "history": []
-}
+{"type": "user_message", "content": "What are my weakest subjects?", "history": []}
 ```
 ### Receive Messages
 The server sends multiple messages in sequence:
-**1. Tokens (streamed one at a time):**
+**1. Content chunks:**
 ```json
-{"type": "token", "content": "Your"}
-{"type": "token", "content": " wea"}
-{"type": "token", "content": "kest"}
-{"type": "token", "content": " sub"}
+{"type": "content", "content": "Your"}
+{"type": "content", "content": " weakest"}
+{"type": "content", "content": " subjects"}
 ```
-**2. Actions (if the coach decides to take action):**
+**2. Tool events (agentic mode):**
 ```json
-{
-    "type": "action",
-    "action": "navigate",
-    "params": {"page": "quiz-list"},
-    "label": "Opening quiz list"
-}
+{"type": "tool", "tool_name": "quiz_history", "status": "calling"}
+{"type": "tool", "tool_name": "quiz_history", "status": "result", "result": "..."}
 ```
 **3. Done signal (always last):**
 ```json
-{
-    "type": "done",
-    "weaknesses": ["GEOGRAPHY", "SCIENCE"]
-}
+{"type": "done"}
 ```
 **4. Error (if something goes wrong):**
 ```json
-{
-    "type": "error",
-    "content": "Failed to generate response."
-}
+{"type": "error", "message": "Failed to generate response."}
 ```
 ### Testing WebSocket in Postman
 1. Click **New** → **WebSocket**
-2. Enter URL: `ws://localhost:8000/ws/chat`
+2. Enter URL: `ws://localhost:8000/ws`
 3. Click **Connect**
 4. In the message box, paste:
 ```json
-{"user_id": "test_user_001", "message": "Help me study", "history": []}
+{"type": "session_start", "tier": "full", "mode": "agentic", "user_id": "test_user_001"}
 ```
-5. Click **Send**
+5. Click **Send**, wait for `session_ack`, then send:
+```json
+{"type": "user_message", "content": "Help me study", "history": []}
+```
 6. Watch the response stream in real-time
 ---
 ## 6. Swagger Docs (Auto-Generated)
@@ -228,9 +220,9 @@ GET /static/widget.css   → Chat widget styles
 Run in this order:
 1. `GET {{base_url}}/` — verify server is up
 2. `GET {{base_url}}/health` — verify LLM is connected
-3. `POST {{base_url}}/chat` — test basic chat
-4. `POST {{base_url}}/chat/agentic` — test agentic mode
-5. `WS ws://localhost:8000/ws/chat` — test streaming
+3. `WS ws://localhost:8000/ws` — test primary streaming chat
+4. `POST {{base_url}}/chat` — test HTTP compatibility chat
+5. `POST {{base_url}}/chat/agentic` — test HTTP compatibility agentic mode
 ---
 ## Notes
 - **No authentication** — all endpoints are open (for development)

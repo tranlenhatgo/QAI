@@ -29,13 +29,13 @@ export default function EmbeddedChat() {
 
 	useEffect(() => {
 		if (!chatReady) hydrateChat()
-		setChatConfig({
-			userId: user?.uid ?? 'anonymous',
-			serverUrl: chatConfig.serverUrl,
-			transport: 'webhook',
-			tier: coachTier,
-			hiddenPaths: ['/', '/chat', '/play', '/coach'],
-		})
+			setChatConfig({
+				userId: user?.uid ?? 'anonymous',
+				serverUrl: chatConfig.serverUrl,
+				transport: 'websocket',
+				tier: coachTier,
+				hiddenPaths: ['/', '/chat', '/play', '/coach'],
+			})
 		setChatSessionActive(true)
 		ensureConversation()
 		connectChat()

@@ -61,6 +61,9 @@ Create `frontend/.env.local`:
 ```
 REST_API_URL=http://localhost:8080
 NEXT_PUBLIC_REST_API_URL=http://localhost:8080
+NEXT_PUBLIC_STUDY_COACH_API_URL=http://localhost:8000
+NEXT_PUBLIC_STUDY_COACH_TIER=lite
+# NEXT_PUBLIC_STUDY_COACH_API_KEY=optional-api-key-for-browser-websocket
 ANSWER_ENCRYPTION_KEY=any-random-string-32-chars
 COHERE_API_KEY=your-cohere-key   # optional, for AI questions via Cohere
 ```
@@ -97,6 +100,7 @@ Edit `ai-study-coach/.env`:
 COACH_QUIZ_API_URL=http://localhost:8080
 COACH_EXTERNAL_LLM_PROVIDER=lm_studio
 COACH_LM_STUDIO_URL=http://127.0.0.1:1234
+# COACH_EXTERNAL_LLM_MODEL=optional-loaded-model-id
 COACH_API_KEY=optional-api-key-for-auth
 ```
 

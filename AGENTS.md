@@ -55,7 +55,7 @@ Browser → Next.js (Pages Router, :3000)
 - ✅ Quiz CRUD (Spring Boot + Firestore)
 - ✅ Quiz play with scoring and history
 - ✅ AI question generation (from topics, files, single question)
-- ✅ AI Chat (WebSocket + HTTP fallback, Lite/Full tiers, Chat/Agentic modes)
+- ✅ AI Chat (WebSocket primary, Lite/Full tiers, Chat/Agentic modes; REST endpoints kept for compatibility)
 - ✅ Step-by-step problem solver
 - ✅ RAG tool (Supabase pgvector)
 - ✅ Spaced repetition (SM-2 algorithm, Firestore persistence)

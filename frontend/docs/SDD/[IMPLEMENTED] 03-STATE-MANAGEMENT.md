@@ -15,7 +15,7 @@ All state is managed via **Zustand** with a merged store pattern. Individual sli
 | `useQuestions` | `useQuestions.js` | Current question set during gameplay |
 | `useWildcards` | `useWildcards.js` | Wildcard items (50/50, skip, etc.) |
 | `useCreate` | `useCreate.js` | Quiz creation form state |
-| `useChat` | `useChat.js` | AI coach conversations, WebSocket/HTTP toggle, settings |
+| `useChat` | `useChat.js` | AI coach conversations, WebSocket session state, settings |
 | `useCoach` | `useCoach.js` | Coach dashboard: progress, generation, solver, reviews, notifications |
 
 ---
@@ -27,8 +27,8 @@ The `useChat` slice is the most complex, managing AI coaching interactions:
 ### Key Features
 
 - **Multi-conversation support** — conversations persisted in localStorage
-- **Dual transport** — WebSocket (`ws://`) or HTTP fallback (`/api/coach/chat`)
-- **Chat modes** — `simple` (direct REST) / `agentic` (tool-augmented LLM)
+- **WebSocket transport** — direct AI Coach connection at `ws://{COACH_URL}/ws`
+- **Chat modes** — `simple` (direct chat capability) / `agentic` (tool-augmented LLM)
 - **Auto-reconnect** — automatic WebSocket reconnection on failure
 - **Configurable URL** — server URL via `NEXT_PUBLIC_STUDY_COACH_API_URL`
 
@@ -41,15 +41,15 @@ The `useChat` slice is the most complex, managing AI coaching interactions:
   isConnected: false,      // WebSocket connection status
   isStreaming: false,      // Currently receiving stream chunks
   chatMode: 'simple',     // 'simple' | 'agentic'
-  useWebSocket: true,     // Transport toggle
+  transport: 'websocket', // 'websocket' by default; 'webhook' only for legacy HTTP proxy
   serverUrl: '...',       // AI Coach base URL
 }
 ```
 
 ### Actions
 
-- `openChatSocket()` — establish WebSocket connection
-- `sendMessage(content)` — send via WS or HTTP based on toggle
+- `connectChat()` — establish WebSocket connection and send `session_start`
+- `sendChatMessage(content)` — send a `user_message` over the active WebSocket
 - `createConversation()` — start new conversation thread
 - `switchConversation(id)` — change active conversation
 - `clearConversation()` — reset current thread
@@ -81,7 +81,7 @@ The `useCoach` slice manages all Coach Dashboard features including question gen
   upcomingReviews: [],        // Reviews coming soon
   notifications: [],          // { id, title, message, type, read }
   activeCoachFeature: 'overview',  // Current dashboard tab
-  coachTier: 'full',          // 'lite' | 'full'
+  coachTier: 'lite',          // 'lite' | 'full'
 }
 ```
 

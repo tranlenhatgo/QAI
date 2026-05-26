@@ -10,7 +10,7 @@ from typing import Any, Literal
 @dataclass
 class SessionStartMessage:
     type: Literal["session_start"] = "session_start"
-    tier: Literal["lite", "full"] = "full"
+    tier: Literal["lite", "full"] = "lite"
     mode: Literal["chat", "agentic"] = "chat"
     user_id: str = ""
     kb_id: str = ""

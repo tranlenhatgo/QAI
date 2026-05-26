@@ -79,7 +79,7 @@ export default function ChatPage() {
 		setChatConfig({
 			userId: user?.uid ?? 'anonymous',
 			serverUrl: chatConfig.serverUrl,
-			transport: 'webhook',
+			transport: 'websocket',
 			hiddenPaths: ['/chat'],
 		})
 		setChatSessionActive(true)

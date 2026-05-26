@@ -47,6 +47,10 @@ class ExternalLLMClient:
     def _headers(self) -> dict:
         headers = {"Content-Type": "application/json"}
         if self._provider_config.get("requires_auth", True):
+            if not self.api_key:
+                raise RuntimeError(
+                    f"{self.provider} requires COACH_EXTERNAL_LLM_API_KEY."
+                )
             headers["Authorization"] = f"Bearer {self.api_key}"
         return headers
 

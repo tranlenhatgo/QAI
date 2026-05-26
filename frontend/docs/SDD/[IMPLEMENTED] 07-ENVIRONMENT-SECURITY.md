@@ -10,6 +10,7 @@
 | `STUDY_COACH_API_URL` | Yes | AI Study Coach base URL (default: `http://localhost:8000`) |
 | `COACH_API_KEY` | No | API key for AI Study Coach (if auth enabled) |
 | `NEXT_PUBLIC_STUDY_COACH_API_URL` | No | AI Coach URL for client-side (WebSocket chat) |
+| `NEXT_PUBLIC_STUDY_COACH_API_KEY` | No | Browser WebSocket API key; required only if AI Coach `COACH_API_KEY` is enforced |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes | Firebase client API key |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes | Firebase auth domain |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | Firebase project ID |

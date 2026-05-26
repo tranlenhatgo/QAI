@@ -8,7 +8,7 @@ The frontend uses a Backend-For-Frontend pattern — browser code calls helper f
 Browser → src/helpers/* → src/pages/api/* → External Services
 ```
 
-This keeps secrets (API keys, encryption keys) server-side and provides a unified error shape.
+This keeps secrets (API keys, encryption keys) server-side and provides a unified error shape. AI Coach chat is the one direct-browser integration: it uses the FastAPI WebSocket at `/ws` for streaming.
 
 ---
 
@@ -32,7 +32,7 @@ This keeps secrets (API keys, encryption keys) server-side and provides a unifie
 | `/api/quiz/upload` | POST | AI Study Coach | Upload file for question generation |
 | `/api/take/take-quiz` | POST | Spring Boot | Start quiz session |
 | `/api/take/save-attempt` | POST | Spring Boot | Submit quiz results |
-| `/api/coach/chat` | POST | AI Study Coach | Proxy to HTTP chat endpoint |
+| `/api/coach/chat` | POST | AI Study Coach | Legacy HTTP chat proxy |
 | `/api/coach/generate-questions` | POST | AI Study Coach | Generate questions (dashboard) |
 | `/api/coach/solve` | POST | AI Study Coach | Step-by-step problem solving |
 | `/api/coach/progress/[userId]` | GET | AI Study Coach | Fetch progress metrics |
@@ -65,7 +65,8 @@ API routes proxying to the AI Study Coach (`STUDY_COACH_API_URL`):
 | `/api/questions` | `POST /generate/from-topics` | Generate questions from topic list |
 | `/api/question/get-ai-question` | `POST /generate/get-question` | Generate single question |
 | `/api/quiz/upload` | `POST /generate/from-file` | Generate from uploaded file |
-| `/api/coach/chat` | `POST /chat/{mode}` | AI coaching chat (simple/agentic) |
+| Browser WebSocket | `WS /ws` | Streaming AI coaching chat (simple/agentic) |
+| `/api/coach/chat` | `POST /chat/{mode}` | Legacy non-streaming chat compatibility |
 | `/api/coach/generate-questions` | `POST /generate/from-topics` | Dashboard question generation |
 | `/api/coach/solve` | `POST /solve` | Step-by-step problem solver |
 | `/api/coach/progress/[userId]` | `GET /progress/{user_id}` | Progress and mastery metrics |

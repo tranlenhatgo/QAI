@@ -41,10 +41,11 @@ GameOver.jsx → saveAttempt() → POST /api/take/save-attempt
 ## AI Coach Flow (WebSocket)
 
 ```text
-useChat store → openChatSocket() → ws://{COACH_URL}/ws/chat
-  → send: {type: "chat_message", content: "..."}
-  → receive: {type: "stream_chunk|stream_end|error", ...}
-  → fallback: POST /api/coach/chat (HTTP) on failure
+useChat store → connectChat() → ws://{COACH_URL}/ws
+  → send: {type: "session_start", tier, mode, user_id}
+  → receive: {type: "session_ack", ...}
+  → send: {type: "user_message", content: "...", history: [...]}
+  → receive: {type: "content|stage|tool|done|error", ...}
 ```text
 **Actors**: Chat page → useChat store → AI Study Coach WebSocket
 **Result**: Streaming AI response rendered in chat UI

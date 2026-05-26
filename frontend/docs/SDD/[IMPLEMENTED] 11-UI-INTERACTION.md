@@ -8,7 +8,7 @@
 | Play | `/play` | Question gameplay with timer, wildcards, keyboard shortcuts |
 | Create | `/create` | Quiz creation (title, categories, questions) |
 | Profile | `/profile` | Quiz history, leaderboard, attempt stats |
-| Chat | `/chat` | Full AI Study Coach interface (WebSocket/HTTP) |
+| Chat | `/chat` | Full AI Study Coach interface (WebSocket) |
 
 ---
 

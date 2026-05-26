@@ -47,7 +47,7 @@ export default function App({ Component, pageProps }) {
 		setChatConfig({
 			userId: user?.uid ?? 'anonymous',
 			serverUrl: studyCoachServerUrl,
-			transport: 'webhook',
+			transport: 'websocket',
 			hiddenPaths: studyCoachHiddenPaths,
 		})
 		hydrateChat()

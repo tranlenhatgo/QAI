@@ -5,7 +5,7 @@
 - This is a Next.js Pages Router frontend (no `app/`) for QAI quiz play, quiz-room features, and the AI Coach dashboard.
 - `src/pages/_app.js` mounts global dialogs once (`PlayForm`, `AuthForm`, `CreateQuizRoomForm`), and pages trigger them by DOM id.
 - State is centralized in merged Zustand slices via `src/store/useBoundStore.js`.
-- The app is a BFF frontend: browser → `src/helpers/**` → `src/pages/api/**` → external REST services.
+- The app is primarily a BFF frontend: browser → `src/helpers/**` → `src/pages/api/**` → external REST services. AI Coach chat is the exception: `useChat` connects directly to the FastAPI WebSocket at `/ws`.
 
 ## Pages
 
@@ -52,7 +52,7 @@ Merged slices in `src/store/useBoundStore.js`:
 - **Join quiz room**: `takeQuiz` helper → `queries.quizmode=true` → `/play` → fetch from Spring Boot
 - **Quiz completion**: `GameOver.jsx` → `saveAttempt` → Spring Boot `take-quiz/end` → `WebhookService` fires to AI Coach
 - **Answer security**: Answers encrypted at fetch time (`take-quiz.js`), checked/decrypted via `check-answer.js` and `get-answer.js`
-- **Coach dashboard**: `/coach` → `useCoach` actions → BFF routes (`/api/coach/*`) → AI Coach / Spring Boot
+- **Coach dashboard**: `/coach` → `useCoach` actions → BFF routes (`/api/coach/*`) → AI Coach / Spring Boot; embedded chat uses direct AI Coach WebSocket
 - **Spaced repetition**: DueReviews loads via `fetchDueReviews()` → coach progress endpoint → user clicks [Review] → quiz play → webhook cycle
 - **Notifications**: `NotificationBell` polls `GET /api/coach/notifications/{userId}` → displays unread → mark-read on dismiss
 
@@ -65,7 +65,7 @@ Merged slices in `src/store/useBoundStore.js`:
 | `/api/question/*` | Spring Boot / local | Get questions, check/get answer |
 | `/api/quiz/*` | Spring Boot / AI Coach | Quiz CRUD, upload for AI generation |
 | `/api/take/*` | Spring Boot | Start/end quiz attempts |
-| `/api/coach/chat` | AI Coach | HTTP chat proxy |
+| `/api/coach/chat` | AI Coach | Legacy HTTP chat proxy; normal chat uses WebSocket `/ws` |
 | `/api/coach/generate-questions` | AI Coach | Dashboard question generation |
 | `/api/coach/solve` | AI Coach | Step-by-step solver |
 | `/api/coach/progress/[userId]` | AI Coach | Progress metrics |
@@ -85,7 +85,8 @@ Merged slices in `src/store/useBoundStore.js`:
 
 ## Integrations and Env
 
-- Required env vars: `REST_API_URL`, `NEXT_PUBLIC_REST_API_URL`, `ANSWER_ENCRYPTION_KEY`, `STUDY_COACH_API_URL`, `COACH_API_KEY`.
+- Required env vars: `REST_API_URL`, `NEXT_PUBLIC_REST_API_URL`, `ANSWER_ENCRYPTION_KEY`, `STUDY_COACH_API_URL`, `COACH_API_KEY`, `NEXT_PUBLIC_STUDY_COACH_API_URL`.
+- If the AI Coach enforces `COACH_API_KEY`, browser WebSocket clients also need `NEXT_PUBLIC_STUDY_COACH_API_KEY` so they can connect with `?api_key=...`.
 - AI question generation: AI Study Coach `/generate/from-topics` and `/generate/from-file`.
 - Step solving: AI Study Coach `/solve` through BFF `/api/coach/solve`.
 - Firebase auth: client-side in `src/helpers/auth/firebase.js`; session auth uses `sessionStorage.user` + `dest` redirect.

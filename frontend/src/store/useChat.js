@@ -4,7 +4,9 @@ const CHAT_STORAGE_KEY = 'qraft-chat-state'
 const DEFAULT_SERVER_URL = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 const DEFAULT_HIDDEN_PATHS = ['/chat']
 const DEFAULT_CHAT_MODE = 'simple'
-const DEFAULT_CHAT_TRANSPORT = 'webhook'
+const DEFAULT_CHAT_TRANSPORT = 'websocket'
+const DEFAULT_COACH_TIER = process.env.NEXT_PUBLIC_STUDY_COACH_TIER === 'full' ? 'full' : 'lite'
+const PUBLIC_STUDY_COACH_API_KEY = process.env.NEXT_PUBLIC_STUDY_COACH_API_KEY || process.env.NEXT_PUBLIC_COACH_API_KEY || ''
 
 let chatSocket = null
 let reconnectTimer = null
@@ -81,32 +83,55 @@ function normalizeServerRoot(serverUrl = DEFAULT_SERVER_URL) {
 	const cleaned = String(serverUrl || DEFAULT_SERVER_URL).trim().replace(/\/+$/, '')
 	return cleaned
 		.replace(/\/ws\/chat$/i, '')
+		.replace(/\/ws$/i, '')
 		.replace(/\/chat\/agentic$/i, '')
 		.replace(/\/chat$/i, '')
 }
 
-function resolveWsUrl(serverUrl = DEFAULT_SERVER_URL) {
-	const root = normalizeServerRoot(serverUrl)
-
-	if (/^ws(s)?:\/\//i.test(root)) {
-		return root.endsWith('/ws/chat') ? root : `${root}/ws/chat`
-	}
-
-	if (/^http(s)?:\/\//i.test(root)) {
-		const wsRoot = root.replace(/^http:\/\//i, 'ws://').replace(/^https:\/\//i, 'wss://')
-		return `${wsRoot}/ws/chat`
-	}
-
-	return `ws://${root}/ws/chat`
+function appendQueryParam(url, key, value) {
+	if (!value) return url
+	const separator = url.includes('?') ? '&' : '?'
+	return `${url}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`
 }
 
-function resolveChatHttpUrl(serverUrl = DEFAULT_SERVER_URL, chatMode = DEFAULT_CHAT_MODE) {
+function resolveWsUrl(serverUrl = DEFAULT_SERVER_URL) {
 	const root = normalizeServerRoot(serverUrl)
-	const httpRoot = /^ws(s)?:\/\//i.test(root)
-		? root.replace(/^ws:\/\//i, 'http://').replace(/^wss:\/\//i, 'https://')
-		: root
+	let wsUrl = ''
 
-	return `${httpRoot}${chatMode === 'agentic' ? '/chat/agentic' : '/chat'}`
+	if (/^ws(s)?:\/\//i.test(root)) {
+		wsUrl = `${root}/ws`
+	} else if (/^http(s)?:\/\//i.test(root)) {
+		const wsRoot = root.replace(/^http:\/\//i, 'ws://').replace(/^https:\/\//i, 'wss://')
+		wsUrl = `${wsRoot}/ws`
+	} else {
+		wsUrl = `ws://${root}/ws`
+	}
+
+	return appendQueryParam(wsUrl, 'api_key', PUBLIC_STUDY_COACH_API_KEY)
+}
+
+function toServerMode(chatMode = DEFAULT_CHAT_MODE) {
+	return chatMode === 'agentic' ? 'agentic' : 'chat'
+}
+
+function toClientMode(mode = 'chat') {
+	return mode === 'agentic' ? 'agentic' : DEFAULT_CHAT_MODE
+}
+
+function normalizeTier(tier = DEFAULT_COACH_TIER) {
+	return tier === 'lite' ? 'lite' : 'full'
+}
+
+function buildSessionStartMessage(state) {
+	const config = state.chatConfig || {}
+	return {
+		type: 'session_start',
+		tier: normalizeTier(config.tier),
+		mode: toServerMode(config.chatMode),
+		user_id: config.userId || 'anonymous',
+		kb_id: config.kbId || '',
+		conversation_id: state.activeConversationId || '',
+	}
 }
 
 function updateConversation(conversations, conversationId, updater) {
@@ -166,6 +191,8 @@ export const useChatStore = (set, get) => ({
 		hiddenPaths: DEFAULT_HIDDEN_PATHS,
 		chatMode: DEFAULT_CHAT_MODE,
 		transport: DEFAULT_CHAT_TRANSPORT,
+		tier: DEFAULT_COACH_TIER,
+		kbId: '',
 	},
 	chatSessionActive: false,
 	isOpen: false,
@@ -197,6 +224,8 @@ export const useChatStore = (set, get) => ({
 				userId: nextConfig.userId || state.chatConfig.userId || 'anonymous',
 				chatMode: nextConfig.chatMode || state.chatConfig.chatMode || DEFAULT_CHAT_MODE,
 				transport: nextConfig.transport || state.chatConfig.transport || DEFAULT_CHAT_TRANSPORT,
+				tier: nextConfig.tier || state.chatConfig.tier || DEFAULT_COACH_TIER,
+				kbId: nextConfig.kbId ?? state.chatConfig.kbId ?? '',
 			},
 		}))
 	},
@@ -270,12 +299,16 @@ export const useChatStore = (set, get) => ({
 	clearUnread: () => set({ hasUnread: false }),
 	setDraft: (draft) => set({ draft }),
 	setChatMode: (chatMode) => {
+		const nextMode = chatMode === 'agentic' ? 'agentic' : DEFAULT_CHAT_MODE
 		set(state => ({
 			chatConfig: {
 				...state.chatConfig,
-				chatMode: chatMode === 'agentic' ? 'agentic' : DEFAULT_CHAT_MODE,
+				chatMode: nextMode,
 			},
 		}))
+		if ((get().chatConfig.transport || DEFAULT_CHAT_TRANSPORT) !== 'webhook' && get().isConnected && typeof WebSocket !== 'undefined' && chatSocket?.readyState === WebSocket.OPEN) {
+			chatSocket.send(JSON.stringify({ type: 'mode_switch', mode: toServerMode(nextMode) }))
+		}
 		persistStorage(get())
 	},
 	setSidebarSection: (sidebarSection) => {
@@ -390,7 +423,7 @@ export const useChatStore = (set, get) => ({
 			set({ isConnected: false })
 
 			chatSocket.onopen = () => {
-				set({ isConnected: true })
+				chatSocket.send(JSON.stringify(buildSessionStartMessage(get())))
 				if (reconnectTimer) {
 					clearTimeout(reconnectTimer)
 					reconnectTimer = null
@@ -454,9 +487,44 @@ export const useChatStore = (set, get) => ({
 
 	handleChatSocketMessage: (data) => {
 		switch (data?.type) {
+			case 'session_ack':
+				set(state => ({
+					isConnected: true,
+					chatConfig: {
+						...state.chatConfig,
+						chatMode: toClientMode(data.mode),
+						tier: normalizeTier(data.tier),
+					},
+				}))
+				break
+			case 'content':
 			case 'token':
 				set(state => ({ isStreaming: true, streamingText: `${state.streamingText}${data.content ?? ''}` }))
 				break
+			case 'stage':
+				if (data.status === 'start') {
+					set({ isStreaming: true })
+				}
+				break
+			case 'tool': {
+				const toolName = data.tool_name || 'tool'
+				const label = data.status === 'calling'
+					? `Using ${toolName}`
+					: data.status === 'error'
+						? `${toolName} failed`
+						: `${toolName} finished`
+				const state = get()
+				const activeConversationId = state.activeConversationId || state.ensureConversation()
+				set(chatState => ({
+					conversations: updateConversation(
+						chatState.conversations,
+						activeConversationId,
+						conversation => appendMessageToConversation(conversation, createMessage('action', label)),
+					),
+				}))
+				persistStorage(get())
+				break
+			}
 			case 'action': {
 				const actionItem = {
 					action: data.action || 'unknown',
@@ -497,7 +565,7 @@ export const useChatStore = (set, get) => ({
 				const state = get()
 				const activeConversationId = state.activeConversationId || state.ensureConversation()
 				set(chatState => ({
-					conversations: updateConversation(chatState.conversations, activeConversationId, conversation => appendMessageToConversation(conversation, createMessage('error', data.content ?? 'Something went wrong.'))),
+					conversations: updateConversation(chatState.conversations, activeConversationId, conversation => appendMessageToConversation(conversation, createMessage('error', data.message || data.content || 'Something went wrong.'))),
 					isStreaming: false,
 					streamingText: '',
 				}))
@@ -538,7 +606,21 @@ export const useChatStore = (set, get) => ({
 		const transport = state.chatConfig.transport || DEFAULT_CHAT_TRANSPORT
 
 		if (transport !== 'webhook' && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-			chatSocket.send(JSON.stringify(payload))
+			chatSocket.send(JSON.stringify({
+				type: 'user_message',
+				content: trimmed,
+				history,
+			}))
+			return
+		}
+
+		if (transport !== 'webhook') {
+			set(chatState => ({
+				conversations: updateConversation(chatState.conversations, conversationId, conversation => appendMessageToConversation(conversation, createMessage('error', 'WebSocket is not connected. Reconnecting...'))),
+				isStreaming: false,
+				streamingText: '',
+			}))
+			get().connectChat()
 			return
 		}
 
@@ -571,11 +653,11 @@ export const useChatStore = (set, get) => ({
 
 					return {
 						conversations: withActions,
-					isStreaming: false,
-					streamingText: '',
-					lastWeaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : null,
-					pendingActions: Array.isArray(data.actions) ? data.actions : [],
-					hasUnread: !chatState.isOpen ? true : chatState.hasUnread,
+						isStreaming: false,
+						streamingText: '',
+						lastWeaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : null,
+						pendingActions: Array.isArray(data.actions) ? data.actions : [],
+						hasUnread: !chatState.isOpen ? true : chatState.hasUnread,
 					}
 				})
 				persistStorage(get())

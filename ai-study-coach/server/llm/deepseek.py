@@ -37,6 +37,11 @@ class DeepSeekProvider(LLMService):
         max_tokens: int = 2048,
     ) -> AsyncIterator[StreamChunk]:
         """Stream from DeepSeek. Supports native function calling."""
+        if not self.api_key:
+            raise RuntimeError(
+                "Full tier requires COACH_EXTERNAL_LLM_API_KEY. Use Lite tier for LM Studio."
+            )
+
         payload: dict = {
             "model": self.model,
             "messages": [self._format_msg(m) for m in messages],
