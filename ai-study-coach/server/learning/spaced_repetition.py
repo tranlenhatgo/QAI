@@ -182,7 +182,7 @@ def _item_to_upsert(user_id: str, item: ReviewItem) -> dict:
         "user_id": user_id,
         "category": item.category,
         "easiness": item.easiness,
-        "interval_days": int(item.interval_days) if item.interval_days >= 1 else 1,
+        "interval_days": item.interval_days,
         "repetitions": item.repetitions,
         "next_review": item.next_review.isoformat() + "Z",
         "last_reviewed": datetime.now().isoformat() + "Z",

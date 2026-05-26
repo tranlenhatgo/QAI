@@ -10,9 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.myproject.quizzai.dto.TakeQuestionSaveRequestDto;
+import com.myproject.quizzai.model.CheckAnswer;
 import com.myproject.quizzai.model.TakeQuiz;
 import com.myproject.quizzai.utils.TimeUtils;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -39,7 +43,8 @@ public class WebhookService {
      * Notify AI Coach that a quiz has been completed.
      * Non-blocking: failures are logged but don't affect quiz completion.
      */
-    public void notifyQuizCompleted(TakeQuiz takeQuiz, String quizId, String category) {
+    public void notifyQuizCompleted(TakeQuiz takeQuiz, String quizId, String category,
+                                    List<TakeQuestionSaveRequestDto> questionResults) {
         if (!enabled || apiKey.isEmpty()) {
             logger.debug("Webhook disabled or no API key configured, skipping");
             return;
@@ -47,13 +52,26 @@ public class WebhookService {
 
         try {
             String completedAt = TimeUtils.toIsoString(takeQuiz.getEnd_time());
-            Map<String, Object> payload = Map.of(
-                "user_id", takeQuiz.getPlayer_id(),
-                "quiz_id", quizId,
-                "score", takeQuiz.getScore(),
-                "category", category != null ? category : "unknown",
-                "completed_at", completedAt != null ? completedAt : ""
-            );
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("user_id", takeQuiz.getPlayer_id());
+            payload.put("quiz_id", quizId);
+            payload.put("score", takeQuiz.getScore());
+            payload.put("category", category != null ? category : "unknown");
+            payload.put("completed_at", completedAt != null ? completedAt : "");
+
+            // Include per-question results for detailed analysis
+            if (questionResults != null && !questionResults.isEmpty()) {
+                List<Map<String, Object>> questions = questionResults.stream()
+                        .map(q -> {
+                            Map<String, Object> qMap = new HashMap<>();
+                            qMap.put("question_id", q.getQuestion_id());
+                            qMap.put("correct", q.getCheck_answer() == CheckAnswer.CORRECT);
+                            return qMap;
+                        })
+                        .toList();
+                payload.put("questions", questions);
+            }
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-API-Key", apiKey);

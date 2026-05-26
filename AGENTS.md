@@ -4,6 +4,10 @@
 
 Before working on any task, read `CLAUDE.md` and follow it together with this file.
 
+## Rules
+
+- **No subagents**: Do NOT use `runSubagent` or delegate work to sub-agents. All work must be done directly.
+
 ## Project: QAI — AI-Assisted Quiz Platform
 
 Three-component system: Spring Boot backend, Next.js frontend, FastAPI AI Study Coach.

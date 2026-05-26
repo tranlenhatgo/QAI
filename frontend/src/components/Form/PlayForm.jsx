@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 
 import NewGameForm from './NewGameForm'
+import QuizBrowser from './QuizBrowser'
 import { IoCloseSharp } from 'react-icons/io5'
 import playSound from '@/helpers/playSound'
 import queryValidator, { quizQueryValidator } from '@/helpers/gameConfig'
@@ -10,13 +11,31 @@ import { useBoundStore } from '@/store/useBoundStore'
 import JoinGameForm from './JoinGameForm'
 
 export default function PlayForm() {
-	const { getQuestions, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error } = useBoundStore(state => state)
+	const { getQuestions, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user } = useBoundStore(state => state)
 	const [nowQueries, setNowQueries] = useState(queries)
-	const [joinQuery, setJoinQuery] = useState(queries)
+	const [joinQuery, setJoinQuery] = useState({ ...queries, name: '' })
+	const [dialogOpen, setDialogOpen] = useState(false)
 	const router = useRouter()
 	const dialog = useRef(null)
 
 	useEffect(() => setNowQueries(queries), [queries])
+
+	useEffect(() => {
+		const name = user?.displayName || user?.email?.split('@')[0] || ''
+		if (name) {
+			setJoinQuery(prev => ({ ...prev, name }))
+		}
+	}, [user])
+
+	useEffect(() => {
+		const el = dialog.current
+		if (!el) return
+		const observer = new MutationObserver(() => {
+			setDialogOpen(el.open)
+		})
+		observer.observe(el, { attributes: true, attributeFilter: ['open'] })
+		return () => observer.disconnect()
+	}, [])
 
 	useEffect(() => {
 		if (router.isReady && router.pathname === '/play') {
@@ -58,6 +77,14 @@ export default function PlayForm() {
 			...prevState,
 			[name]: value.trim(),
 		}));
+	}
+
+	function handleSelectQuiz(quiz) {
+		playSound('pop')
+		setJoinQuery(prevState => ({
+			...prevState,
+			quizId: quiz.quiz_id,
+		}))
 	}
 
 	async function handleSubmit(e) {
@@ -131,7 +158,8 @@ export default function PlayForm() {
 			<div className="my-6 border-t border-gray-300 w-full"></div>
 			<form onSubmit={handleSubmit}>
 				<div className='flex flex-col gap-4' >
-					<JoinGameForm handleInputs={handleJoinInputs} />
+					<QuizBrowser onSelectQuiz={handleSelectQuiz} isOpen={dialogOpen} />
+					<JoinGameForm handleInputs={handleJoinInputs} selectedQuizId={joinQuery.quizId} playerName={joinQuery.name} />
 				</div>
 				<button type='submit' className='btn-primary uppercase py-3 px-6 w-full tracking-widest mt-4' name='joingame' onClick={(e) => handleSubmit(e)}>Join game</button>
 			</form>

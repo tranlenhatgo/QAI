@@ -17,7 +17,7 @@ public class ReviewScheduleResponseDto {
     private String user_id;
     private String category;
     private double easiness;
-    private int interval_days;
+    private double interval_days;
     private int repetitions;
     private String next_review;
     private String last_reviewed;

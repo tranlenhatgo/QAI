@@ -104,4 +104,28 @@ public class QuizService {
         firestore.collection("quiz").document(id).set(existingQuiz).get();
     }
 
+    @SneakyThrows
+    public List<QuizResponseDto> getAllQuizzes() {
+        List<Quiz> quizzes = firestore.collection("quiz")
+                .whereEqualTo("status", Status.ACTIVE.name())
+                .get()
+                .get()
+                .toObjects(Quiz.class);
+
+        return quizzes.stream()
+                .map(quiz -> QuizResponseDto.builder()
+                        .quiz_id(quiz.getId())
+                        .host_id(quiz.getHost_id())
+                        .title(quiz.getTitle())
+                        .description(quiz.getDescription())
+                        .status(quiz.getStatus().name())
+                        .categories(quiz.getCategories() != null
+                                ? quiz.getCategories().stream().map(Category::getName).toList()
+                                : List.of())
+                        .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                        .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .build())
+                .toList();
+    }
+
 }

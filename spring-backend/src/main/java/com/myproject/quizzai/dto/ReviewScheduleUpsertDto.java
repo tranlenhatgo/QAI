@@ -16,8 +16,8 @@ public class ReviewScheduleUpsertDto {
     @Schema(description = "SM-2 easiness factor (default 2.5)")
     private double easiness;
 
-    @Schema(description = "Current interval in days")
-    private int interval_days;
+    @Schema(description = "Current interval in days (supports fractional for sub-day intervals)")
+    private double interval_days;
 
     @Schema(description = "Consecutive successful repetitions")
     private int repetitions;

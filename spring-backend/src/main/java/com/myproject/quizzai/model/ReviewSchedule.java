@@ -18,7 +18,7 @@ public class ReviewSchedule {
     private String user_id;
     private String category;
     private double easiness;
-    private int interval_days;
+    private double interval_days;
     private int repetitions;
     private Timestamp next_review;
     private Timestamp last_reviewed;

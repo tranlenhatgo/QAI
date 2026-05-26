@@ -13,9 +13,7 @@
 | Python | 3.12+ | `python --version` |
 | Maven Wrapper | bundled | `spring-backend/mvnw.cmd` |
 | Firebase service account | JSON key file | place at `spring-backend/src/main/resources/serviceAccountKey.json` |
-| LM Studio | local server on :1234 | Load a model in LM Studio and run it |
-
-Optional: n8n (for AI question generation).
+| LM Studio | local server on :1234 | Load a model in LM Studio and start the server |
 
 ---
 
@@ -38,6 +36,25 @@ Verify: `curl http://localhost:8080/quiz` returns `[]` (empty Firestore).
 1. Go to [Firebase Console](https://console.firebase.google.com/) → Project Settings → Service Accounts
 2. Generate new private key → download JSON
 3. Save as `spring-backend/src/main/resources/serviceAccountKey.json`
+
+### Key Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/quiz` | GET | List all active quizzes |
+| `/quiz/{id}` | GET | Get quiz by ID |
+| `/quiz/user/{userId}` | GET | Get quizzes by creator |
+| `/quiz` | POST | Create quiz |
+| `/question/quizId/{quizId}` | GET | Get questions for a quiz |
+| `/take-quiz/start` | POST | Start quiz attempt |
+| `/take-quiz/end` | POST | End quiz attempt (triggers webhook) |
+| `/take-quiz/player/{playerId}` | GET | Get player's quiz history |
+| `/review-schedule` | POST | Upsert review schedule (from AI Coach) |
+| `/review-schedule/user/{userId}` | GET | Get user's review schedules |
+| `/review-schedule/due` | GET | Get all due reviews |
+| `/notification` | POST | Create notification (from AI Coach) |
+| `/notification/user/{userId}/unread` | GET | Get unread notifications |
+| `/user/quiz-profile` | GET | Aggregated quiz profile |
 
 ---
 
@@ -63,10 +80,19 @@ REST_API_URL=http://localhost:8080
 NEXT_PUBLIC_REST_API_URL=http://localhost:8080
 NEXT_PUBLIC_STUDY_COACH_API_URL=http://localhost:8000
 NEXT_PUBLIC_STUDY_COACH_TIER=lite
-# NEXT_PUBLIC_STUDY_COACH_API_KEY=optional-api-key-for-browser-websocket
 ANSWER_ENCRYPTION_KEY=any-random-string-32-chars
-COHERE_API_KEY=your-cohere-key   # optional, for AI questions via Cohere
+FIREBASE_WEB_API_KEY=your-firebase-web-api-key
 ```
+
+### Key Pages
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing page, categories, game modes |
+| `/play` | Quiz gameplay (timer, questions, scoring) |
+| `/create` | Create quizzes (manual + AI generation) |
+| `/profile` | User profile, quiz history |
+| `/coach` | AI Coach Dashboard (Overview, Generate, Solver, Materials, Weaknesses, Chat) |
 
 ---
 
@@ -100,26 +126,32 @@ Edit `ai-study-coach/.env`:
 COACH_QUIZ_API_URL=http://localhost:8080
 COACH_EXTERNAL_LLM_PROVIDER=lm_studio
 COACH_LM_STUDIO_URL=http://127.0.0.1:1234
-# COACH_EXTERNAL_LLM_MODEL=optional-loaded-model-id
-COACH_API_KEY=optional-api-key-for-auth
+COACH_API_KEY=sc-dev-key-change-me-in-production
+COACH_SUPABASE_URL=your-supabase-url        # for RAG
+COACH_SUPABASE_KEY=your-supabase-key        # for RAG
 ```
+
+### Key Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/ws` | WebSocket | Streaming AI chat (primary interface) |
+| `/health` | GET | Health check + LLM status |
+| `/chat/{mode}` | POST | HTTP chat (legacy compatibility) |
+| `/generate/from-topics` | POST | AI question generation from topics |
+| `/generate/from-file` | POST | AI question generation from file |
+| `/generate/get-question` | POST | Generate single question |
+| `/solve` | POST | Step-by-step problem solver |
+| `/progress/{user_id}` | GET | Progress metrics + due reviews |
+| `/webhook/quiz-completed` | POST | Quiz completion webhook (from Spring Boot) |
 
 ### LM Studio Setup
 
-Download and install [LM Studio](https://lmstudio.ai), load a model in the app, and start the local server on port 1234. The coach auto-detects LM Studio via the `/v1/models` endpoint.
+Download and install [LM Studio](https://lmstudio.ai), load a model in the app, and start the local server on port 1234. The coach auto-detects LM Studio via the `/v1/models` endpoint. Recommended models: any instruction-tuned model with 7B+ parameters.
 
 ---
 
-## 4. Optional: n8n (:5678)
-
-```bash
-n8n start
-# Configure webhooks at http://localhost:5678
-```
-
----
-
-## Running All Together
+## 4. Running All Together
 
 Terminal 1: `cd spring-backend && .\mvnw.cmd spring-boot:run`
 Terminal 2: `cd frontend && npm run dev`
@@ -130,25 +162,72 @@ Terminal 3: `cd ai-study-coach && venv\Scripts\activate && python -m uvicorn ser
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8080 |
 | Coach API | http://localhost:8000 |
-| Coach Docs | http://localhost:8000/docs |
-| n8n | http://localhost:5678 |
+| Coach Swagger | http://localhost:8000/docs |
+
+---
+
+## 5. Integration Flow (How Components Connect)
+
+```
+User plays quiz → Frontend → POST /take-quiz/end → Spring Boot
+                                                   ↓
+                              Spring Boot fires POST /webhook/quiz-completed → AI Coach
+                                                                              ↓
+                              AI Coach updates SM-2 schedule → POST /review-schedule → Spring Boot → Firestore
+                                                                              ↓
+                              Scheduler (hourly) checks due → POST /notification → Spring Boot → Firestore
+                                                                              ↓
+                              Frontend polls notifications → NotificationBell → User sees "Review Math!"
+```
+
+### Webhook Configuration
+
+Spring Boot → AI Coach webhook is configured in `spring-backend/src/main/resources/application.properties`:
+```properties
+coach.webhook.url=http://localhost:8000/webhook/quiz-completed
+coach.webhook.api-key=sc-dev-key-change-me-in-production
+coach.webhook.enabled=true
+```
+
+The API key must match `COACH_API_KEY` in the AI Coach `.env`.
 
 ---
 
 ## Quick Test Flow
 
-1. Open `http://localhost:3000` → log in with Google
-2. Create a quiz → add questions → save
-3. Play the quiz → submit answers
-4. Open Coach chat widget → ask "How am I doing?"
-5. Coach fetches your history, analyzes weaknesses, responds
+1. Open `http://localhost:3000` → log in with test account or Google
+2. Click PLAY → browse available quizzes or create a new game
+3. Complete the quiz → score is shown
+4. Open Coach (`/coach`) → chat asks "How am I doing?"
+5. Coach fetches history, analyzes weaknesses, responds with advice
+6. Due reviews appear in Coach → DueReviews tab → click [Review] to replay
+
+---
+
+## Testing
+
+```bash
+# Spring Boot: compile check
+cd spring-backend && .\mvnw.cmd -q -DskipTests compile
+
+# AI Coach: unit tests (10 tests)
+cd ai-study-coach && python -m pytest tests/ -v
+
+# Frontend: lint
+cd frontend && npm run lint
+```
+
+---
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
 | `contextLoads` test fails | Missing `serviceAccountKey.json` — add file or use `-DskipTests` |
-| Coach: "No LLM available" | Start LM Studio, load a model, and ensure it's running on :1234 |
+| Coach: "No LLM available" | Start LM Studio, load a model, ensure it's running on :1234 |
 | Coach can't reach quiz API | Ensure Spring Boot is running on :8080, check `COACH_QUIZ_API_URL` |
 | Frontend API calls fail | Check `REST_API_URL` in `.env.local` points to :8080 |
 | Firestore errors | Verify `serviceAccountKey.json` is valid and Firestore is enabled |
+| Webhook not firing | Check `coach.webhook.enabled=true` and API key matches |
+| WebSocket connection refused | Ensure AI Coach is running, check `NEXT_PUBLIC_STUDY_COACH_API_URL` |
+| Notifications not appearing | Verify scheduler is running (check Coach logs for "scheduler started") |

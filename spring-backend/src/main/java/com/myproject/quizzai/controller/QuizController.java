@@ -82,4 +82,15 @@ public class QuizController {
         quizService.updateQuizById(id, quizCreationRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    // Get all active quizzes
+    // GET /quiz
+    @GetMapping
+    @Operation(summary = "Get all active quizzes")
+    public ResponseEntity<List<QuizResponseDto>> getAllQuizzes() {
+        logger.info("getAllQuizzes() method called");
+
+        List<QuizResponseDto> quizzes = quizService.getAllQuizzes();
+        return ResponseEntity.ok(quizzes);
+    }
 }

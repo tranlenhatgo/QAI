@@ -87,7 +87,7 @@ public class TakeQuizService {
 
         // Notify AI Coach via webhook (non-blocking)
         String category = getQuizCategory(oldTakeQuiz.getQuiz_id());
-        webhookService.notifyQuizCompleted(takeQuiz, oldTakeQuiz.getQuiz_id(), category);
+        webhookService.notifyQuizCompleted(takeQuiz, oldTakeQuiz.getQuiz_id(), category, takeQuestionDtos);
     }
 
     /**

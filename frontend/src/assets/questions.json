@@ -104,6 +104,56 @@
 			"question": "Which of these is not a Greek god or goddess?",
 			"answers": ["Aphrodite", "Hera", "Athena", "Loki"],
 			"correctAnswer": "Loki"
+		},
+		{
+			"question": "What year did World War I begin?",
+			"answers": ["1914", "1916", "1912", "1918"],
+			"correctAnswer": "1914"
+		},
+		{
+			"question": "Who was the first president of the United States?",
+			"answers": ["George Washington", "John Adams", "Thomas Jefferson", "Benjamin Franklin"],
+			"correctAnswer": "George Washington"
+		},
+		{
+			"question": "The French Revolution began in which year?",
+			"answers": ["1789", "1776", "1804", "1799"],
+			"correctAnswer": "1789"
+		},
+		{
+			"question": "Which ancient wonder was located in Egypt?",
+			"answers": ["Great Pyramid of Giza", "Hanging Gardens", "Colossus of Rhodes", "Temple of Artemis"],
+			"correctAnswer": "Great Pyramid of Giza"
+		},
+		{
+			"question": "Who discovered America in 1492?",
+			"answers": ["Christopher Columbus", "Amerigo Vespucci", "Ferdinand Magellan", "Leif Erikson"],
+			"correctAnswer": "Christopher Columbus"
+		},
+		{
+			"question": "The Renaissance began in which country?",
+			"answers": ["Italy", "France", "England", "Spain"],
+			"correctAnswer": "Italy"
+		},
+		{
+			"question": "Who was the leader of the Soviet Union during World War II?",
+			"answers": ["Joseph Stalin", "Vladimir Lenin", "Leon Trotsky", "Nikita Khrushchev"],
+			"correctAnswer": "Joseph Stalin"
+		},
+		{
+			"question": "The Magna Carta was signed in which year?",
+			"answers": ["1215", "1066", "1492", "1300"],
+			"correctAnswer": "1215"
+		},
+		{
+			"question": "Which empire was ruled by Genghis Khan?",
+			"answers": ["Mongol Empire", "Ottoman Empire", "Roman Empire", "Persian Empire"],
+			"correctAnswer": "Mongol Empire"
+		},
+		{
+			"question": "The Industrial Revolution started in which country?",
+			"answers": ["England", "Germany", "France", "United States"],
+			"correctAnswer": "England"
 		}
 	],
 	"Entertainment": [
@@ -206,6 +256,56 @@
 			"question": "What is the name of Misa Amane's shinigami in the anime \"Death Note\"?",
 			"answers": ["Rem", "Ryuk", "Sidoh", "Gelus"],
 			"correctAnswer": "Rem"
+		},
+		{
+			"question": "Which actor played Iron Man in the Marvel Cinematic Universe?",
+			"answers": ["Robert Downey Jr.", "Chris Evans", "Chris Hemsworth", "Mark Ruffalo"],
+			"correctAnswer": "Robert Downey Jr."
+		},
+		{
+			"question": "What is the highest-grossing film of all time?",
+			"answers": ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens"],
+			"correctAnswer": "Avatar"
+		},
+		{
+			"question": "Which band released the album 'Abbey Road'?",
+			"answers": ["The Beatles", "The Rolling Stones", "Pink Floyd", "Led Zeppelin"],
+			"correctAnswer": "The Beatles"
+		},
+		{
+			"question": "In the TV show 'Breaking Bad', what is Walter White's alias?",
+			"answers": ["Heisenberg", "The Professor", "Mr. White", "Blue Sky"],
+			"correctAnswer": "Heisenberg"
+		},
+		{
+			"question": "Which Disney movie features the song 'Let It Go'?",
+			"answers": ["Frozen", "Tangled", "Moana", "Brave"],
+			"correctAnswer": "Frozen"
+		},
+		{
+			"question": "Who directed the movie 'Inception'?",
+			"answers": ["Christopher Nolan", "Steven Spielberg", "James Cameron", "Martin Scorsese"],
+			"correctAnswer": "Christopher Nolan"
+		},
+		{
+			"question": "What is the name of the fictional continent in 'Game of Thrones'?",
+			"answers": ["Westeros", "Middle-earth", "Narnia", "Tamriel"],
+			"correctAnswer": "Westeros"
+		},
+		{
+			"question": "Which video game franchise features a character named Master Chief?",
+			"answers": ["Halo", "Call of Duty", "Gears of War", "Destiny"],
+			"correctAnswer": "Halo"
+		},
+		{
+			"question": "Who wrote the Harry Potter book series?",
+			"answers": ["J.K. Rowling", "J.R.R. Tolkien", "C.S. Lewis", "George R.R. Martin"],
+			"correctAnswer": "J.K. Rowling"
+		},
+		{
+			"question": "Which streaming platform produced the series 'Stranger Things'?",
+			"answers": ["Netflix", "Amazon Prime", "Disney+", "HBO Max"],
+			"correctAnswer": "Netflix"
 		}
 	],
 	"Geography": [
@@ -308,6 +408,56 @@
 			"question": "In which country is Mount Everest located?",
 			"answers": ["Nepal", "China", "India", "Pakistan"],
 			"correctAnswer": "Nepal"
+		},
+		{
+			"question": "What is the largest ocean on Earth?",
+			"answers": ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"],
+			"correctAnswer": "Pacific Ocean"
+		},
+		{
+			"question": "Which country has the most natural lakes?",
+			"answers": ["Canada", "United States", "Russia", "Finland"],
+			"correctAnswer": "Canada"
+		},
+		{
+			"question": "What is the capital of Australia?",
+			"answers": ["Canberra", "Sydney", "Melbourne", "Brisbane"],
+			"correctAnswer": "Canberra"
+		},
+		{
+			"question": "The Sahara Desert is located in which continent?",
+			"answers": ["Africa", "Asia", "South America", "Australia"],
+			"correctAnswer": "Africa"
+		},
+		{
+			"question": "Which river is the longest in the world?",
+			"answers": ["Nile", "Amazon", "Yangtze", "Mississippi"],
+			"correctAnswer": "Nile"
+		},
+		{
+			"question": "What is the smallest country in the world by area?",
+			"answers": ["Vatican City", "Monaco", "San Marino", "Liechtenstein"],
+			"correctAnswer": "Vatican City"
+		},
+		{
+			"question": "Which country is known as the Land of the Rising Sun?",
+			"answers": ["Japan", "China", "South Korea", "Thailand"],
+			"correctAnswer": "Japan"
+		},
+		{
+			"question": "What is the largest island in the world?",
+			"answers": ["Greenland", "Madagascar", "Borneo", "New Guinea"],
+			"correctAnswer": "Greenland"
+		},
+		{
+			"question": "In which city would you find the Colosseum?",
+			"answers": ["Rome", "Athens", "Istanbul", "Cairo"],
+			"correctAnswer": "Rome"
+		},
+		{
+			"question": "Which continent has the most countries?",
+			"answers": ["Africa", "Asia", "Europe", "South America"],
+			"correctAnswer": "Africa"
 		}
 	],
 	"Science": [
@@ -435,6 +585,56 @@
 			"question": "What does the newton measure?",
 			"answers": ["Force", "Weight", "Distance", "Time"],
 			"correctAnswer": "Force"
+		},
+		{
+			"question": "What is the chemical symbol for gold?",
+			"answers": ["Au", "Ag", "Fe", "Cu"],
+			"correctAnswer": "Au"
+		},
+		{
+			"question": "How many bones are in the adult human body?",
+			"answers": ["206", "208", "204", "210"],
+			"correctAnswer": "206"
+		},
+		{
+			"question": "What is the hardest natural substance on Earth?",
+			"answers": ["Diamond", "Titanium", "Quartz", "Sapphire"],
+			"correctAnswer": "Diamond"
+		},
+		{
+			"question": "Which planet is known as the Red Planet?",
+			"answers": ["Mars", "Jupiter", "Venus", "Saturn"],
+			"correctAnswer": "Mars"
+		},
+		{
+			"question": "What is the powerhouse of the cell?",
+			"answers": ["Mitochondria", "Nucleus", "Ribosome", "Golgi apparatus"],
+			"correctAnswer": "Mitochondria"
+		},
+		{
+			"question": "What gas do plants absorb from the atmosphere?",
+			"answers": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+			"correctAnswer": "Carbon dioxide"
+		},
+		{
+			"question": "What is the speed of light in vacuum approximately?",
+			"answers": ["300,000 km/s", "150,000 km/s", "500,000 km/s", "1,000,000 km/s"],
+			"correctAnswer": "300,000 km/s"
+		},
+		{
+			"question": "Which element has the atomic number 1?",
+			"answers": ["Hydrogen", "Helium", "Lithium", "Carbon"],
+			"correctAnswer": "Hydrogen"
+		},
+		{
+			"question": "What is the largest organ in the human body?",
+			"answers": ["Skin", "Liver", "Brain", "Lungs"],
+			"correctAnswer": "Skin"
+		},
+		{
+			"question": "What type of animal is a dolphin?",
+			"answers": ["Mammal", "Fish", "Reptile", "Amphibian"],
+			"correctAnswer": "Mammal"
 		}
 	],
 	"Technology": [
@@ -532,6 +732,56 @@
 			"question": "What is the name of the main character in the video game \"The Legend of Zelda\"?",
 			"answers": ["Link", "Zelda", "Ganon", "Ganondorf"],
 			"correctAnswer": "Link"
+		},
+		{
+			"question": "What does 'HTTP' stand for?",
+			"answers": ["HyperText Transfer Protocol", "High Tech Transfer Protocol", "HyperText Transmission Protocol", "High Transfer Text Protocol"],
+			"correctAnswer": "HyperText Transfer Protocol"
+		},
+		{
+			"question": "Who is considered the father of the World Wide Web?",
+			"answers": ["Tim Berners-Lee", "Vint Cerf", "Bill Gates", "Steve Jobs"],
+			"correctAnswer": "Tim Berners-Lee"
+		},
+		{
+			"question": "What programming language is primarily used for iOS app development?",
+			"answers": ["Swift", "Java", "Kotlin", "Python"],
+			"correctAnswer": "Swift"
+		},
+		{
+			"question": "What does 'AI' stand for in technology?",
+			"answers": ["Artificial Intelligence", "Automated Integration", "Advanced Interface", "Analog Input"],
+			"correctAnswer": "Artificial Intelligence"
+		},
+		{
+			"question": "Which company developed the Android operating system?",
+			"answers": ["Google", "Apple", "Microsoft", "Samsung"],
+			"correctAnswer": "Google"
+		},
+		{
+			"question": "What is the name of the first programmable computer?",
+			"answers": ["Z3", "ENIAC", "Colossus", "UNIVAC"],
+			"correctAnswer": "Z3"
+		},
+		{
+			"question": "What does 'RAM' stand for?",
+			"answers": ["Random Access Memory", "Read Access Memory", "Rapid Access Memory", "Remote Access Memory"],
+			"correctAnswer": "Random Access Memory"
+		},
+		{
+			"question": "Which company created the iPhone?",
+			"answers": ["Apple", "Samsung", "Nokia", "Google"],
+			"correctAnswer": "Apple"
+		},
+		{
+			"question": "What year was the first email sent?",
+			"answers": ["1971", "1981", "1991", "1965"],
+			"correctAnswer": "1971"
+		},
+		{
+			"question": "What is the most popular programming language in 2024?",
+			"answers": ["Python", "JavaScript", "Java", "C++"],
+			"correctAnswer": "Python"
 		}
 	],
 	"Art": [
@@ -664,6 +914,56 @@
 			"question": "In music, how many lines does a staff have?",
 			"answers": ["Five", "Four", "Six", "Three"],
 			"correctAnswer": "Five"
+		},
+		{
+			"question": "Who painted the ceiling of the Sistine Chapel?",
+			"answers": ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
+			"correctAnswer": "Michelangelo"
+		},
+		{
+			"question": "Which art movement is Salvador Dali associated with?",
+			"answers": ["Surrealism", "Impressionism", "Cubism", "Pop Art"],
+			"correctAnswer": "Surrealism"
+		},
+		{
+			"question": "What musical instrument has 88 keys?",
+			"answers": ["Piano", "Organ", "Accordion", "Harpsichord"],
+			"correctAnswer": "Piano"
+		},
+		{
+			"question": "Who composed 'The Four Seasons'?",
+			"answers": ["Vivaldi", "Mozart", "Beethoven", "Bach"],
+			"correctAnswer": "Vivaldi"
+		},
+		{
+			"question": "What is the art of folding paper called?",
+			"answers": ["Origami", "Calligraphy", "Ikebana", "Kirigami"],
+			"correctAnswer": "Origami"
+		},
+		{
+			"question": "Which sculptor created 'The Thinker'?",
+			"answers": ["Auguste Rodin", "Michelangelo", "Bernini", "Donatello"],
+			"correctAnswer": "Auguste Rodin"
+		},
+		{
+			"question": "What art style is characterized by small dots of color?",
+			"answers": ["Pointillism", "Impressionism", "Fauvism", "Abstract"],
+			"correctAnswer": "Pointillism"
+		},
+		{
+			"question": "Who wrote the opera 'The Marriage of Figaro'?",
+			"answers": ["Mozart", "Verdi", "Puccini", "Wagner"],
+			"correctAnswer": "Mozart"
+		},
+		{
+			"question": "What is the Japanese art of flower arranging called?",
+			"answers": ["Ikebana", "Bonsai", "Origami", "Kintsugi"],
+			"correctAnswer": "Ikebana"
+		},
+		{
+			"question": "Which artist is famous for the painting 'The Persistence of Memory'?",
+			"answers": ["Salvador Dali", "Pablo Picasso", "Claude Monet", "Andy Warhol"],
+			"correctAnswer": "Salvador Dali"
 		}
 	],
 	"Space": [
@@ -766,6 +1066,56 @@
 				"Yuri Gagarin"
 			],
 			"correctAnswer": "Neil Armstrong"
+		},
+		{
+			"question": "What is the largest planet in our solar system?",
+			"answers": ["Jupiter", "Saturn", "Neptune", "Uranus"],
+			"correctAnswer": "Jupiter"
+		},
+		{
+			"question": "How long does it take light from the Sun to reach Earth?",
+			"answers": ["8 minutes", "1 minute", "30 minutes", "1 hour"],
+			"correctAnswer": "8 minutes"
+		},
+		{
+			"question": "What is a supernova?",
+			"answers": ["An exploding star", "A black hole", "A new planet", "A comet"],
+			"correctAnswer": "An exploding star"
+		},
+		{
+			"question": "Which planet has the most moons?",
+			"answers": ["Saturn", "Jupiter", "Uranus", "Neptune"],
+			"correctAnswer": "Saturn"
+		},
+		{
+			"question": "What is the closest star to Earth after the Sun?",
+			"answers": ["Proxima Centauri", "Alpha Centauri A", "Sirius", "Barnard's Star"],
+			"correctAnswer": "Proxima Centauri"
+		},
+		{
+			"question": "What is the name of NASA's Mars rover that landed in 2021?",
+			"answers": ["Perseverance", "Curiosity", "Opportunity", "Spirit"],
+			"correctAnswer": "Perseverance"
+		},
+		{
+			"question": "How many planets are in our solar system?",
+			"answers": ["8", "9", "7", "10"],
+			"correctAnswer": "8"
+		},
+		{
+			"question": "What is the hottest planet in our solar system?",
+			"answers": ["Venus", "Mercury", "Mars", "Jupiter"],
+			"correctAnswer": "Venus"
+		},
+		{
+			"question": "What galaxy do we live in?",
+			"answers": ["Milky Way", "Andromeda", "Triangulum", "Whirlpool"],
+			"correctAnswer": "Milky Way"
+		},
+		{
+			"question": "What is the Great Red Spot on Jupiter?",
+			"answers": ["A giant storm", "A volcano", "An ocean", "A crater"],
+			"correctAnswer": "A giant storm"
 		}
 	],
 	"General culture": [
@@ -848,6 +1198,56 @@
 			"question": "How many sides does a hexagon have?",
 			"answers": ["6", "5", "7", "8"],
 			"correctAnswer": "6"
+		},
+		{
+			"question": "What is the largest mammal in the world?",
+			"answers": ["Blue whale", "Elephant", "Giraffe", "Hippopotamus"],
+			"correctAnswer": "Blue whale"
+		},
+		{
+			"question": "How many continents are there on Earth?",
+			"answers": ["7", "6", "5", "8"],
+			"correctAnswer": "7"
+		},
+		{
+			"question": "What is the currency of Japan?",
+			"answers": ["Yen", "Won", "Yuan", "Rupee"],
+			"correctAnswer": "Yen"
+		},
+		{
+			"question": "Which blood type is known as the universal donor?",
+			"answers": ["O negative", "AB positive", "A positive", "B negative"],
+			"correctAnswer": "O negative"
+		},
+		{
+			"question": "How many teeth does a normal adult have?",
+			"answers": ["32", "28", "30", "34"],
+			"correctAnswer": "32"
+		},
+		{
+			"question": "What is the tallest building in the world as of 2024?",
+			"answers": ["Burj Khalifa", "Shanghai Tower", "Taipei 101", "One World Trade Center"],
+			"correctAnswer": "Burj Khalifa"
+		},
+		{
+			"question": "What sport is played at Wimbledon?",
+			"answers": ["Tennis", "Cricket", "Golf", "Badminton"],
+			"correctAnswer": "Tennis"
+		},
+		{
+			"question": "How many colors are in a rainbow?",
+			"answers": ["7", "6", "5", "8"],
+			"correctAnswer": "7"
+		},
+		{
+			"question": "What is the boiling point of water in Celsius?",
+			"answers": ["100°C", "90°C", "110°C", "120°C"],
+			"correctAnswer": "100°C"
+		},
+		{
+			"question": "Which language has the most native speakers in the world?",
+			"answers": ["Mandarin Chinese", "English", "Spanish", "Hindi"],
+			"correctAnswer": "Mandarin Chinese"
 		}
 	]
 }
