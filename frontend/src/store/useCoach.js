@@ -165,6 +165,20 @@ export const useCoachStore = (set, get) => ({
 	isUploading: false,
 	uploadError: null,
 
+	// Progress Tracking (from AI Coach)
+	progressData: null,
+	isLoadingProgress: false,
+	progressError: null,
+
+	// Spaced Repetition Reviews
+	dueReviews: [],
+	upcomingReviews: [],
+	isLoadingReviews: false,
+	reviewQuizActive: null,
+
+	// Notifications (Firestore-backed)
+	notifications: [],
+
 	setActiveCoachFeature: (activeCoachFeature) => set({ activeCoachFeature }),
 	setCoachTier: (coachTier) => set({ coachTier: coachTier === 'lite' ? 'lite' : 'full' }),
 	setGenerateTopic: (generateTopic) => set({ generateTopic }),
@@ -340,4 +354,105 @@ export const useCoachStore = (set, get) => ({
 	removeDocument: (documentId) => set(state => ({
 		documents: state.documents.filter(document => document.id !== documentId),
 	})),
+
+	// ─── Progress & Spaced Repetition Actions ────────────────────────────────
+
+	fetchProgress: async (userId) => {
+		const uid = userId || get().user?.uid
+		if (!uid) return
+
+		set({ isLoadingProgress: true, progressError: null })
+		try {
+			const response = await fetch(`/api/coach/progress/${uid}`)
+			if (!response.ok) throw new Error(`Progress fetch failed: ${response.status}`)
+			const data = await response.json()
+			set({ progressData: data, isLoadingProgress: false })
+		} catch (error) {
+			set({ progressError: error.message, isLoadingProgress: false })
+		}
+	},
+
+	fetchDueReviews: async (userId) => {
+		const uid = userId || get().user?.uid
+		if (!uid) return
+
+		set({ isLoadingReviews: true })
+		try {
+			const response = await fetch(`/api/coach/progress/${uid}`)
+			if (!response.ok) throw new Error(`Reviews fetch failed: ${response.status}`)
+			const data = await response.json()
+
+			const dueReviews = (data.due_reviews || []).map(item => ({
+				category: item.category,
+				daysOverdue: item.days_overdue || 0,
+				priority: item.priority || 'normal',
+				lastScore: item.last_score,
+			}))
+
+			const upcomingReviews = (data.upcoming_reviews || []).map(item => ({
+				category: item.category,
+				daysOverdue: 0,
+				priority: 'normal',
+				lastScore: item.last_score,
+			}))
+
+			set({ dueReviews, upcomingReviews, isLoadingReviews: false })
+		} catch {
+			set({ dueReviews: [], upcomingReviews: [], isLoadingReviews: false })
+		}
+	},
+
+	startReview: (category) => {
+		set({ reviewQuizActive: category, activeCoachFeature: 'generate', generateTopic: category, generateCount: 5 })
+		get().generateQuestions(category, 5)
+	},
+
+	completeReview: async (category, score) => {
+		const uid = get().user?.uid
+		if (!uid) return
+
+		try {
+			await fetch('/api/coach/review-completed', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ user_id: uid, category, score }),
+			})
+		} catch {
+			// Non-critical — schedule update is best-effort
+		}
+
+		set(state => ({
+			reviewQuizActive: null,
+			dueReviews: state.dueReviews.filter(r => r.category !== category),
+		}))
+	},
+
+	// ─── Notifications (Firestore-backed via Spring Boot) ────────────────────
+
+	fetchNotifications: async (userId) => {
+		const uid = userId || get().user?.uid
+		if (!uid) return
+
+		try {
+			const response = await fetch(`/api/coach/notifications/${uid}`)
+			if (!response.ok) return
+			const data = await response.json()
+			set({ notifications: data })
+		} catch {
+			// Notifications are non-critical
+		}
+	},
+
+	markNotificationRead: async (notificationId) => {
+		try {
+			await fetch(`/api/coach/notifications/${notificationId}/read`, { method: 'PATCH' })
+			set(state => ({
+				notifications: state.notifications.map(n =>
+					n.id === notificationId ? { ...n, read: true } : n
+				),
+			}))
+		} catch {
+			// Best-effort
+		}
+	},
 })

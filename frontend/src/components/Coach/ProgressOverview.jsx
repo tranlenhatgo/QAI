@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { FiActivity, FiAward, FiTarget } from 'react-icons/fi'
 import categoriesJSON from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
+import MasteryBreakdown from './MasteryBreakdown'
 
 function getCategory(categoryName) {
 	return categoriesJSON.find(category => category.name === categoryName) || categoriesJSON[categoriesJSON.length - 1]
@@ -45,9 +47,13 @@ function TrendChart({ items }) {
 }
 
 export default function ProgressOverview() {
-	const { user, scoreHistory, weaknesses, streak, isLoadingProfile, setActiveCoachFeature } = useBoundStore(state => state)
+	const { user, scoreHistory, weaknesses, streak, isLoadingProfile, setActiveCoachFeature, progressData, fetchProgress } = useBoundStore(state => state)
 	const latestScore = scoreHistory[scoreHistory.length - 1]
 	const topWeaknesses = weaknesses.slice(0, 3)
+
+	useEffect(() => {
+		if (user?.uid) fetchProgress(user.uid)
+	}, [user?.uid, fetchProgress])
 
 	function openWeaknesses() {
 		setActiveCoachFeature('weaknesses')
@@ -115,6 +121,13 @@ export default function ProgressOverview() {
 					</div>
 				</div>
 			</div>
+
+			{progressData?.categories?.length > 0 && (
+				<div className="mt-4">
+					<p className="mb-2 text-sm font-semibold text-slate-800">Mastery by Category</p>
+					<MasteryBreakdown categories={progressData.categories} />
+				</div>
+			)}
 		</section>
 	)
 }

@@ -4,27 +4,27 @@
 
 Before working on any task, read `CLAUDE.md` and follow it together with this file.
 
-
 ## Project: QAI — AI-Assisted Quiz Platform
 
 Three-component system: Spring Boot backend, Next.js frontend, FastAPI AI Study Coach.
 
 ## Component Map
 
-```
+```text
 Browser → Next.js (Pages Router, :3000)
-            ├─→ Spring Boot (:8080) — quiz CRUD, take-quiz, user profile
-            │     └─→ Firestore — quiz, question, take_quiz, take_question
-            └─→ AI Study Coach (:8000) — WebSocket chat, LLM coaching, AI question generation
-                  └─→ Spring Boot quiz API — fetch history, quiz details
-                  └─→ DeepSeek API — cloud LLM (Full tier)
+            ├─→ Spring Boot (:8080) — quiz CRUD, take-quiz, user profile, review schedules, notifications
+            │     └─→ Firestore — quiz, question, take_quiz, take_question, review_schedule, notification
+            └─→ AI Study Coach (:8000) — WebSocket chat, LLM coaching, AI question generation,
+                  │                       spaced repetition, progress tracking, background scheduler
+                  ├─→ Spring Boot quiz API — fetch history, quiz details, persist schedules/notifications
+                  ├─→ DeepSeek API — cloud LLM (Full tier)
                   └─→ LM Studio (:1234) — local LLM via OpenAI-compatible API
 ```
 
 ## Per-Component Reference
 
 | Component | Stack | AGENTS.md |
-|-----------|-------|-----------|
+| --- | --- | --- |
 | spring-backend | Spring Boot 3.4, Java 17+, Firestore | [spring-backend/AGENTS.md](spring-backend/AGENTS.md) |
 | frontend | Next.js Pages Router, Zustand | [frontend/AGENTS.md](frontend/AGENTS.md) |
 | ai-study-coach | FastAPI Python 3.12+, LLM agent | [ai-study-coach/AGENTS.md](ai-study-coach/AGENTS.md) |
@@ -37,23 +37,42 @@ Browser → Next.js (Pages Router, :3000)
 - **API error shape**: `{ message, statusCode }` from Spring Boot, consumed by both frontend and coach
 - **Auth**: Firebase client-side (frontend) + FirebaseAdmin server-side (Spring Boot); coach uses `X-API-Key`
 - **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints (DeepSeek LLM)
+- **Spaced Repetition**: SM-2 algorithm in AI Coach, schedule persisted to Firestore `review_schedule` via Spring Boot
+- **Notifications**: Created by AI Coach scheduler, stored in Firestore `notification` via Spring Boot
 
-## Data Flow: Quiz Completion → Coach
+## Data Flow: Quiz Completion → Coach → Review Scheduling
 
 1. Frontend submits answers via `take-quiz/end` → Spring Boot computes score
-2. (Planned) Spring Boot fires webhook → Coach receives `QuizCompletedWebhook`
-3. Coach analyzes weaknesses, schedules spaced repetition review
-4. Student sees coach insights in chat widget
+2. Spring Boot `WebhookService` fires `POST /webhook/quiz-completed` → AI Coach
+3. Coach updates spaced repetition schedule (SM-2): new interval, easiness, next_review
+4. Coach persists updated `ReviewSchedule` via Spring Boot `PUT /review-schedule/{id}`
+5. Scheduler (hourly) checks due reviews → creates `Notification` documents
+6. Frontend `NotificationBell` polls notifications → user sees review reminders
+7. User clicks [Review] → plays review quiz → loop back to step 1
+
+## What's Implemented
+
+- ✅ Quiz CRUD (Spring Boot + Firestore)
+- ✅ Quiz play with scoring and history
+- ✅ AI question generation (from topics, files, single question)
+- ✅ AI Chat (WebSocket + HTTP fallback, Lite/Full tiers, Chat/Agentic modes)
+- ✅ Step-by-step problem solver
+- ✅ RAG tool (Supabase pgvector)
+- ✅ Spaced repetition (SM-2 algorithm, Firestore persistence)
+- ✅ Progress tracking (mastery, velocity, streaks, trends)
+- ✅ Background scheduler (APScheduler: hourly due-review check, daily progress snapshot)
+- ✅ Quiz completion webhook (Spring Boot → AI Coach)
+- ✅ Notifications (Firestore-backed, NotificationBell component)
+- ✅ Coach Dashboard (tabbed: Overview, Generate, Solver, Materials, Weaknesses, Chat)
+- ✅ Due Reviews UI (ReviewCard with [Review] button)
+- ✅ PWA (service worker, offline manifest)
 
 ## What's Incomplete
 
-- `ai-study-coach/server/learning/spaced_repetition.py` — not implemented
-- `ai-study-coach/server/learning/progress.py` — not implemented
-- `ai-study-coach/server/scheduler/` — placeholder only
-- `QuizCompletedWebhook` model exists but no webhook endpoint in coach
-- `ChatResponse.due_reviews` field exists but never populated
-- Frontend widget not embedded in Next.js pages yet
-- No end-to-end tests across components
+- `[PARTIAL] 13-WEB-SEARCH.md` — web search tool stub exists but no real provider integrated
+- `[PARTIAL] 12-TESTING-STRATEGY.md` — test strategy defined, not all scenarios automated
+- Frontend floating chat widget not rendered on non-coach pages (only `/coach` has chat)
+- No automated end-to-end tests yet (E2E test plan exists in `AGENTS-E2E-TEST.md`)
 
 ## Developer Workflow
 
@@ -67,4 +86,19 @@ cd frontend && npm install && npm run dev
 # AI Coach
 cd ai-study-coach && pip install -r requirements.txt && copy .env.example .env
 python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## Testing
+
+```bash
+# AI Coach unit tests
+cd ai-study-coach && python -m pytest tests/ -v
+
+# Frontend lint
+cd frontend && npm run lint
+
+# Spring Boot compile check
+cd spring-backend && .\mvnw.cmd -q -DskipTests compile
+
+# E2E (manual via Playwright MCP — see AGENTS-E2E-TEST.md)
 ```

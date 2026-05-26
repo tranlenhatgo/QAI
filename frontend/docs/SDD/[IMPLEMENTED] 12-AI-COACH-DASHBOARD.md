@@ -9,41 +9,41 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 ## Route
 
 | Route | File | Auth Required |
-|-------|------|---------------|
+| --- | --- | --- |
 | `/coach` | `src/pages/coach/index.js` | Yes (full features) |
 
 ---
 
 ## Page Layout
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────┐
-│  AI Coach Dashboard                              [Settings] [?]  │
+│  AI Coach Dashboard                     [Refresh] [Profile/Login]│
 ├──────────────────────────────────────────────────────────────────┤
+│  [Overview] [Generate] [Solver] [Materials] [Weaknesses] [Chat]  │
+│                                               Tier: [Lite] [Full]│
+├──────────────────────────────────────────────────────────────────┤
+│  AI Coach Workspace                                              │
+│  {Selected Feature Title}                                        │
+│  {Description text}                                   Full tier  │
 │                                                                   │
-│  ┌─────────── Progress Overview (full width banner) ───────────┐ │
-│  │  Score trend chart  │  Weak topics summary  │  Study streak  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌─── Generate Questions ───┐  ┌─── Step-by-Step Solver ──────┐ │
-│  │  Topic input + count     │  │  Problem textarea            │ │
-│  │  [Generate] button       │  │  [Solve] button              │ │
-│  │  Generated Q list below  │  │  Solution steps below        │ │
-│  └──────────────────────────┘  └──────────────────────────────┘ │
-│                                                                   │
-│  ┌─── Study Materials ──────┐  ┌─── My Weaknesses ────────────┐ │
-│  │  Upload area (drag/drop) │  │  Topic cards with scores     │ │
-│  │  Document list           │  │  [Practice this] buttons     │ │
-│  └──────────────────────────┘  └──────────────────────────────┘ │
-│                                                                   │
-│  ┌─── Chat Panel (bottom, collapsible) ────────────────────────┐ │
-│  │  Full chat (same as /chat, embedded)                         │ │
-│  │  Mode toggle: Simple / Agentic                               │ │
+│  ┌──────────────── Active Feature Panel ───────────────────────┐ │
+│  │  Overview tab:                                               │ │
+│  │    NotificationBell (unread count + dismissable list)        │ │
+│  │    ProgressOverview (trend chart + mastery breakdown)        │ │
+│  │    DueReviews (spaced repetition cards)                      │ │
+│  │                                                               │ │
+│  │  Generate tab: GenerateQuestions                              │ │
+│  │  Solver tab: StepSolver                                      │ │
+│  │  Materials tab: StudyMaterials                                │ │
+│  │  Weaknesses tab: MyWeaknesses                                │ │
+│  │  Chat tab: EmbeddedChat                                      │ │
 │  └─────────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Responsive Behavior
+
 - **Desktop (1024px+)**: 2-column grid for middle sections, full-width banner + chat
 - **Tablet (640px+)**: 2-column grid, collapsible chat
 - **Mobile (<640px)**: Single column, all sections stacked, chat minimized to floating button
@@ -54,9 +54,10 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 
 ### 1. Progress Overview (Banner)
 
-**Status**: ❌ Planned
+**Status**: ✅ Implemented
 
 **User sees**:
+
 - Line chart showing quiz scores over time (last 30 days)
 - Top 3 weak topics (lowest scores) as colored badges
 - Study streak counter (consecutive days with activity)
@@ -64,6 +65,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Data source**: `GET /user/quiz-profile?userId=` → aggregate scores by date and category.
 
 **Interactions**:
+
 - Hover chart points → tooltip with score details
 - Click weak topic badge → scrolls to "My Weaknesses" section
 - Streak counter animates on page load
@@ -75,6 +77,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Status**: ✅ Ready
 
 **User sees**:
+
 - Topic input field (text or select from categories)
 - Question count slider (1–20, default 5)
 - [Generate] button
@@ -84,6 +87,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Data source**: `POST /generate/from-topics` (AI Study Coach)
 
 **Interactions**:
+
 - Type topic → click Generate → see questions appear
 - Expand question card → see all 4 answers + correct one highlighted
 - [Save to Quiz] button → creates quiz in Spring Boot
@@ -97,10 +101,12 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Status**: ✅ Ready (backend: `POST /solve`, WebSocket streaming)
 
 **User sees**:
+
 - Large textarea for problem input
 - [Solve] button
 - Solution displayed as numbered steps:
-  ```
+
+  ```text
   Step 1: Identify known variables
     → x = 5, y = 3
   Step 2: Apply Pythagorean theorem
@@ -113,6 +119,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Data source**: `POST /solve` (AI Study Coach REST endpoint) or WebSocket agentic mode
 
 **Interactions**:
+
 - Type problem → click Solve → see steps appear one by one (streamed)
 - Each step is expandable (show/hide reasoning)
 - [Ask follow-up] → opens chat with problem context pre-filled
@@ -122,9 +129,10 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 
 ### 4. My Weaknesses
 
-**Status**: ⚠️ Partial (quiz history available, analysis logic needed)
+**Status**: ✅ Implemented
 
 **User sees**:
+
 - Grid of topic cards (one per category attempted)
 - Each card shows: category name, icon, average score, attempt count
 - Color-coded: red (< 50%), amber (50-75%), green (> 75%)
@@ -133,6 +141,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Data source**: `GET /user/quiz-profile?userId=` → group `take_quiz` by category, average scores
 
 **Interactions**:
+
 - Cards sorted by score (weakest first)
 - Click [Practice this] → generates 5 questions on that topic (calls Generate Questions)
 - Hover card → shows score breakdown (e.g., "3/10, 5/10, 7/10 — improving!")
@@ -141,9 +150,10 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 
 ### 5. Study Materials
 
-**Status**: ❌ Planned (RAG infrastructure designed, upload/management UI not built)
+**Status**: ✅ Implemented (UI component ready, backend RAG endpoint planned)
 
 **User sees**:
+
 - Drag-and-drop upload area (accepts PDF, TXT, MD)
 - List of uploaded documents (name, date, page count)
 - [Delete] button per document
@@ -152,6 +162,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Data source**: Supabase pgvector (document chunks + embeddings)
 
 **Interactions**:
+
 - Drag file → upload → see processing status
 - Once indexed, documents are used by RAG tool in chat/agentic mode
 - Click document → preview first page
@@ -164,6 +175,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Status**: ✅ Ready
 
 **User sees**:
+
 - Collapsible chat panel at bottom of page
 - Same functionality as `/chat` page (conversations, mode toggle, streaming)
 - Connection status indicator
@@ -172,6 +184,7 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **Data source**: WebSocket `ws://{COACH_URL}/ws/chat` + HTTP fallback
 
 **Interactions**:
+
 - Same as `/chat` — type message, receive streaming response
 - Mode toggle: Simple (quick) / Agentic (tools)
 - Context-aware: if user just generated questions or solved a problem, chat has that context
@@ -181,23 +194,27 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 
 ## Component Architecture
 
-```
+```text
 src/pages/coach/index.js
 src/components/Coach/
-├── CoachDashboard.jsx         # Main layout orchestrator
-├── ProgressOverview.jsx       # Score chart + streak + weak topics banner
+├── CoachDashboard.jsx         # Main layout orchestrator (tabbed nav)
+├── ProgressOverview.jsx       # Score trend chart + streak + mastery breakdown
+├── MasteryBreakdown.jsx       # Per-category mastery bars
 ├── GenerateQuestions.jsx      # Topic input + generation + results
 ├── StepSolver.jsx             # Problem input + step display
 ├── MyWeaknesses.jsx           # Topic cards grid
 ├── StudyMaterials.jsx         # Upload + document list
-└── EmbeddedChat.jsx           # Reuses Chat components in panel mode
+├── EmbeddedChat.jsx           # Reuses Chat components in panel mode
+├── DueReviews.jsx             # Spaced repetition due-now items
+├── ReviewCard.jsx             # Individual review card with start button
+└── NotificationBell.jsx       # Unread notification badge + dismissable list
 ```
 
 ---
 
 ## State Management
 
-New Zustand slice: `useCoach` (in `src/store/useCoach.js`)
+Zustand slice: `useCoach` (in `src/store/useCoach.js`)
 
 ```javascript
 {
@@ -223,6 +240,18 @@ New Zustand slice: `useCoach` (in `src/store/useCoach.js`)
   // Progress
   scoreHistory: [],     // { date, score, category }
   streak: 0,
+
+  // Due Reviews (spaced repetition)
+  dueReviews: [],       // { category, next_review, interval_days, easiness }
+  upcomingReviews: [],  // reviews coming soon but not yet due
+  isLoadingReviews: false,
+
+  // Notifications (Firestore-backed via Spring Boot)
+  notifications: [],    // { id, title, message, type, read, created_at }
+
+  // UI state
+  activeCoachFeature: 'overview',
+  coachTier: 'full',
 }
 ```
 
@@ -231,7 +260,7 @@ New Zustand slice: `useCoach` (in `src/store/useCoach.js`)
 ## API Calls from Dashboard
 
 | Action | Endpoint | Service |
-|--------|----------|---------|
+| -------- | ---------- | --------- |
 | Generate questions | `POST /generate/from-topics` | AI Coach |
 | Generate from file | `POST /generate/from-file` | AI Coach |
 | Solve problem (REST) | `POST /solve` | AI Coach |
@@ -240,6 +269,10 @@ New Zustand slice: `useCoach` (in `src/store/useCoach.js`)
 | Save generated quiz | `POST /quiz` + `POST /question` | Spring Boot |
 | Upload document | (planned) `POST /rag/upload` | AI Coach |
 | Fetch progress | `GET /user/quiz-profile?userId=` | Spring Boot |
+| Fetch due reviews | `GET /api/coach/review-schedule/user/{userId}/due` | Spring Boot (via BFF) |
+| Complete review | `POST /api/coach/review-completed` | AI Coach (via BFF) |
+| Fetch notifications | `GET /api/coach/notifications/{userId}` | Spring Boot (via BFF) |
+| Mark notification read | `PATCH /api/coach/notifications/{id}/read` | Spring Boot (via BFF) |
 
 ---
 
@@ -462,11 +495,13 @@ function FinalAnswer() {
 
 ## Implementation Priority
 
-| Priority | Section | Effort | Dependencies |
-|----------|---------|--------|--------------|
-| 1 | Generate Questions | Low | Already working |
-| 2 | Chat Panel (Embedded) | Low | Reuse existing components |
-| 3 | Step-by-Step Solver | Low | ✅ Backend ready (`POST /solve`), frontend component above |
-| 4 | My Weaknesses | Medium | Quiz profile API + frontend grouping logic |
-| 5 | Progress Overview | High | Needs charting library + data aggregation |
-| 6 | Study Materials | High | Needs RAG upload endpoint + Supabase setup |
+| Priority | Section | Status | Notes |
+| ---------- | --------- | -------- | ------- |
+| 1 | Generate Questions | ✅ Implemented | Topic + file-based generation |
+| 2 | Chat Panel (Embedded) | ✅ Implemented | Full chat in tabbed panel |
+| 3 | Step-by-Step Solver | ✅ Implemented | REST `POST /solve` + streaming |
+| 4 | My Weaknesses | ✅ Implemented | Quiz profile grouping + practice buttons |
+| 5 | Progress Overview | ✅ Implemented | SVG trend chart + mastery breakdown |
+| 6 | Due Reviews | ✅ Implemented | Spaced repetition schedule from Spring Boot |
+| 7 | Notification Bell | ✅ Implemented | Firestore-backed unread notifications |
+| 8 | Study Materials | ✅ UI Ready | Upload UI built, RAG backend pending |

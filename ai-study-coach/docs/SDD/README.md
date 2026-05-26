@@ -46,6 +46,13 @@ Next.js Frontend ──WebSocket──→ FastAPI AI Service (Python)
 | 08 | [QUIZ-GENERATION.md](./08-QUIZ-GENERATION.md) | Quiz generation capability |
 | 09 | [STEP-SOLVE.md](./09-STEP-SOLVE.md) | Step-by-step problem solving |
 | 10 | [LITE-ORCHESTRATOR.md](./10-LITE-ORCHESTRATOR.md) | Code-driven orchestration for Lite Agentic |
+| 11 | [DATA-FLOW-SCENARIOS.md](./11-DATA-FLOW-SCENARIOS.md) | End-to-end data flows for every major user scenario |
+| 12 | [TESTING-STRATEGY.md](./12-TESTING-STRATEGY.md) | Test scenarios, prompts, and acceptance checklist |
+| 13 | [WEB-SEARCH.md](./13-WEB-SEARCH.md) | Production web search tool (provider abstraction) |
+| 14 | [SPACED-REPETITION.md](./14-SPACED-REPETITION.md) | SM-2 spaced repetition scheduling |
+| 15 | [PROGRESS-TRACKING.md](./15-PROGRESS-TRACKING.md) | Learning metrics, mastery, velocity, streaks |
+| 16 | [SCHEDULER.md](./16-SCHEDULER.md) | Background task scheduler (APScheduler) |
+| 17 | [QUIZ-WEBHOOK.md](./17-QUIZ-WEBHOOK.md) | Quiz completion webhook (Spring Boot → Coach) |
 
 ---
 
@@ -93,6 +100,10 @@ Phase 3: Agentic Engine
 
 Phase 4: Learning Features
   08 QUIZ-GENERATION → 09 STEP-SOLVE → 10 LITE-ORCHESTRATOR
+
+Phase 5: Adaptive Learning
+  13 WEB-SEARCH (partial) → 14 SPACED-REPETITION ✓ → 15 PROGRESS-TRACKING ✓
+  16 SCHEDULER ✓ → 17 QUIZ-WEBHOOK ✓
 ```
 
 Each phase is independently testable and deployable.

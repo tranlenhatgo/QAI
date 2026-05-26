@@ -370,3 +370,153 @@ Step 5: Emits {"type": "error", "code": "rate_limit",
 | Problem solving | Full Agentic | 6 | 1 (Supabase RAG) | 10-20s |
 | Recommendations | Lite Agentic | 1 | 2 (Java BE) | 3-6s |
 | Recommendations | Full Agentic | 2-3 | 2 (Java BE via tools) | 5-10s |
+| Quiz webhook | — (server-to-server) | 0 | 1 (Spring Boot) | <200ms |
+| Progress fetch | — (REST) | 0 | 1 (Spring Boot) | <500ms |
+| Scheduler: due check | — (background) | 0 | 2 (Spring Boot) | <1s |
+
+---
+
+## Scenario 9: Quiz Completion Webhook (Spring Boot → Coach)
+
+**Trigger**: Spring Boot calls `POST /webhook/quiz-completed` after student finishes a quiz.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: Spring Boot → AI Coach (HTTP POST)                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  POST /webhook/quiz-completed                                            │
+│  X-API-Key: <shared secret>                                              │
+│  Body: { user_id, quiz_id, score: "7/10", category, questions[] }        │
+│                                                                          │
+│  → Validate API key (401 if invalid)                                     │
+│  → Validate body (422 if malformed)                                      │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Update Spaced Repetition Schedule                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  SpacedRepetitionScheduler.update_after_quiz(category, score)            │
+│  → Parse score "7/10" → accuracy 0.7                                     │
+│  → Fetch existing ReviewItem for (user_id, category) from Firestore      │
+│  → Apply SM-2: compute new easiness, interval, next_review date          │
+│  → Persist updated ReviewItem via Spring Boot PUT /review-schedule/{id}  │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: Return Response                                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  200 OK: { status: "processed", next_review, mastery_update }            │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Total LLM calls**: 0
+**Total HTTP calls**: 1-2 (Firestore via Spring Boot)
+**Total time**: <200ms
+
+---
+
+## Scenario 10: Progress Tracking (Frontend → Coach → Spring Boot)
+
+**Trigger**: Coach Dashboard loads, calls `GET /progress/{user_id}`.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: Frontend → Coach (via BFF)                                       │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  GET /progress/abc12345                                                  │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Fetch Quiz History from Spring Boot                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  HTTP GET → Spring Boot: /take-quiz/user/{userId}                        │
+│  → Returns all TakeQuiz records with scores, categories, timestamps      │
+│                                                                          │
+│  HTTP GET → Spring Boot: /review-schedule/user/{userId}                  │
+│  → Returns all ReviewItem records with next_review dates                 │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: Compute Progress Metrics                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ProgressTracker.compute_progress(quiz_history, quiz_details)            │
+│  → Exponential-decay mastery per category                                │
+│  → Learning velocity (accuracy Δ per week)                               │
+│  → Study streak (consecutive active days)                                │
+│  → Identify strongest/weakest categories                                 │
+│  → Filter due_reviews (next_review <= now)                               │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 4: Return ProgressReport                                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  200 OK: {                                                               │
+│    overall_mastery, categories[], velocities[],                           │
+│    study_streak, due_reviews[], strongest/weakest_category               │
+│  }                                                                       │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Total LLM calls**: 0
+**Total HTTP calls**: 2 (Spring Boot quiz history + review schedules)
+**Total time**: <500ms
+
+---
+
+## Scenario 11: Scheduler — Due Review Check (Background)
+
+**Trigger**: APScheduler fires `check_due_reviews` job every hour.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: Scheduler Fires (hourly cron)                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  CoachScheduler → check_due_reviews()                                    │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Fetch All Due Reviews                                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  HTTP GET → Spring Boot: /review-schedule/due                            │
+│  → Returns ReviewSchedule records where next_review <= now               │
+│  → Groups by user_id                                                     │
+│                                                                          │
+└──────────────────────────────────────┬──────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: Create Notifications                                             │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  For each user with due reviews:                                         │
+│    POST → Spring Boot: /notification/                                    │
+│    Body: {                                                               │
+│      userId, type: "REVIEW_DUE",                                         │
+│      title: "Review due: {category}",                                    │
+│      message: "You have {n} topics ready for review",                    │
+│      metadata: { categories[], review_ids[] }                            │
+│    }                                                                     │
+│  → Notification stored in Firestore `notification` collection            │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Total LLM calls**: 0
+**Total HTTP calls**: 1 + N (fetch due + create notifications per user)
+**Total time**: <1s typical

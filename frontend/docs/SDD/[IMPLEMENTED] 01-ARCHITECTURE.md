@@ -5,13 +5,14 @@
 The QAI frontend is a **Next.js Pages Router** application serving as the primary user interface for quiz creation, gameplay, user profiles, and AI study coaching. It communicates with two backend services:
 
 - **Spring Boot** (`:8080`) — Quiz CRUD, take-quiz, user profile
+
 - **AI Study Coach** (`:8000`) — WebSocket chat, LLM-based coaching
 
 ---
 
 ## System Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        Browser (Next.js :3000)                       │
 ├─────────────────────────────────────────────────────────────────────┤
@@ -36,14 +37,14 @@ The QAI frontend is a **Next.js Pages Router** application serving as the primar
 │ Quiz CRUD API   │                          │ FastAPI + LLM      │
 │                 │                          │ + Question Gen     │
 └─────────────────┘                          └────────────────────┘
-```
 
+```text
 ---
 
 ## Technology Stack
 
 | Layer | Technology | Version |
-|-------|-----------|---------|
+| ------- | ----------- | --------- |
 | Framework | Next.js (Pages Router) | 15.3.2 |
 | UI Library | React | 18.2.0 |
 | State Management | Zustand | 4.3.8 |
@@ -60,7 +61,7 @@ The QAI frontend is a **Next.js Pages Router** application serving as the primar
 ## Page Routes
 
 | Route | File | Purpose |
-|-------|------|---------|
+| ------- | ------ | --------- |
 | `/` | `src/pages/index.js` | Home — category grid + game mode selection |
 | `/play` | `src/pages/play/index.js` | Quiz gameplay (questions, timer, wildcards) |
 | `/create` | `src/pages/create/index.js` | Quiz creation interface |

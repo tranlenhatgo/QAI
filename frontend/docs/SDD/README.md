@@ -9,7 +9,8 @@
 **Product**: QAI Frontend — a Next.js Pages Router application for quiz creation, gameplay, user profiles, and AI study coaching.
 
 **Architecture**:
-```
+
+```text
 Browser (Next.js :3000)
   ├─→ Spring Boot (:8080) — Quiz CRUD, take-quiz, user profile
   └─→ AI Study Coach (:8000) — WebSocket chat, LLM coaching, question generation
@@ -20,7 +21,7 @@ Browser (Next.js :3000)
 ## File Index
 
 | # | File | What It Specifies |
-|---|------|-------------------|
+| --- | ------ | ------------------- |
 | 01 | [ARCHITECTURE.md](./01-ARCHITECTURE.md) | System topology, tech stack, page routes |
 | 02 | [COMPONENTS.md](./02-COMPONENTS.md) | Component tree and responsibilities |
 | 03 | [STATE-MANAGEMENT.md](./03-STATE-MANAGEMENT.md) | Zustand store slices, chat store details |
@@ -33,6 +34,9 @@ Browser (Next.js :3000)
 | 10 | [GLOBAL-LAYOUT.md](./10-GLOBAL-LAYOUT.md) | App bootstrap, auth sync, modal composition |
 | 11 | [UI-INTERACTION.md](./11-UI-INTERACTION.md) | Screens, user interactions, gamification, animations |
 | 12 | [AI-COACH-DASHBOARD.md](./12-AI-COACH-DASHBOARD.md) | AI Coach hub page: all AI features in one dashboard |
+| 13 | [SPACED-REPETITION-UI.md](./13-SPACED-REPETITION-UI.md) | Due reviews display, review flow, ReviewQuizModal |
+| 14 | [PROGRESS-TRACKING-UI.md](./14-PROGRESS-TRACKING-UI.md) | Real progress data integration, mastery bars, velocity |
+| 15 | [SCHEDULER-NOTIFICATIONS-UI.md](./15-SCHEDULER-NOTIFICATIONS-UI.md) | Notification banner, badge, and dropdown list |
 
 ---
 

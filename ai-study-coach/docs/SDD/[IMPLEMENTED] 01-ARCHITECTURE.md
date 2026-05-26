@@ -29,6 +29,11 @@ Define the system topology, service boundaries, configuration schema, and mode-r
 │  ┌──────────────┐  ┌──────────────┐  ┌──────┴─────────────────────┐ │
 │  │ LLM Service  │  │ Tool Registry│  │ Tools (RAG, Reason, etc.)  │ │
 │  └──────┬───────┘  └──────────────┘  └────────────────────────────┘ │
+│         │                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────────────┐ │
+│  │ Scheduler    │  │ Learning     │  │ Routes (REST endpoints)    │ │
+│  │ (APScheduler)│  │ (SR+Progress)│  │ /progress, /webhook, etc.  │ │
+│  └──────────────┘  └──────────────┘  └────────────────────────────┘ │
 │         │                                    │                        │
 └─────────┼────────────────────────────────────┼────────────────────────┘
           │                                    │
@@ -38,15 +43,21 @@ Define the system topology, service boundaries, configuration schema, and mode-r
 │ - LM Studio      │              │ - Quiz CRUD            │
 │   (localhost)     │              │ - User profiles        │
 │ - DeepSeek API   │              │ - Quiz history         │
-│   (cloud)        │              │ - Recommendations      │
-└──────────────────┘              └──────────┬─────────────┘
+│   (cloud)        │              │ - Review schedules     │
+└──────────────────┘              │ - Notifications        │
+                                  └──────────┬─────────────┘
                                              │
                                              ↓
                                   ┌────────────────────────┐
-                                  │ PostgreSQL / Supabase   │
-                                  │ - pgvector (embeddings) │
-                                  │ - User data             │
-                                  │ - Quiz data             │
+                                  │ Firestore (NoSQL)      │
+                                  │ - quiz, question       │
+                                  │ - take_quiz            │
+                                  │ - review_schedule      │
+                                  │ - notification         │
+                                  └────────────────────────┘
+                                  ┌────────────────────────┐
+                                  │ Supabase (pgvector)    │
+                                  │ - RAG embeddings       │
                                   └────────────────────────┘
 ```
 
@@ -57,10 +68,11 @@ Define the system topology, service boundaries, configuration schema, and mode-r
 | Service | Responsibility | Port |
 | --------- | --------------- | ------ |
 | Next.js Frontend | UI, WebSocket client, session state | 3000 |
-| FastAPI AI Service | LLM orchestration, tool execution, streaming | 8000 |
-| Java Backend | Quiz CRUD, user management, business logic | 8080 |
+| FastAPI AI Service | LLM orchestration, tool execution, streaming, scheduling | 8000 |
+| Java Backend | Quiz CRUD, user management, review schedules, notifications | 8080 |
 | LM Studio | Local LLM inference (Lite mode) | 1234 |
-| Supabase | Vector DB + auth + storage (Full mode) | 54321 (local) or cloud |
+| Supabase | Vector DB + auth + storage (Full mode RAG) | 54321 (local) or cloud |
+| Firestore | Review schedules, notifications (via Spring Boot) | — (cloud) |
 
 ---
 
@@ -184,6 +196,14 @@ ai-study-coach/
 │   │   ├── endpoint.py          # WebSocket endpoint handler
 │   │   ├── protocol.py          # Message shapes & serialization
 │   │   └── session.py           # Session state per connection
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── chat.py              # POST /chat/{mode} HTTP endpoint
+│   │   ├── generate.py          # POST /generate/* endpoints
+│   │   ├── solve.py             # POST /solve endpoint
+│   │   ├── progress.py          # GET /progress/{user_id}
+│   │   ├── webhook.py           # POST /webhook/quiz-completed
+│   │   └── health.py            # GET /health
 │   ├── llm/
 │   │   ├── __init__.py
 │   │   ├── base.py              # Abstract LLM provider
@@ -206,6 +226,19 @@ ai-study-coach/
 │   │   ├── quiz_history.py      # Quiz history tool (Java BE)
 │   │   ├── recommend.py         # Recommendation tool (Java BE)
 │   │   └── web_search.py        # Web search tool
+│   ├── learning/
+│   │   ├── __init__.py
+│   │   ├── spaced_repetition.py # SM-2 algorithm, ReviewItem, schedule CRUD
+│   │   ├── progress.py          # ProgressTracker, mastery, velocity, streaks
+│   │   └── weakness.py          # WeaknessAnalyzer (post-quiz detection)
+│   ├── scheduler/
+│   │   ├── __init__.py
+│   │   └── scheduler.py         # APScheduler: hourly due-review + daily progress
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── schemas.py           # Pydantic models (webhook, notifications, etc.)
+│   ├── agent/                   # Agentic infrastructure
+│   ├── quiz_client/             # Spring Boot quiz API client
 │   └── services/
 │       ├── __init__.py
 │       ├── java_client.py       # HTTP client for Java BE
@@ -214,6 +247,7 @@ ai-study-coach/
 │   ├── test_chat.py
 │   ├── test_agentic.py
 │   ├── test_tools.py
+│   ├── test_learning.py         # Spaced repetition + progress tests
 │   └── test_ws.py
 ├── pyproject.toml
 ├── requirements.txt

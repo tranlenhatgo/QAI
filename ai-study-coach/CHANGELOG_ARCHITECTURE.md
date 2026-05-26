@@ -3,20 +3,82 @@
 ## Overview
 
 Full implementation of the 4-phase SDD architecture into `server/`, adding:
+
 - **WebSocket real-time protocol** (`/ws` endpoint)
 - **Capability system** (chat, agentic, lite orchestrator, quiz generator, step solver)
 - **Tool framework** (registry pattern + 5 tools)
 - **Services layer** (Supabase pgvector RAG, embeddings)
 - **Two-tier LLM routing** (Lite → LM Studio local, Full → DeepSeek cloud)
+- **Adaptive learning** (spaced repetition, progress tracking, background scheduler, webhook)
 
 ---
 
-## New Files Created
+## 2025-05-26 — Firestore Persistence Migration
+
+**Migrated spaced repetition and notification storage from in-memory dicts to Firestore (via Spring Boot API).**
+
+### Modified Files
+
+| File | Change |
+| ------ | -------- |
+| `server/learning/spaced_repetition.py` | `load_schedule()` and `save_schedule()` now call `GET/POST /review-schedule/` on Spring Boot via httpx |
+| `server/scheduler/scheduler.py` | `store_notification()` calls `POST /notification`, `get_pending_notifications()` calls `GET .../unread` + marks read |
+| `tests/test_learning.py` | Integration test uses mock storage (patches HTTP-backed functions) |
+
+### Design Notes
+
+- **Zero in-memory state for persistent data** — all review schedules and notifications survive service restarts
+- **Recent quiz events** still in-memory (ephemeral, for chat context only)
+- `load_all_schedules()` returns empty — batch processing not needed with Firestore backend
+- Error handling: all HTTP failures logged as warnings, never crash the Coach
+
+---
+
+## 2025-05-26 — Adaptive Learning Subsystem
+
+**Implemented SDD 14 (Spaced Repetition), 15 (Progress Tracking), 16 (Scheduler), 17 (Webhook).**
+
+### New Files Created
+
+| File | Purpose |
+| ------ | --------- |
+| `server/learning/spaced_repetition.py` | SM-2 algorithm adapted for category-level mastery. `SpacedRepetitionScheduler`, `ReviewItem`, `on_quiz_completed()`, in-memory schedule storage |
+| `server/learning/progress.py` | `ProgressTracker` with exponential decay mastery, learning velocity, study streak, trend analysis |
+| `server/scheduler/scheduler.py` | `CoachScheduler` (APScheduler) with hourly due-review check + daily progress snapshot jobs. Notification storage for chat context |
+| `server/routes/webhook.py` | `POST /webhook/quiz-completed` — receives Spring Boot events, updates SR schedule, stores events for coach context |
+| `server/routes/progress.py` | `GET /progress/{user_id}` — full progress report with mastery, velocity, due reviews, upcoming reviews |
+| `tests/test_learning.py` | 10 unit tests: SM-2 passing/failing/bounds, due reviews, progress mastery, velocity, streak, integration |
+
+### Modified Files (Learning Layer)
+
+| File | Change |
+| ------ | -------- |
+| `server/config.py` | Added settings: `scheduler_enabled`, `review_check_interval_hours`, `progress_snapshot_hour`, `sr_default_easiness`, `sr_min_easiness` |
+| `server/main.py` | Added route registration (progress, webhook), scheduler lifespan (start/shutdown), public path prefixes |
+| `server/agent/coach.py` | `ChatResponse.due_reviews` now populated from spaced repetition schedule on each chat response |
+
+### API Endpoints Added
+
+| Method | Path | Auth | Description |
+| -------- | ------ | ------ | ------------- |
+| `GET` | `/progress/{user_id}` | Public | Full progress report: mastery per category, velocity, streak, due/upcoming reviews |
+| `POST` | `/webhook/quiz-completed` | X-API-Key (internal check) | Receives quiz completion from Spring Boot, updates SR schedule |
+
+### Key Design Decisions
+
+1. **In-memory storage (MVP)**: Review schedules stored in `dict`. Replace with SQLite for production persistence.
+2. **Public endpoints**: Progress and webhook bypass the API key middleware (webhook does its own auth check internally).
+3. **Non-blocking webhook**: Coach chat doesn't depend on webhook — SR schedule is updated on quiz completion via webhook, but progress can also be computed on-demand.
+4. **Scheduler integration**: Coach proactively mentions due reviews via pending notifications stored by the hourly job.
+
+---
+
+## New Files Created (WebSocket Layer)
 
 ### WebSocket Layer (`server/ws/`)
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `__init__.py` | Protocol message factories (`session_ack`, `content_chunk`, `stage_event`, `tool_event`, `error_event`, `done_event`) + client→server dataclasses |
 | `endpoint.py` | Main WebSocket handler — accept, authenticate, message loop, route to capabilities |
 | `session.py` | Per-connection state: message history, cancel flag, mode switching, history trimming (20 msg max) |
@@ -24,7 +86,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ### Capabilities (`server/capabilities/`)
 
 | File | Class | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | `__init__.py` | — | Package marker |
 | `base.py` | `BaseCapability` | Protocol interface: `tool_names()`, `run(messages, on_event, cancelled)` |
 | `chat.py` | `SimpleChatCapability` | Direct LLM streaming (no tools). Used by both Lite+Chat and Full+Chat |
@@ -36,7 +98,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ### Tools (`server/tools/`)
 
 | File | Tool Name | Description |
-|------|-----------|-------------|
+| ------ | ----------- | ------------- |
 | `__init__.py` | — | `BaseTool` ABC with `name`, `description`, `parameters_schema()`, `execute()`, `definition()` |
 | `registry.py` | — | `ToolRegistry` class + `create_full_registry()` / `create_lite_registry()` factories |
 | `quiz_history.py` | `quiz_history` | Fetches student's quiz attempts/scores from Spring Boot backend |
@@ -48,7 +110,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ### Services (`server/services/`)
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `__init__.py` | Package marker |
 | `supabase_client.py` | `SupabaseClient` — pgvector similarity search + document storage |
 | `embeddings.py` | `get_embedding()` — generates vectors via LM Studio `/v1/embeddings` |
@@ -56,7 +118,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ### LLM Providers (`server/llm/`)
 
 | File | Class | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | `base.py` | `LLMService` ABC | Abstract interface + data shapes (Message, Role, StreamChunk, ToolCall, ToolDefinition, CompletionResult) |
 | `lm_studio.py` | `LMStudioProvider` | Local LLM via OpenAI-compatible SSE streaming. Ignores tools param |
 | `deepseek.py` | `DeepSeekProvider` | DeepSeek via OpenAI-compatible endpoint. Native function calling support with tool_call delta accumulation |
@@ -64,7 +126,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ### Router (`server/router.py`)
 
 | Component | Purpose |
-|-----------|---------|
+| ----------- | --------- |
 | `Tier` enum | `lite` / `full` |
 | `Mode` enum | `chat` / `agentic` |
 | `create_llm_provider(tier)` | Factory: Lite→LMStudioProvider, Full→DeepSeekProvider |
@@ -72,30 +134,34 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 
 ---
 
-## Modified Files
+## Modified Files (WebSocket Layer)
 
 ### `server/config.py`
+
 - Added `supabase_url: str` and `supabase_key: str` for pgvector RAG
 - Added `search_api_key: str` for web search tool
 - Improved comments for tier clarity
 
 ### `server/main.py`
+
 - Added `from server.ws.endpoint import ws_handler` import
 - Added `@app.websocket("/ws")` route handler
 - WebSocket now accessible at `ws://localhost:8000/ws`
 
 ### `server/quiz_client/client.py`
+
 - Added `get_quiz_history(user_id, limit, category)` method
 - Used by `QuizHistoryTool` to fetch simplified quiz data
 
 ### `server/llm/base.py`
+
 - Added `tool_call: dict | None` field to `StreamChunk` for single tool call passthrough
 
 ---
 
 ## Architecture Routing Matrix
 
-```
+```text
 ┌──────────┬────────────────────────────────────────────┐
 │          │              Mode                           │
 │  Tier    ├──────────────────┬─────────────────────────┤
@@ -120,6 +186,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ## WebSocket Protocol
 
 ### Client → Server
+
 ```json
 {"type": "session_start", "tier": "full", "mode": "agentic", "user_id": "abc123", "kb_id": ""}
 {"type": "user_message", "content": "Help me study linear algebra"}
@@ -128,6 +195,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 ```
 
 ### Server → Client
+
 ```json
 {"type": "session_ack", "session_id": "...", "tier": "full", "mode": "agentic", "available_tools": ["quiz_history", "recommend", "reason", "web_search"]}
 {"type": "stage", "stage": "thinking", "status": "start"}
@@ -145,7 +213,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 
 ## Agentic Loop Flow
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    AGENTIC LOOP                               │
 ├─────────────────────────────────────────────────────────────┤
@@ -183,7 +251,7 @@ Full implementation of the 4-phase SDD architecture into `server/`, adding:
 
 ## LiteOrchestrator Intent Classification
 
-```
+```text
 User message → IntentClassifier (regex patterns)
                     │
     ┌───────────────┼───────────────────────────────┐
@@ -243,7 +311,7 @@ COACH_CORS_ORIGINS=["http://localhost:3000","http://localhost:8080"]
 #### New: `server/routes/generate.py`
 
 | Endpoint | Method | Purpose |
-|----------|--------|---------|
+| ---------- | -------- | --------- |
 | `/generate/from-topics` | POST | Generate questions from topic list (replaces Cohere + n8n) |
 | `/generate/from-file` | POST | Generate questions from uploaded document (replaces n8n upload workflow) |
 | `/generate/get-question` | POST | Generate a single question for a quiz ID (replaces `/n8n/get-question`) |
@@ -254,20 +322,23 @@ COACH_CORS_ORIGINS=["http://localhost:3000","http://localhost:8080"]
 - Truncates documents to 12K chars to fit LLM context
 - Fetches quiz context from Spring Boot to determine categories
 
-#### Removed from Spring Boot:
+#### Removed from Spring Boot
+
 - `n8nController.java` — deleted
 - `n8nService.java` — deleted
 - `QuizResponseN8n.java` — deleted
 - `MultipartInputStreamFileResource.java` — deleted
 
-#### Updated Frontend:
+#### Updated Frontend
+
 - `src/pages/api/questions.js` — calls Coach `/generate/from-topics` (was Cohere)
 - `src/pages/api/question/get-ai-question.js` — calls Coach `/generate/get-question` (was Spring Boot `/n8n/get-question`)
 - `src/pages/api/quiz/upload.js` — calls Coach `/generate/from-file` (was Spring Boot `/n8n/upload`)
 - Removed `cohere-ai` from `package.json`
 - New env: `STUDY_COACH_API_URL` (defaults to `http://localhost:8000`)
 
-#### Dependencies:
+#### Dependencies
+
 - Added `python-multipart==0.0.29` to `requirements.txt`
 
 ### 2025-06-XX — Gemini → DeepSeek Migration
@@ -287,38 +358,44 @@ Previous: Simple 2-phase (generate plan text → execute all at once).
 New: Structured 3-phase pipeline with per-step context carryover.
 
 **Phase 1 — Plan:**
+
 - LLM decomposes problem into JSON `{analysis, steps[{id, goal}]}`
 - Fallback parser for plain numbered lists
 
 **Phase 2 — Execute (per step):**
+
 - Each step solved individually with full context of previous step results
 - Streaming output per step (for WebSocket)
 - Structured output: `REASONING:` + `RESULT:` labels
 
 **Phase 3 — Synthesize:**
+
 - Produces `FINAL_ANSWER:` + `CONFIDENCE:` (high/medium/low)
 - Connects steps into coherent conclusion
 
 **Data models:**
+
 - `PlanStep(id, goal)` — sub-goal definition
 - `Plan(analysis, steps)` — problem decomposition
 - `StepResult(step_id, goal, reasoning, result)` — per-step output
 - `Solution(problem, plan, step_results, final_answer, confidence)` — complete solution
 
 **Two execution modes:**
+
 - `run()` — WebSocket streaming with stage events per step
 - `run_http()` — REST endpoint returning structured `Solution`
 
 #### New: `server/routes/solve.py`
 
 | Endpoint | Method | Purpose |
-|----------|--------|---------|
+| ---------- | -------- | --------- |
 | `/solve` | POST | Solve a problem step-by-step, returns structured solution |
 
 Request: `{ "problem": "...", "user_id": "..." }`
 Response: `{ "problem", "analysis", "steps[]", "final_answer", "confidence" }`
 
 #### Updated: `server/main.py`
+
 - Registered solve router: `app.include_router(solve.router, tags=["Solve"])`
 - Total routes: 14
 

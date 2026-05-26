@@ -32,6 +32,15 @@ class Settings(BaseSettings):
     app_name: str = "AI Study Coach"
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8080"]
 
+    # Scheduler
+    scheduler_enabled: bool = True
+    review_check_interval_hours: int = 1
+    progress_snapshot_hour: int = 2
+
+    # Spaced Repetition
+    sr_default_easiness: float = 2.5
+    sr_min_easiness: float = 1.3
+
     model_config = {"env_file": ".env", "env_prefix": "COACH_"}
 
 

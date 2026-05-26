@@ -104,9 +104,23 @@ async def handle_chat(request: ChatRequest) -> ChatResponse:
     # 6. Return response with metadata
     weaknesses = weakness_data.get("weakest_categories") if weakness_data else None
 
+    # Populate due_reviews from spaced repetition schedule
+    due_reviews = None
+    try:
+        from server.learning.spaced_repetition import SpacedRepetitionScheduler, load_schedule
+        items = await load_schedule(user_id)
+        if items:
+            scheduler = SpacedRepetitionScheduler()
+            due_items = scheduler.get_due_reviews(items)
+            if due_items:
+                due_reviews = [item.category for item in due_items]
+    except Exception as e:
+        logger.debug(f"Due reviews lookup failed: {e}")
+
     return ChatResponse(
         content=response_text,
         weaknesses=weaknesses,
+        due_reviews=due_reviews,
     )
 
 

@@ -10,13 +10,13 @@ The `src/pages/_app.js` file is the global layout and initialization point.
 
 On mount, `_app.js` sets up an `onIdTokenChanged` listener:
 
-```
+```text
 1. Firebase emits token change (login, refresh, logout)
 2. If token exists → POST /api/auth/set-token (creates HttpOnly cookie)
 3. If null → POST /api/auth/clear-token (removes cookie)
 4. Updates Zustand auth store with user state
-```
 
+```text
 This keeps the server-side cookie in sync with client-side Firebase auth.
 
 ---
@@ -26,7 +26,7 @@ This keeps the server-side cookie in sync with client-side Firebase auth.
 The chat widget is configured at app root:
 
 | Config | Source | Default |
-|--------|--------|---------|
+| -------- | -------- | --------- |
 | Server URL | `NEXT_PUBLIC_STUDY_COACH_API_URL` | `http://localhost:8000` |
 | User ID | From auth store | — |
 | Transport | `webhook` | — |
@@ -41,7 +41,7 @@ The chat widget is configured at app root:
 Modals are rendered at root level (portals via DOM id):
 
 | Modal | Trigger | Purpose |
-|-------|---------|---------|
+| ------- | --------- | --------- |
 | `AuthForm` | `document.getElementById('auth-form')` | Login/register |
 | `PlayForm` | `document.getElementById('play-form')` | Game configuration |
 | `CreateQuizRoomForm` | `document.getElementById('create-room')` | Room creation |
@@ -54,6 +54,7 @@ This pattern avoids prop drilling and allows any component to open a modal.
 ## Zustand Store Binding
 
 A single `useBoundStore` composites all 6 slice stores via spread operator:
+
 ```javascript
 const useBoundStore = create((...a) => ({
   ...useAuth(...a),
@@ -63,6 +64,6 @@ const useBoundStore = create((...a) => ({
   ...useQuestions(...a),
   ...useWildcards(...a),
 }))
-```
 
+```text
 All components import from `useBoundStore` — never from individual slices directly.

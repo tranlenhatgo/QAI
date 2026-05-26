@@ -12,9 +12,11 @@ import {
 	FiUser,
 	FiZap,
 } from 'react-icons/fi'
+import DueReviews from './DueReviews'
 import EmbeddedChat from './EmbeddedChat'
 import GenerateQuestions from './GenerateQuestions'
 import MyWeaknesses from './MyWeaknesses'
+import NotificationBell from './NotificationBell'
 import ProgressOverview from './ProgressOverview'
 import StepSolver from './StepSolver'
 import StudyMaterials from './StudyMaterials'
@@ -111,7 +113,13 @@ export default function CoachDashboard() {
 				return <EmbeddedChat />
 			case 'overview':
 			default:
-				return <ProgressOverview />
+				return (
+					<>
+						<NotificationBell />
+						<ProgressOverview />
+						<DueReviews />
+					</>
+				)
 		}
 	}
 

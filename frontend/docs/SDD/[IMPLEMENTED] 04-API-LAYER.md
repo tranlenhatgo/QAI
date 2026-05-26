@@ -4,7 +4,7 @@
 
 The frontend uses a Backend-For-Frontend pattern — browser code calls helper functions which hit Next.js API routes, which proxy to external services:
 
-```
+```text
 Browser → src/helpers/* → src/pages/api/* → External Services
 ```
 
@@ -15,7 +15,7 @@ This keeps secrets (API keys, encryption keys) server-side and provides a unifie
 ## API Routes
 
 | Route | Method | Target Service | Purpose |
-|-------|--------|---------------|---------|
+| ------- | -------- | --------------- | --------- |
 | `/api/auth/set-token` | POST | — | Store Firebase JWT in HttpOnly cookie |
 | `/api/auth/clear-token` | POST | — | Clear auth cookie |
 | `/api/auth/login` | POST | Firebase | Firebase login |
@@ -33,6 +33,12 @@ This keeps secrets (API keys, encryption keys) server-side and provides a unifie
 | `/api/take/take-quiz` | POST | Spring Boot | Start quiz session |
 | `/api/take/save-attempt` | POST | Spring Boot | Submit quiz results |
 | `/api/coach/chat` | POST | AI Study Coach | Proxy to HTTP chat endpoint |
+| `/api/coach/generate-questions` | POST | AI Study Coach | Generate questions (dashboard) |
+| `/api/coach/solve` | POST | AI Study Coach | Step-by-step problem solving |
+| `/api/coach/progress/[userId]` | GET | AI Study Coach | Fetch progress metrics |
+| `/api/coach/review-completed` | POST | AI Study Coach | Notify review quiz completed |
+| `/api/coach/notifications/[userId]` | GET | Spring Boot | Fetch user notifications |
+| `/api/coach/notifications/[id]/read` | PATCH | Spring Boot | Mark notification as read |
 
 ---
 
@@ -41,7 +47,7 @@ This keeps secrets (API keys, encryption keys) server-side and provides a unifie
 Located in `src/helpers/`, these abstract API route calls for components:
 
 | Helper | Used By | Routes Called |
-|--------|---------|--------------|
+| -------- | --------- | -------------- |
 | `getQuestions()` | PlayForm, Play page | `/api/questions` |
 | `takeQuiz()` | JoinGameForm | `/api/take/take-quiz` |
 | `saveAttempt()` | GameOver | `/api/take/save-attempt` |
@@ -52,12 +58,28 @@ Located in `src/helpers/`, these abstract API route calls for components:
 
 ## AI Study Coach Integration
 
-Three API routes proxy to the AI Study Coach (`STUDY_COACH_API_URL`):
+API routes proxying to the AI Study Coach (`STUDY_COACH_API_URL`):
 
 | Frontend Route | Coach Endpoint | Purpose |
-|---------------|---------------|---------|
+| --------------- | --------------- | --------- |
 | `/api/questions` | `POST /generate/from-topics` | Generate questions from topic list |
 | `/api/question/get-ai-question` | `POST /generate/get-question` | Generate single question |
 | `/api/quiz/upload` | `POST /generate/from-file` | Generate from uploaded file |
+| `/api/coach/chat` | `POST /chat/{mode}` | AI coaching chat (simple/agentic) |
+| `/api/coach/generate-questions` | `POST /generate/from-topics` | Dashboard question generation |
+| `/api/coach/solve` | `POST /solve` | Step-by-step problem solver |
+| `/api/coach/progress/[userId]` | `GET /progress/{user_id}` | Progress and mastery metrics |
+| `/api/coach/review-completed` | `POST /webhook/quiz-completed` | Notify schedule of review completion |
 
 All include `X-API-Key` header when `COACH_API_KEY` is set.
+
+---
+
+## Spring Boot Notification Integration
+
+API routes proxying to Spring Boot (`SPRING_BOOT_URL`) for Firestore-backed notifications:
+
+| Frontend Route | Spring Boot Endpoint | Purpose |
+| --------------- | --------------------- | --------- |
+| `/api/coach/notifications/[userId]` | `GET /notification/user/{id}/unread` | Fetch unread notifications |
+| `/api/coach/notifications/[id]/read` | `PATCH /notification/{id}/read` | Mark notification as read |

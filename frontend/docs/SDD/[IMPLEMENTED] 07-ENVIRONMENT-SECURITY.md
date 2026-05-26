@@ -3,7 +3,7 @@
 ## Environment Variables
 
 | Variable | Required | Description |
-|----------|----------|-------------|
+| ---------- | ---------- | ------------- |
 | `REST_API_URL` | Yes | Spring Boot base URL (server-side API routes) |
 | `NEXT_PUBLIC_REST_API_URL` | Yes | Spring Boot URL (client-side) |
 | `ANSWER_ENCRYPTION_KEY` | Yes | Key for answer encryption/decryption |
@@ -19,7 +19,7 @@
 ## Security Measures
 
 | Measure | Implementation | Purpose |
-|---------|---------------|---------|
+| --------- | --------------- | --------- |
 | Answer encryption | AES via crypto-js | Prevent answer cheating via network inspection |
 | HttpOnly cookies | `/api/auth/set-token` | Protect Firebase JWT from XSS |
 | DOMPurify | Sanitizes rendered content | Prevent XSS in user-generated text |
@@ -31,7 +31,7 @@
 ## Conventions
 
 | Convention | Details |
-|-----------|---------|
+| ----------- | --------- |
 | Category flow | IDs in query state → names for generation → UPPERCASE_SNAKE for backend |
 | Question shape | `{ question, answers, correctAnswer, userAnswer, answer, ... }` |
 | Query config | `{ questions, time, infinitymode, timemode, quizmode, quizId, name, categories }` |

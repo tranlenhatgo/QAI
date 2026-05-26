@@ -80,3 +80,37 @@ question (1) ──→ (N) take_question   (via question_id)
 - Firestore fields use **snake_case** (matching Java model `@PropertyName` or field names)
 - Categories stored as UPPERCASE enum strings in Firestore, received as lowercase from frontend
 - Timestamps stored as Firestore `Timestamp` type, serialized as ISO-8601 in JSON
+
+---
+
+## Collection: `review_schedule`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | 8-char UUID |
+| `user_id` | string | Student user ID |
+| `category` | string | Category (UPPERCASE) — one schedule per user+category |
+| `easiness` | number | SM-2 easiness factor (1.3 – 2.5) |
+| `interval_days` | number | Current interval in days |
+| `repetitions` | number | Consecutive successful reviews |
+| `next_review` | Timestamp | When this category is due for review |
+| `last_reviewed` | Timestamp | When the user last reviewed this category |
+| `last_score` | string | Score in "correct/total" format |
+| `updated_at` | Timestamp | Last update timestamp |
+
+**Unique constraint**: One document per `(user_id, category)` pair — upsert logic in service.
+
+---
+
+## Collection: `notification`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | 8-char UUID |
+| `user_id` | string | Target user ID |
+| `type` | string | `REVIEW_DUE` or `PROGRESS_MILESTONE` |
+| `title` | string | Notification title |
+| `message` | string | Notification body text |
+| `read` | boolean | Whether the user has seen this |
+| `created_at` | Timestamp | Creation timestamp |
+| `expires_at` | Timestamp | Optional expiry (auto-cleanup candidate) |

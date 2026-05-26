@@ -28,6 +28,7 @@ AI Study Coach (:8000)  ──REST──→ Spring Boot (:8080)
 | 06 | [CONVENTIONS.md](./06-CONVENTIONS.md) | Coding conventions, integration points, dev workflow |
 | 07 | [VALIDATION-ERRORS.md](./07-VALIDATION-ERRORS.md) | Validation architecture, exception handling, Lombok |
 | 08 | [BUILD-TOOLING.md](./08-BUILD-TOOLING.md) | Maven build, Lombok processing, logging, tests |
+| 09 | [QUIZ-WEBHOOK-SENDER.md](./09-QUIZ-WEBHOOK-SENDER.md) | Send quiz completion webhook to AI Coach |
 
 ---
 

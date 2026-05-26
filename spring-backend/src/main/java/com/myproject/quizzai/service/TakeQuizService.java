@@ -3,6 +3,7 @@ package com.myproject.quizzai.service;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Firestore;
 import com.myproject.quizzai.dto.*;
+import com.myproject.quizzai.model.Quiz;
 import com.myproject.quizzai.model.Status;
 import com.myproject.quizzai.model.TakeQuiz;
 import com.myproject.quizzai.utils.IdUtil;
@@ -25,6 +26,7 @@ public class TakeQuizService {
     private final QuestionService questionService;
     private final QuizService quizService;
     private final TakeQuestionService takeQuestionService;
+    private final WebhookService webhookService;
 
     @SneakyThrows
     public TakeQuizStartResponseDto StartQuiz(TakeQuizStartRequestDto takeQuizDto) {
@@ -81,6 +83,23 @@ public class TakeQuizService {
 
         // Update the quiz status and score in Firestore
         firestore.collection("take_quiz").document(takeId).set(takeQuiz).get();
+
+        // Notify AI Coach via webhook (non-blocking)
+        String category = getQuizCategory(oldTakeQuiz.getQuiz_id());
+        webhookService.notifyQuizCompleted(takeQuiz, oldTakeQuiz.getQuiz_id(), category);
+    }
+
+    /**
+     * Look up quiz category from Firestore.
+     * Returns "unknown" if quiz not found.
+     */
+    @SneakyThrows
+    private String getQuizCategory(String quizId) {
+        Quiz quiz = firestore.collection("quiz").document(quizId).get().get().toObject(Quiz.class);
+        if (quiz != null && quiz.getCategories() != null && !quiz.getCategories().isEmpty()) {
+            return quiz.getCategories().get(0).name().toLowerCase();
+        }
+        return "unknown";
     }
 
     // Method to get a taken quiz by ID

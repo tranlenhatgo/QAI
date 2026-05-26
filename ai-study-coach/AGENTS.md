@@ -6,7 +6,7 @@ AI Study Coach — a FastAPI microservice (Python 3.12+) providing personalized 
 
 ## Architecture & Data Flow
 
-```
+```text
 User → Chat Widget (WS) → FastAPI (:8000) → Quiz API (Spring Boot :8080) → Fetch history
                                            → learning/ (algorithmic analysis)
                                            → agent/prompts.py (build context)
@@ -14,6 +14,12 @@ User → Chat Widget (WS) → FastAPI (:8000) → Quiz API (Spring Boot :8080) �
                                            ↕ tool-use loop (max 3 rounds):
                                              LLM → tool_call → tool_executor → result → LLM
                                            → Stream tokens + action commands back to client
+
+Spring Boot → POST /webhook/quiz-completed → Update SR schedule → Persist via Spring Boot
+                                           → Trigger weakness re-analysis
+
+Scheduler (APScheduler) → hourly: check due reviews → create notifications via Spring Boot
+                        → daily: compute progress snapshots
 ```
 
 **Key design principles:**
@@ -24,7 +30,7 @@ User → Chat Widget (WS) → FastAPI (:8000) → Quiz API (Spring Boot :8080) �
 
 ## Project Structure
 
-- `server/main.py` — FastAPI app factory, lifespan, CORS, router registration
+- `server/main.py` — FastAPI app factory, lifespan (starts scheduler), CORS, router registration
 - `server/config.py` — All settings via `pydantic-settings`; env vars prefixed `COACH_`; loaded from `.env`
 - `server/agent/coach.py` — **Main orchestrator**: `handle_chat()` (non-agentic) and `handle_chat_agentic()` (tool-use loop)
 - `server/agent/prompts.py` — System prompts (`SYSTEM_PROMPT` + `AGENTIC_SYSTEM_PROMPT`) and context builder
@@ -35,10 +41,15 @@ User → Chat Widget (WS) → FastAPI (:8000) → Quiz API (Spring Boot :8080) �
 - `server/llm/lm_studio.py` — LMStudioProvider for Lite tier (local)
 - `server/quiz_client/client.py` — HTTP client wrapping Spring Boot quiz API
 - `server/learning/weakness.py` — Algorithmic weakness analyzer (no AI)
-- `server/models/schemas.py` — All Pydantic v2 models (chat, quiz API responses, analysis, agent actions)
+- `server/learning/spaced_repetition.py` — SM-2 algorithm, ReviewItem, schedule CRUD (Firestore via Spring Boot)
+- `server/learning/progress.py` — ProgressTracker: mastery, velocity, streaks, trends
+- `server/scheduler/scheduler.py` — APScheduler: hourly due-review check + daily progress snapshot
+- `server/models/schemas.py` — All Pydantic v2 models (chat, quiz API responses, analysis, agent actions, webhook, notifications)
 - `server/routes/chat.py` — `POST /chat` and `POST /chat/agentic` endpoints
-- `server/routes/generate.py` — `POST /generate/from-topics`, `/generate/from-file`, `/generate/get-question` — AI question generation (replaces n8n)
+- `server/routes/generate.py` — `POST /generate/from-topics`, `/generate/from-file`, `/generate/get-question` — AI question generation
 - `server/routes/solve.py` — `POST /solve` — Step-by-step problem solving (structured 3-phase pipeline)
+- `server/routes/progress.py` — `GET /progress/{user_id}` — Progress metrics + due reviews
+- `server/routes/webhook.py` — `POST /webhook/quiz-completed` — Receives quiz completion, updates SR schedule
 - `server/routes/health.py` — `GET /health` with LLM status
 - `widget/` — Embeddable chat widget (JS/CSS) with action dispatch via `onAction` callback
 
@@ -53,13 +64,18 @@ python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
 
 ## Testing
 
-Tests bypass the Spring Boot backend using mock quiz data:
+Unit tests for learning modules (no external dependencies):
 
 ```bash
-python -m tests.test_ai_response
+python -m pytest tests/ -v
 ```
 
-This runs 5 tests: LLM client connectivity, prompt builder, full agent flow with mock data, streaming, and HTTP endpoint (requires running server). Tests require LM Studio running with a model loaded. See `tests/test_ai_response.py` for mock data patterns.
+Key test files:
+
+- `tests/test_learning.py` — SM-2 spaced repetition + progress tracker tests (10 cases)
+- `tests/test_ai_response.py` — LLM client connectivity, prompt builder, agent flow (requires LM Studio)
+
+Integration tests require LM Studio running with a model loaded.
 
 ## Conventions & Patterns
 
@@ -81,7 +97,7 @@ This runs 5 tests: LLM client connectivity, prompt builder, full agent flow with
 ## Available Tools (Agentic)
 
 | Tool | Description | Frontend Action |
-|------|-------------|----------------|
+| --- | --- | --- |
 | `navigate_to_page` | Navigate to a page (dashboard, quiz list, profile, etc.) | `window.location` / router push |
 | `start_quiz` | Start a specific quiz (verifies existence via quiz API) | Call take-quiz API + navigate |
 | `generate_questions` | Generate AI questions on given topics | Call questions API |
@@ -90,6 +106,37 @@ This runs 5 tests: LLM client connectivity, prompt builder, full agent flow with
 | `show_weakness_report` | Display weakness analysis in chat | Render inline report |
 | `search_quizzes` | Find quizzes by category from user profile | Filter + display quiz list |
 
-## Planned/Incomplete Modules
+## REST Endpoints
 
-`server/learning/spaced_repetition.py` and `server/learning/progress.py` are referenced in README but not yet implemented. `server/scheduler/` exists as a placeholder.
+| Endpoint | Method | Auth | Purpose |
+| --- | --- | --- | --- |
+| `/health` | GET | Public | Health check + LLM status |
+| `/chat/{mode}` | POST | X-API-Key | Chat (mode: chat/agentic) |
+| `/generate/from-topics` | POST | X-API-Key | Generate questions from topic list |
+| `/generate/from-file` | POST | X-API-Key | Generate questions from uploaded file |
+| `/generate/get-question` | POST | X-API-Key | Generate single question |
+| `/solve` | POST | X-API-Key | Step-by-step problem solving |
+| `/progress/{user_id}` | GET | X-API-Key | Progress metrics + due reviews |
+| `/webhook/quiz-completed` | POST | X-API-Key | Quiz completion webhook (from Spring Boot) |
+
+## Learning Modules (server/learning/)
+
+| Module | Algorithm | Storage |
+| --- | --- | --- |
+| `spaced_repetition.py` | SM-2 (easiness, interval, repetitions) | Firestore `review_schedule` via Spring Boot |
+| `progress.py` | Exponential-decay mastery, velocity, streaks | Computed from quiz history (Spring Boot) |
+| `weakness.py` | Score aggregation per category | Computed on-demand (no persistence) |
+
+## Scheduler (server/scheduler/)
+
+Uses APScheduler `AsyncIOScheduler`, started during FastAPI lifespan:
+
+| Job | Schedule | Action |
+| --- | --- | --- |
+| `check_due_reviews` | Every hour | Fetch due reviews → create notifications in Firestore |
+| `daily_progress_snapshot` | Daily at 2 AM | Compute progress for active users |
+
+## Planned/Incomplete
+
+- `server/tools/web_search.py` — Stub exists but no real search provider integrated
+- Full automated test coverage (test strategy defined in SDD 12, not all automated)
