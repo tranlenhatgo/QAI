@@ -3,6 +3,7 @@
 .playwright-mcp/
 .vscode/
 firestore-mcp/
+autotest-agent/
 
 # Python local artifacts
 __pycache__/
