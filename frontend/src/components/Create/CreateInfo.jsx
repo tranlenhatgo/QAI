@@ -14,9 +14,7 @@ const QuestionSidebar = ({ questions }) => {
 
 	const handleCategoryToggle = (categoryId) => {
 		setSelectedCategories(prev =>
-			prev.includes(categoryId)
-				? prev.filter(id => id !== categoryId)
-				: [...prev, categoryId]
+			prev.includes(categoryId) ? [] : [categoryId]
 		);
 	};
 

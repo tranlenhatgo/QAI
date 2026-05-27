@@ -60,8 +60,8 @@ export default function PlayForm() {
 		}
 
 		if (e.target.name === 'categories') {
-			e.target.checked ? playSound('pop-up-on') : playSound('pop-up-off')
-			return setNowQueries({ ...nowQueries, [e.target.name]: e.target.checked ? [...nowQueries.categories, e.target.value] : nowQueries.categories.filter(cat => cat !== e.target.value) })
+			playSound('pop-up-on')
+			return setNowQueries({ ...nowQueries, [e.target.name]: [e.target.value] })
 		}
 
 		playSound('pop')

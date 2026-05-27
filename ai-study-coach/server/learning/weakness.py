@@ -52,14 +52,15 @@ async def analyze_weaknesses(
         # Fetch quiz details to get categories
         try:
             quiz = await quiz_client.get_quiz_details(quiz_id)
-            categories = quiz.categories if quiz and quiz.categories else ["GENERAL"]
+            categories = quiz.categories if quiz and quiz.categories else ["general"]
         except Exception:
-            categories = ["GENERAL"]
+            categories = ["general"]
 
         for cat in categories:
-            if cat not in category_scores:
-                category_scores[cat] = []
-            category_scores[cat].append((correct, total, date))
+            cat_lower = cat.lower()
+            if cat_lower not in category_scores:
+                category_scores[cat_lower] = []
+            category_scores[cat_lower].append((correct, total, date))
 
     if not category_scores:
         return WeaknessReport(

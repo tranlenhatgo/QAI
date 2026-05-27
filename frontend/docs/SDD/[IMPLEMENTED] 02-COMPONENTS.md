@@ -26,10 +26,11 @@ src/components/
 │   └── CreateQuestions.jsx
 ├── Form/           # Global modal forms (mounted in _app.js)
 │   ├── AuthForm.jsx           # Login/register modal
-│   ├── PlayForm.jsx           # Game configuration
-│   ├── NewGameForm.jsx        # New game setup
+│   ├── PlayForm.jsx           # Game configuration (single category radio)
+│   ├── NewGameForm.jsx        # New game setup (single category radio)
 │   ├── JoinGameForm.jsx       # Join quiz room
-│   └── CreateQuizRoomForm.jsx # Create room modal
+│   ├── CreateQuizRoomForm.jsx # Create room modal (single category radio)
+│   └── QuizBrowser.jsx        # Browse quizzes with title search + category dropdown filter
 ├── Home/           # Landing page
 │   ├── MainHome.jsx
 │   ├── Categories.jsx
@@ -87,7 +88,7 @@ Full Coach Dashboard experience at `/coach`. Tabbed navigation (Overview, Genera
 
 ### Create/
 
-Quiz creation flow — header with navigation, info form (title, description, categories), and question editor with add/remove/reorder.
+Quiz creation flow — header with navigation, info form (title, description, single category via radio buttons), and question editor with add/remove/reorder.
 
 ### Form/
 

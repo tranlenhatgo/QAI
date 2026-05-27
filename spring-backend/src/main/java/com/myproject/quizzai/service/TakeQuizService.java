@@ -96,6 +96,9 @@ public class TakeQuizService {
      */
     @SneakyThrows
     private String getQuizCategory(String quizId) {
+        if (quizId == null || quizId.isBlank()) {
+            return "unknown";
+        }
         Quiz quiz = firestore.collection("quiz").document(quizId).get().get().toObject(Quiz.class);
         if (quiz != null && quiz.getCategories() != null && !quiz.getCategories().isEmpty()) {
             return quiz.getCategories().get(0).name().toLowerCase();

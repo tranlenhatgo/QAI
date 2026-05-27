@@ -6,6 +6,7 @@ import com.myproject.quizzai.model.Category;
 import com.myproject.quizzai.utils.TimestampDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -26,7 +27,8 @@ public class QuizCreationRequestDto {
 
     private String description;
 
-    @Schema(description = "List of category IDs related to the quiz")
+    @Schema(description = "List of category IDs related to the quiz (max 1)")
+    @Size(max = 1, message = "A quiz must have at most one category")
     private List<String> categories;
 
     @Schema(description = "Start time of the quiz")

@@ -38,9 +38,9 @@ export default function queryValidator(query) {
 	if (categories) {
 		const categoriesArray = typeof categories === 'string' ? categories.split(',') : categories
 		const categoriesArrayFiltered = categoriesArray.filter(category => categoriesJSON.map(category => category.id).includes(category))
-		if (categoriesArrayFiltered.length > 0) urlQueries.categories = categoriesArrayFiltered
-		else urlQueries.categories = categoriesJSON.map(category => category.id)
-	} else urlQueries.categories = categoriesJSON.map(category => category.id)
+		if (categoriesArrayFiltered.length > 0) urlQueries.categories = [categoriesArrayFiltered[0]]
+		else urlQueries.categories = [categoriesJSON[0].id]
+	} else urlQueries.categories = [categoriesJSON[0].id]
 
 	return urlQueries
 }

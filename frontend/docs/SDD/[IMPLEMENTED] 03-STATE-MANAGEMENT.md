@@ -11,10 +11,10 @@ All state is managed via **Zustand** with a merged store pattern. Individual sli
 | Slice | File | Manages |
 | ------- | ------ | --------- |
 | `useAuth` | `useAuth.js` | User session, login/logout, Firebase token |
-| `useQueries` | `useQueries.js` | Game config (categories, time, modes) |
+| `useQueries` | `useQueries.js` | Game config (single category, time, modes) |
 | `useQuestions` | `useQuestions.js` | Current question set during gameplay |
 | `useWildcards` | `useWildcards.js` | Wildcard items (50/50, skip, etc.) |
-| `useCreate` | `useCreate.js` | Quiz creation form state |
+| `useCreate` | `useCreate.js` | Quiz creation form state (single category selection) |
 | `useChat` | `useChat.js` | AI coach conversations, WebSocket session state, settings |
 | `useCoach` | `useCoach.js` | Coach dashboard: progress, generation, solver, reviews, notifications |
 

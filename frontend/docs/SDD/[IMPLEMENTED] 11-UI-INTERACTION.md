@@ -6,7 +6,7 @@
 | -------- | ------- | --------- |
 | Home | `/` | Category grid + game mode selection + embedded AI chat |
 | Play | `/play` | Question gameplay with timer, wildcards, keyboard shortcuts |
-| Create | `/create` | Quiz creation (title, categories, questions) |
+| Create | `/create` | Quiz creation (title, single category, questions) |
 | Profile | `/profile` | Quiz history, leaderboard, attempt stats |
 | Chat | `/chat` | Full AI Study Coach interface (WebSocket) |
 
@@ -121,7 +121,7 @@
 
 - Warns on page navigation (`onbeforeunload`)
 
-- Sections: Header → Info (title, description, categories) → Questions editor
+- Sections: Header → Info (title, description, single category via radio buttons) → Questions editor
 
 ---
 

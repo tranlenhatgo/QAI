@@ -41,6 +41,7 @@
 ## Core data flows
 
 - **Quiz creation**: `POST /quiz` → `QuizService.create()` → collection `quiz`
+- **Quiz by category**: `GET /quiz/category/{category}` → `QuizService.getQuizzesByCategory()` → Firestore `whereArrayContains` on active quizzes
 - **Question creation/update**: `POST /question`, `POST /question/update` → `QuestionService` → collection `question`
 - **Play flow**: `POST /take-quiz/start` creates `take_quiz` (status `PENDING`) and returns quiz questions
 - **End flow**: `POST /take-quiz/end` saves answers into `take_question`, computes score (`"x/y"`), updates `take_quiz` status/score, then `WebhookService` fires webhook to AI Coach
@@ -65,7 +66,7 @@
 - IDs are short UUID slices from `IdUtil.generateId()` (8 chars); reuse this utility for new documents.
 - Field naming mirrors Firestore schema and is often snake_case (`quiz_id`, `player_name`, `created_at`); follow existing names to avoid query breaks.
 - Timestamps in incoming JSON use ISO-8601 and deserialize via `TimestampDeserializer` (see `QuizCreationRequestDto`).
-- Category input arrives as `List<String>` and is converted to enum values in DTO getter (`QuizCreationRequestDto.getCategories()`).
+- Category input arrives as `List<String>` UPPER_CASE (e.g., `"MATH"`) and is converted to enum values via `Category.valueOf()`. API responses return categories as **lowercase** strings (e.g., `"math"`, `"general_culture"`). `QuizService` applies null-safety: if `quiz.getCategories()` is null, returns empty list. **A quiz must have at most 1 category** — enforced by `@Size(max = 1)` on `QuizCreationRequestDto.categories`; both `POST /quiz` and `PUT /quiz/update/{id}` use `@Valid`.
 - Service methods often use `@SneakyThrows` and synchronous `.get()` on Firestore futures; keep async assumptions explicit if refactoring.
 - Score format is always `"correct/total"` string (e.g., "7/10").
 - AI Coach history reads `GET /take-quiz/player/{playerId}` and falls back to `GET /user/quiz-profile?userId=`.

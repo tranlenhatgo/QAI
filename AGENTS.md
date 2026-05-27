@@ -37,7 +37,7 @@ Browser → Next.js (Pages Router, :3000)
 
 - **IDs**: 8-char UUID slices (`IdUtil.generateId()` in backend, matched by coach quiz client)
 - **Score format**: `"correct/total"` string everywhere (parse with `_parse_score`)
-- **Categories**: lowercase in Firestore, enum in Java, string lists in Python
+- **Categories**: **always lowercase** in API responses, Firestore fields, and AI Coach storage. Java enum is UPPER_CASE internally; API serializes to lowercase. Frontend sends UPPER_CASE on create (for `Category.valueOf()`), receives lowercase on read. **A quiz must have exactly 1 category** — enforced by frontend (single-select radio buttons) and backend (`@Size(max = 1)` validation on `QuizCreationRequestDto.categories`). This constraint ensures AI features (weakness analysis, spaced repetition, progress tracking) attribute quiz results to the correct category.
 - **API error shape**: `{ message, statusCode }` from Spring Boot, consumed by both frontend and coach
 - **Auth**: Firebase client-side (frontend) + FirebaseAdmin server-side (Spring Boot); coach uses `X-API-Key`
 - **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints (DeepSeek LLM)

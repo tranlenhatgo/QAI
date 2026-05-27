@@ -6,10 +6,12 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/quiz` | Create a new quiz |
+| POST | `/quiz` | Create a new quiz (max 1 category, validated with `@Valid`) |
+| GET | `/quiz` | Get all active quizzes |
 | GET | `/quiz/{id}` | Get quiz by ID |
 | GET | `/quiz/user/{userId}` | Get all quizzes by user |
-| PUT | `/quiz/update/{id}` | Update quiz |
+| GET | `/quiz/category/{category}` | Get active quizzes by category (e.g., `math`) |
+| PUT | `/quiz/update/{id}` | Update quiz (max 1 category, validated with `@Valid`) |
 
 ### Question Management (`/question`)
 
@@ -46,7 +48,7 @@
   "host_id": "abc12345",
   "title": "My Quiz",
   "description": "A sample quiz",
-  "categories": ["science", "math"],
+  "categories": ["MATH"],
   "start_time": "2024-01-01T10:00:00Z",
   "end_time": "2024-01-01T11:00:00Z"
 }

@@ -380,6 +380,8 @@ Step 5: Emits {"type": "error", "code": "rate_limit",
 
 **Trigger**: Spring Boot calls `POST /webhook/quiz-completed` after student finishes a quiz.
 
+**Note**: Each quiz has exactly 1 category (enforced by UI + backend validation). The webhook `category` field is always a single lowercase string (e.g., `"math"`), never ambiguous.
+
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ STEP 1: Spring Boot → AI Coach (HTTP POST)                               │

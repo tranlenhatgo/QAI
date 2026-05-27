@@ -6,6 +6,8 @@ After a quiz is completed (`EndQuiz`), send a webhook notification to the AI Stu
 
 **Status: ✅ Implemented** — `TakeQuizService.EndQuiz()` saves to Firestore and notifies AI Coach through `WebhookService`.
 
+**Design constraint**: Each quiz has exactly 1 category. `getQuizCategory()` retrieves the first (and only) category from the quiz document, returning it as a lowercase string. Returns `"unknown"` if quizId is null/blank or quiz not found.
+
 **Depends on**: AI Coach `POST /webhook/quiz-completed` endpoint (AI Coach SDD 17).
 
 ---
@@ -13,6 +15,7 @@ After a quiz is completed (`EndQuiz`), send a webhook notification to the AI Stu
 ## Current State
 
 `TakeQuizService.EndQuiz()` currently:
+
 1. Saves take_question answers
 2. Computes score string ("correct/total")
 3. Updates take_quiz document in Firestore with score, status, end_time

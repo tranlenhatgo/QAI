@@ -6,6 +6,8 @@ Implement a progress tracking system that computes learning metrics (mastery lev
 
 **Status: ✅ Implemented** — `server/learning/progress.py` with exponential-decay mastery, velocity, streak. Endpoint `GET /progress/{user_id}` integrates with quiz history from Spring Boot. Tests in `tests/test_learning.py`.
 
+**Design constraint**: Each quiz has exactly 1 category. Progress metrics are computed per-category with no ambiguity — a quiz score is attributed entirely to its single category. Categories are always lowercase (e.g., `"math"`). Fallback category when quiz lookup fails is `"general"`.
+
 **Reference**: DeepTutor's `deeptutor/knowledge/progress_tracker.py` uses a stage-based tracker with percentage progress, callbacks, and WebSocket broadcasting. The `ProgressBroadcaster` pattern streams updates to connected clients.
 
 ---

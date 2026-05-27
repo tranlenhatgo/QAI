@@ -3,8 +3,8 @@
 ## New Game Flow
 
 ```text
-PlayForm.jsx → build query params → navigate to /play
-  → pages/play/index.js → queryValidator(queries)
+PlayForm.jsx → build query params (single category) → navigate to /play
+  → pages/play/index.js → queryValidator(queries) → limits to 1 category
   → getQuestions(categories, count) → AI Study Coach /generate/from-topics
   → render Questions.jsx with timer
 ```text
@@ -67,13 +67,26 @@ Create page (upload) → POST /api/quiz/upload → AI Coach /generate/from-file
 ## Quiz Creation Flow
 
 ```text
-CreateInfo.jsx (title, desc, categories) + CreateQuestions.jsx (questions[])
+CreateInfo.jsx (title, desc, single category via radio) + CreateQuestions.jsx (questions[])
   → saveQuiz() helper
-  → POST /api/quiz/save-quiz → Spring Boot creates quiz
+  → POST /api/quiz/save-quiz → Spring Boot validates @Size(max=1) on categories → creates quiz
   → POST /api/quiz/save-questions → Spring Boot stores questions
 ```text
 **Actors**: Create page → helpers → Spring Boot → Firestore
 **Result**: Quiz + questions persisted, quiz ID returned
+
+---
+
+## Quiz Browser Flow
+
+```text
+QuizBrowser.jsx → fetches all quizzes via API
+  → user filters by title (text search) and/or category (dropdown)
+  → filter logic: matchesSearch && matchesCategory (client-side)
+  → user selects quiz → navigates to play
+```text
+**Actors**: User → QuizBrowser → Spring Boot → Play page
+**Result**: User finds and plays an existing quiz by title or category
 
 ---
 

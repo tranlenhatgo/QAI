@@ -4,6 +4,8 @@
 
 Generate quizzes based on study materials (RAG) or specified topics. Supports multiple question types. Used in Full Agentic mode as a multi-step capability (retrieve context → plan questions → generate → validate format).
 
+**Design constraint**: The frontend enforces single-category selection for quiz generation. All generated questions belong to one category, ensuring accurate AI tracking (spaced repetition, progress, weakness analysis).
+
 ---
 
 ## Interface Contract

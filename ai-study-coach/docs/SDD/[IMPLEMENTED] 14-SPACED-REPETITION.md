@@ -6,6 +6,8 @@ Implement a spaced repetition scheduling system that determines when students sh
 
 **Status: ✅ Implemented** — `server/learning/spaced_repetition.py` with SM-2 algorithm. Storage persisted to Firestore `review_schedule` collection via Spring Boot REST API (`/review-schedule/`). Tests in `tests/test_learning.py`.
 
+**Design constraint**: Each quiz has exactly 1 category (enforced by frontend and backend validation). This means each quiz completion maps unambiguously to one category for SM-2 scheduling — no multi-category splitting of scores. Categories are always lowercase strings (e.g., `"math"`, `"science"`).
+
 **Reference**: DeepTutor's `deeptutor/knowledge/progress_tracker.py` demonstrates stage-based progress tracking with callbacks and persistence. The event bus pattern (`deeptutor/events/event_bus.py`) provides the publish/subscribe model for triggering reviews.
 
 ---

@@ -6,6 +6,7 @@ import com.myproject.quizzai.model.Quiz;
 import com.myproject.quizzai.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class QuizController {
     //POST /quiz
     @PostMapping
     @Operation(summary = "Create a new quiz")
-    public ResponseEntity<Map<String, String>> create(@RequestBody QuizCreationRequestDto quizCreationRequest) {
+    public ResponseEntity<Map<String, String>> create(@Valid @RequestBody QuizCreationRequestDto quizCreationRequest) {
         logger.info("create() method called with request: {}", quizCreationRequest);
 
         String quizId = quizService.create(quizCreationRequest);
@@ -76,7 +77,7 @@ public class QuizController {
     // PUT /quiz/update/{id}
     @PutMapping("/update/{id}")
     @Operation(summary = "Update quiz by ID")
-    public ResponseEntity<Void> updateQuiz(@PathVariable String id, @RequestBody QuizCreationRequestDto quizCreationRequest) {
+    public ResponseEntity<Void> updateQuiz(@PathVariable String id, @Valid @RequestBody QuizCreationRequestDto quizCreationRequest) {
         logger.info("updateQuizById() method called with ID: {} and request: {}", id, quizCreationRequest);
 
         quizService.updateQuizById(id, quizCreationRequest);
@@ -91,6 +92,17 @@ public class QuizController {
         logger.info("getAllQuizzes() method called");
 
         List<QuizResponseDto> quizzes = quizService.getAllQuizzes();
+        return ResponseEntity.ok(quizzes);
+    }
+
+    // Get quizzes by category
+    // GET /quiz/category/{category}
+    @GetMapping("/category/{category}")
+    @Operation(summary = "Get active quizzes by category")
+    public ResponseEntity<List<QuizResponseDto>> getQuizzesByCategory(@PathVariable String category) {
+        logger.info("getQuizzesByCategory() method called with category: {}", category);
+
+        List<QuizResponseDto> quizzes = quizService.getQuizzesByCategory(category);
         return ResponseEntity.ok(quizzes);
     }
 }

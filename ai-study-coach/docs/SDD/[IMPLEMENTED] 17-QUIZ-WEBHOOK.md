@@ -6,6 +6,8 @@ Implement a webhook endpoint that receives notifications from Spring Boot when a
 
 **Status: ✅ Implemented** — `server/routes/webhook.py` with `POST /webhook/quiz-completed`. Validates X-API-Key, updates SR schedule (Firestore-backed), stores event for Coach context. Called by Spring Boot `WebhookService` on quiz completion.
 
+**Design constraint**: Each quiz has exactly 1 category (enforced by frontend single-select UI and backend `@Size(max=1)` validation). The webhook receives a single `category` string per quiz completion — no multi-category disambiguation needed.
+
 **Reference**: DeepTutor's `deeptutor/events/event_bus.py` Event dataclass + publish/subscribe pattern provides the internal event routing after webhook receipt.
 
 ---

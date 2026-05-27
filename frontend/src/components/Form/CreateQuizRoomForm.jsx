@@ -25,13 +25,8 @@ export default function CreateQuizRoomForm() {
       const { name, value, type, checked } = e.target;
 
       if (name === 'categories') {
-         setQuizQuery(
-            'categories',
-            checked
-               ? [...quizQuery.categories, value]
-               : quizQuery.categories.filter(cat => cat !== value)
-         );
-         playSound(checked ? 'pop-up-on' : 'pop-up-off');
+         setQuizQuery('categories', [value]);
+         playSound('pop-up-on');
          return;
       }
 
@@ -178,15 +173,14 @@ export default function CreateQuizRoomForm() {
 
                   {/* Categories Selection */}
                   <fieldset>
-                     <legend className='text-lg font-semibold mb-2'>Categories</legend>
+                     <legend className='text-lg font-semibold mb-2'>Category</legend>
                      <div className='grid grid-cols-4 sm:grid-cols-2 gap-2 h-[80%]'>
                         {categoriesJSON.map(category => (
                            <label key={'cqr-' + category.name} className="relative cursor-pointer" title={category.name}>
                               <input
                                  defaultChecked={quizQuery.categories.includes(category.name)}
                                  className="peer relative h-16 opacity-0 w-full md:h-full block cursor-pointer"
-                                 type="checkbox" name="categories" value={category.name} onClick={handleInputs}
-                                 disabled={quizQuery.categories.length === 1 && quizQuery.categories.includes(category.name)}
+                                 type="radio" name="categories" value={category.name} onClick={handleInputs}
                               />
 
                               <Image className={`absolute transition-all w-full h-full peer-checked:scale-90 p-2 rounded peer-checked:bg-[${category.color}] invert peer-checked:invert-0 peer-checked:bg-[var(--bgColor)] top-0 pointer-events-none peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline outline-[var(--bgColor)]`} src={`/categories-icons/${category.name.toLowerCase()}.svg`} alt={category.name} width={40} height={40} style={{ '--bgColor': category.color }} />

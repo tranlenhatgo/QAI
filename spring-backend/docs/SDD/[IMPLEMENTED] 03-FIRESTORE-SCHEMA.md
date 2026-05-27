@@ -15,7 +15,7 @@ All persistence uses **Google Firestore** (NoSQL document database). Each entity
 | `title` | string | Quiz title |
 | `description` | string | Quiz description |
 | `status` | string | Status enum value |
-| `categories` | array[string] | Category enum values (UPPERCASE) |
+| `categories` | array[string] | Category enum values (UPPERCASE). **Max 1 element** — enforced by `@Size(max=1)` in `QuizCreationRequestDto`. API responses serialize to lowercase. |
 | `start_time` | Timestamp | Quiz start time |
 | `end_time` | Timestamp | Quiz end time |
 | `createdAt` | Timestamp | Creation timestamp |

@@ -98,7 +98,7 @@ class ProgressTracker:
 
             # Get categories from quiz details
             quiz = quiz_details.get(attempt.quizId)
-            categories = quiz.categories if quiz and quiz.categories else ["GENERAL"]
+            categories = quiz.categories if quiz and quiz.categories else ["general"]
 
             for cat in categories:
                 cat_lower = cat.lower()

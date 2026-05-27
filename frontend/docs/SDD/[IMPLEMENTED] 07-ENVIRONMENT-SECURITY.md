@@ -33,9 +33,9 @@
 
 | Convention | Details |
 | ----------- | --------- |
-| Category flow | IDs in query state → names for generation → UPPERCASE_SNAKE for backend |
+| Category flow | Single category per quiz. Radio buttons in forms select 1 category. UPPERCASE_SNAKE sent to backend, lowercase returned in responses. |
 | Question shape | `{ question, answers, correctAnswer, userAnswer, answer, ... }` |
-| Query config | `{ questions, time, infinitymode, timemode, quizmode, quizId, name, categories }` |
+| Query config | `{ questions, time, infinitymode, timemode, quizmode, quizId, name, categories }` — `categories` is always a single-element array |
 | Error shape | `{ message, statusCode }` from Spring Boot |
 | ID format | 8-char UUID slices (consistent with backend `IdUtil.generateId()`) |
 | Dialog pattern | Global modals in `_app.js`, triggered via `document.getElementById` |

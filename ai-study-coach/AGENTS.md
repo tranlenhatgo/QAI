@@ -51,7 +51,6 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/routes/progress.py` — `GET /progress/{user_id}` — Progress metrics + due reviews
 - `server/routes/webhook.py` — `POST /webhook/quiz-completed` — Receives quiz completion, updates SR schedule
 - `server/routes/health.py` — `GET /health` with LLM status
-- `widget/` — Embeddable chat widget (JS/CSS) with action dispatch via `onAction` callback
 
 ## Running the Server
 
@@ -91,8 +90,9 @@ Integration tests require LM Studio running with a model loaded.
 - **Error handling**: Quiz client returns empty list or `None` on 404 — never raises for missing data. LLM errors in `handle_chat()` return user-friendly `ChatResponse` with error message rather than raising. Agentic flow falls back to non-agentic on error.
 - **Lazy imports**: `analyze_weaknesses` and `execute_tool` are imported inside handler functions to avoid circular imports at startup — preserve this pattern.
 - **API key auth**: Protected HTTP endpoints (`/chat`, `/chat/agentic`) require `X-API-Key` when `COACH_API_KEY` is set. WebSocket clients pass the same key as `?api_key=...` because browsers cannot set custom WebSocket headers. Public endpoints (`/`, `/health`, `/docs`) are always open.
-- **Widget onAction**: The chat widget dispatches `AgentAction` objects to the host page via `window.STUDY_COACH_CONFIG.onAction` callback. The host app is responsible for executing UI actions (navigation, quiz starting, etc.).
+- **AgentAction dispatch**: The WebSocket handler sends `AgentAction` objects to the frontend. The frontend is responsible for executing UI actions (navigation, quiz starting, etc.) via the `onAction` handler in the chat store.
 - **Score format**: Quiz scores are strings like `"3/5"` — parsed by `_parse_score()` in `weakness.py`.
+- **Categories**: Always **lowercase** strings (e.g., `"math"`, `"general_culture"`). Quizzes have exactly 1 category. Weakness analysis and progress tracking aggregate scores per category. Fallback category when lookup fails is `"general"`.
 
 ## Available Tools (Agentic)
 

@@ -7,7 +7,7 @@
 | IDs | 8-char UUID slices via `IdUtil.generateId()` |
 | Score format | `"correct/total"` string (e.g., `"7/10"`) |
 | Field naming | snake_case in Firestore (mirrors model fields) |
-| Categories | Uppercase enum in Java, lowercase strings from client |
+| Categories | Uppercase enum in Java, lowercase strings from client. **Max 1 category per quiz** (enforced by `@Size(max=1)` on DTO). API responses always return lowercase. |
 | Timestamps | ISO-8601 in JSON → `TimestampDeserializer` → Firestore Timestamp |
 | Controller pattern | Thin controller → Service has business logic → Direct Firestore access |
 | Error shape | `{ message, statusCode }` |
@@ -22,6 +22,7 @@
 |-----------|-----------|----------|---------|
 | Next.js frontend | ← inbound | REST | All quiz/user operations |
 | AI Study Coach | ← inbound | REST | Fetch quiz history, quiz details |
+| AI Study Coach | → outbound | REST (webhook) | Notify quiz completion for spaced repetition |
 | Firebase/Firestore | → outbound | gRPC (SDK) | All data persistence |
 
 ---

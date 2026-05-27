@@ -4,13 +4,27 @@
 
 ```
 POST /quiz
-  → QuizController.create(QuizCreationRequestDto)
+  → QuizController.create(@Valid QuizCreationRequestDto)
+  → Validation: @Size(max=1) on categories list
   → QuizService.create()
     → IdUtil.generateId() → 8-char ID
-    → Categories: List<String> → List<Category> enum (uppercase)
+    → Categories: List<String> (max 1) → List<Category> enum (uppercase)
     → Timestamps: ISO-8601 → TimestampDeserializer → Firestore Timestamp
     → Firestore.collection("quiz").document(id).set(quiz)
-  ← QuizResponseDto { id, title, ... }
+  ← QuizResponseDto { id, title, categories (lowercase), ... }
+```
+
+---
+
+## Get Quizzes by Category
+
+```
+GET /quiz/category/{category}
+  → QuizController.getByCategory(category)
+  → QuizService.getQuizzesByCategory(category)
+    → Category.valueOf(category.toUpperCase()) → validate enum
+    → Firestore query: status==ACTIVE && categories array-contains CATEGORY_ENUM
+  ← List<QuizResponseDto> (categories returned as lowercase)
 ```
 
 ---

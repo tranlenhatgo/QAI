@@ -44,7 +44,8 @@ Verify: `curl http://localhost:8080/quiz` returns `[]` (empty Firestore).
 | `/quiz` | GET | List all active quizzes |
 | `/quiz/{id}` | GET | Get quiz by ID |
 | `/quiz/user/{userId}` | GET | Get quizzes by creator |
-| `/quiz` | POST | Create quiz |
+| `/quiz/category/{category}` | GET | Get active quizzes by category (e.g., `math`) |
+| `/quiz` | POST | Create quiz (max 1 category) |
 | `/question/quizId/{quizId}` | GET | Get questions for a quiz |
 | `/take-quiz/start` | POST | Start quiz attempt |
 | `/take-quiz/end` | POST | End quiz attempt (triggers webhook) |

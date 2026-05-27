@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import com.myproject.quizzai.utils.TimeUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,8 +62,10 @@ public class QuizService {
                         .host_id(quiz.getHost_id())
                         .title(quiz.getTitle())
                         .description(quiz.getDescription())
-                        .status(quiz.getStatus().name())
-                        .categories(quiz.getCategories().stream().map(Category::getName).toList())
+                        .status(quiz.getStatus() != null ? quiz.getStatus().name() : "ACTIVE")
+                        .categories(quiz.getCategories() != null
+                                ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                                : Collections.emptyList())
                         .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                         .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
                         .build())
@@ -81,8 +84,10 @@ public class QuizService {
                 .host_id(quiz.getHost_id())
                 .title(quiz.getTitle())
                 .description(quiz.getDescription())
-                .status(quiz.getStatus().name())
-                .categories(quiz.getCategories().stream().map(Category::getName).toList())
+                .status(quiz.getStatus() != null ? quiz.getStatus().name() : "ACTIVE")
+                .categories(quiz.getCategories() != null
+                        ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                        : Collections.emptyList())
                 .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                 .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
                 .build();
@@ -122,6 +127,38 @@ public class QuizService {
                         .categories(quiz.getCategories() != null
                                 ? quiz.getCategories().stream().map(Category::getName).toList()
                                 : List.of())
+                        .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                        .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .build())
+                .toList();
+    }
+
+    @SneakyThrows
+    public List<QuizResponseDto> getQuizzesByCategory(@NonNull final String category) {
+        Category categoryEnum;
+        try {
+            categoryEnum = Category.valueOf(category.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Collections.emptyList();
+        }
+
+        List<Quiz> quizzes = firestore.collection("quiz")
+                .whereEqualTo("status", Status.ACTIVE.name())
+                .whereArrayContains("categories", categoryEnum.name())
+                .get()
+                .get()
+                .toObjects(Quiz.class);
+
+        return quizzes.stream()
+                .map(quiz -> QuizResponseDto.builder()
+                        .quiz_id(quiz.getId())
+                        .host_id(quiz.getHost_id())
+                        .title(quiz.getTitle())
+                        .description(quiz.getDescription())
+                        .status(quiz.getStatus().name())
+                        .categories(quiz.getCategories() != null
+                                ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                                : Collections.emptyList())
                         .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                         .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
                         .build())

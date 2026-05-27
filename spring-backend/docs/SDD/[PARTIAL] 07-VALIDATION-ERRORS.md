@@ -9,6 +9,9 @@ DTOs use Jakarta Validation annotations:
 @NotBlank(message = "Title cannot be blank")
 private String title;
 
+@Size(max = 1, message = "A quiz must have at most one category")
+private List<String> categories;
+
 @JsonDeserialize(using = TimestampDeserializer.class)
 private Timestamp startTime;
 ```

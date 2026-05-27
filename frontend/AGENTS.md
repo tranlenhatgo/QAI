@@ -49,6 +49,7 @@ Merged slices in `src/store/useBoundStore.js`:
 ## Core Data Flows
 
 - **New game**: `PlayForm.jsx` builds query → `/play` → `queryValidator` → `getQuestions` → AI Coach `/generate/from-topics`
+- **Category selection**: All category pickers (NewGameForm, CreateQuizRoomForm, CreateInfo) use **radio buttons** (single-select). `queryValidator` in `gameConfig.js` enforces max 1 category. `QuizBrowser` has a category dropdown filter for browsing quizzes by category.
 - **Join quiz room**: `takeQuiz` helper → `queries.quizmode=true` → `/play` → fetch from Spring Boot
 - **Quiz completion**: `GameOver.jsx` → `saveAttempt` → Spring Boot `take-quiz/end` → `WebhookService` fires to AI Coach
 - **Answer security**: Answers encrypted at fetch time (`take-quiz.js`), checked/decrypted via `check-answer.js` and `get-answer.js`
@@ -77,7 +78,7 @@ Merged slices in `src/store/useBoundStore.js`:
 
 - Keep `queries` shape from `src/helpers/gameConfig.js` (`questions`, `time`, `infinitymode`, `timemode`, `quizmode`, `quizId`, `name`, `categories`).
 - Keep question object compatibility across flows: `{ question, answers, correctAnswer, userAnswer, answer, ... }`.
-- Category values are transformed by layer: ids in query state, names for local generation, uppercase snake case for save payloads.
+- Category values are transformed by layer: ids in query state, names for local generation, uppercase snake case for save payloads. **A quiz has exactly 1 category** — enforced at UI level (radio buttons) and backend validation (`@Size(max = 1)`). `gameConfig.js` `queryValidator` limits to 1 category.
 - Do not blindly rename existing identifiers (`wildCards`, `changueCurrent`, `infiniteLifes`); they are referenced across files.
 - Existing UI logic relies on direct DOM operations (`document.getElementById`, `querySelectorAll`) for dialogs, keyboard shortcuts, and animation classes.
 - Score format: always `"correct/total"` string (e.g., "7/10").

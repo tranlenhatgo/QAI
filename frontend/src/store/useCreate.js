@@ -1,6 +1,5 @@
 import saveQuestions from "@/helpers/quiz/saveQuestions";
 import saveQuiz from "@/helpers/quiz/saveQuiz";
-import categoriesJSON from '@/assets/categories.json';
 import generateQuestion from "@/helpers/question/generateQuestion";
 import { use } from "react";
 import getQuestionsByQuizId from "@/helpers/question/getQuestionsByQuizId";
@@ -18,7 +17,7 @@ export const useCreateQuestionsStore = (set, get) => ({
 		roomDesc: "",
 		startTime: "",
 		endTime: "",
-		categories: categoriesJSON.map((cat) => cat.name),
+		categories: [],
 	},
 	update: false,
 
@@ -52,7 +51,7 @@ export const useCreateQuestionsStore = (set, get) => ({
 	},
 
 	addCreatedCategory: (category) =>
-		set((state) => ({ createdCategories: [...state.createdCategories, category] })),
+		set(() => ({ createdCategories: [category] })),
 	removeCreatedCategory: (index) =>
 		set((state) => ({
 			createdCategories: state.createdCategories.filter((_, i) => i !== index),
