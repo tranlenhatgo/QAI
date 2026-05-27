@@ -63,7 +63,33 @@ After completing a major change:
 - Keep entries concise — a few bullets, not essays.
 - Remove outdated information that no longer reflects reality.
 
-## 5. CodeGraph Usage
+## 5. Understand-Anything Usage
+
+**Use Understand-Anything for codebase exploration, onboarding, and cross-service understanding.**
+
+This project has a pre-built knowledge graph at `.understand-anything/knowledge-graph.json` (696 nodes, 898 edges, 12 layers). Use it to understand architecture, trace data flows, and find relevant code.
+
+Available commands:
+- `/understand` — Re-analyze the codebase (incremental, only changed files)
+- `/understand-chat "question"` — Ask questions about the codebase using the graph
+- `/understand-diff` — Analyze impact of current git changes
+- `/understand-explain <file>` — Deep-dive into a specific file
+- `/understand-onboard` — Generate onboarding documentation
+- `/understand-domain` — Extract business domain flows
+- `/understand-dashboard` — Launch the interactive visual graph
+
+When to use:
+- Before making cross-service changes, check the graph for dependency edges.
+- When you don't know where something lives, use `/understand-chat`.
+- After significant changes, run `/understand` to keep the graph current.
+- For understanding data flows (webhook, scheduling, etc.), the graph's `triggers` and `depends_on` edges show cross-service connections.
+
+Key files:
+- `.understand-anything/knowledge-graph.json` — the main graph (committed, shared)
+- `.understand-anything/GUIDE.md` — usage guide for the plugin
+- `.understand-anything/ONBOARDING.md` — full developer onboarding document
+
+## 6. CodeGraph Usage (Legacy)
 
 **Use CodeGraph for non-trivial codebase questions and edits.**
 
@@ -75,7 +101,7 @@ Before changing code:
 After changing files:
 - Run `codegraph sync .` if the index may be stale.
 
-## 6. Firestore MCP Usage
+## 7. Firestore MCP Usage
 
 **AI agents can use the local `firestore-mcp` server for QAI Firestore CRUD.**
 
@@ -115,7 +141,7 @@ Use qai-firestore to query notification where user_id == "abc123", limit 10.
 Use qai-firestore to update notification a1b2c3d4 with read=true.
 ```
 
-## 7. Goal-Driven Execution
+## 8. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 

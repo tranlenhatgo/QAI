@@ -55,10 +55,10 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 ## Running the Server
 
 ```bash
-python -m venv venv && venv\Scripts\activate      # Windows
-pip install -r requirements.txt
+python -m venv venv                                # first time only
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 copy .env.example .env                             # then set COACH_LM_STUDIO_URL
-python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+.\venv\Scripts\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## Testing

@@ -125,7 +125,7 @@ public class QuizService {
                         .description(quiz.getDescription())
                         .status(quiz.getStatus().name())
                         .categories(quiz.getCategories() != null
-                                ? quiz.getCategories().stream().map(Category::getName).toList()
+                                ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
                                 : List.of())
                         .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                         .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))

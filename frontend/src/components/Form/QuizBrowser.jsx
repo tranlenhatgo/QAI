@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { IoSearchSharp } from 'react-icons/io5'
 import categoriesJSON from '@/assets/categories.json'
 
@@ -8,25 +8,27 @@ export default function QuizBrowser({ onSelectQuiz, isOpen }) {
    const [selectedCategory, setSelectedCategory] = useState('')
    const [loading, setLoading] = useState(false)
    const [error, setError] = useState(null)
+   const [loaded, setLoaded] = useState(false)
 
-   useEffect(() => {
-      if (isOpen) fetchQuizzes()
-   }, [isOpen])
-
-   async function fetchQuizzes() {
+   const fetchQuizzes = useCallback(async () => {
       setLoading(true)
       setError(null)
       try {
          const res = await fetch('/api/quiz/list-all')
-         if (!res.ok) throw new Error('Failed to load quizzes')
-         const data = await res.json()
+         const data = await res.json().catch(() => ({}))
+         if (!res.ok) throw new Error(data.message || 'Failed to load quizzes')
          setQuizzes(data)
+         setLoaded(true)
       } catch (err) {
          setError(err.message)
       } finally {
          setLoading(false)
       }
-   }
+   }, [])
+
+   useEffect(() => {
+      if (isOpen && !loaded) fetchQuizzes()
+   }, [isOpen, loaded, fetchQuizzes])
 
    const filtered = quizzes.filter(q => {
       const matchesSearch = !search ||

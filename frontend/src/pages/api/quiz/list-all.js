@@ -18,11 +18,11 @@ async function handler(req, res) {
          },
       });
 
-      const data = await response.json().catch(() => []);
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
          return res.status(response.status).json({
-            message: data.message || 'Failed to fetch quizzes',
+            message: data.message || 'Failed to fetch quizzes from quiz API',
             statusCode: response.status,
          });
       }

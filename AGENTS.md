@@ -88,8 +88,11 @@ cd spring-backend && .\mvnw.cmd -q -DskipTests package && .\mvnw.cmd spring-boot
 cd frontend && npm install && npm run dev
 
 # AI Coach
-cd ai-study-coach && pip install -r requirements.txt && copy .env.example .env
-python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+cd ai-study-coach
+python -m venv venv
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+copy .env.example .env
+.\venv\Scripts\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## Testing

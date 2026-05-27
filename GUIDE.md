@@ -104,18 +104,16 @@ cd ai-study-coach
 
 # Create venv (first time only)
 python -m venv venv
-venv\Scripts\activate      # Windows
-# source venv/bin/activate  # Mac/Linux
 
 # Install deps
-pip install -r requirements.txt
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 
 # Configure
 copy .env.example .env
 # Edit .env — set at minimum COACH_LM_STUDIO_URL
 
 # Run
-python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+.\venv\Scripts\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Verify: `curl http://localhost:8000/health` returns `{"status":"ok"}`.
@@ -156,7 +154,7 @@ Download and install [LM Studio](https://lmstudio.ai), load a model in the app, 
 
 Terminal 1: `cd spring-backend && .\mvnw.cmd spring-boot:run`
 Terminal 2: `cd frontend && npm run dev`
-Terminal 3: `cd ai-study-coach && venv\Scripts\activate && python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000`
+Terminal 3: `cd ai-study-coach && .\venv\Scripts\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000`
 
 | Service | URL |
 |---------|-----|

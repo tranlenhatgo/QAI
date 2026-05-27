@@ -5,6 +5,16 @@
 firestore-mcp/
 autotest-agent/
 
+# Vite cache
+.vite/
+
+# Understand-Anything build artifacts
+.understand-anything/intermediate/
+.understand-anything/tmp/
+
+# Expo
+frontend/.expo/
+
 # Python local artifacts
 __pycache__/
 *.py[cod]
