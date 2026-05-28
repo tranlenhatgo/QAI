@@ -26,7 +26,7 @@ const canvasStyles = {
 }
 
 export default function GameOver() {
-	const { queries, score, win, questions, setDecryptedAnswer, takeId, sendAsk, user } = useBoundStore(state => state)
+	const { queries, questionProgress, win, questions, setDecryptedAnswer, takeId, sendAsk, user } = useBoundStore(state => state)
 	const [expandedQuestionIndex, setExpandedQuestionIndex] = useState(null);
 	const { showAsk } = useState(false);
 	const refAnimationInstance = useRef(null)
@@ -127,7 +127,7 @@ export default function GameOver() {
 	}
 
 	function finalText() {
-		if (queries.infinitymode) return `You answered well ${score} questions!`
+		if (queries.infinitymode) return `You answered well ${questionProgress - 1} questions!`
 		if (win === true) return 'Congratulations! \nQuiz completed successfully.'
 		return 'Better luck next time! \nYou can try again.'
 	}
@@ -189,7 +189,7 @@ export default function GameOver() {
 										{question.answers.map((answer, j) => (
 											<li key={j} className="relative">
 												<button
-													className={`w-full mb-1 btn-primary text-left px-4 py-2 rounded-md flex justify-between items-center 
+													className={`w-full mb-1 btn-primary text-center px-4 py-2 rounded-md flex justify-center items-center 
 														${answer === question.answer
 															? question.userAnswer > 0
 																? 'correctAnswer'

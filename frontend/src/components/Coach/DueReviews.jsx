@@ -16,10 +16,8 @@ export default function DueReviews() {
 		return (
 			<section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:p-5">
 				<p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Due Reviews</p>
-				<div className="mt-3 flex gap-3">
-					{[1, 2, 3].map(i => (
-						<div key={i} className="h-28 w-36 animate-pulse rounded-md border border-gray-200 bg-gray-100" />
-					))}
+				<div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+					<div className="h-full animate-pulse rounded-full bg-blue-500" style={{ width: '60%' }} />
 				</div>
 			</section>
 		)

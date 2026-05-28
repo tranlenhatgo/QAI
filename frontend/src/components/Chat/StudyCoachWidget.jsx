@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
-import { FiExternalLink, FiX } from 'react-icons/fi'
+import { FiExternalLink, FiTrash2, FiX } from 'react-icons/fi'
 import { useBoundStore } from '@/store/useBoundStore'
 import ChatTranscript from './ChatTranscript'
 
@@ -21,6 +21,7 @@ export default function StudyCoachWidget() {
 		conversations,
 		activeConversationId,
 		streamingText,
+		clearAllConversations,
 	} = useBoundStore(state => state)
 
 	useEffect(() => {
@@ -57,6 +58,14 @@ export default function StudyCoachWidget() {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
+						className="rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-red-400"
+						title="Delete all chat history"
+					>
+						<FiTrash2 />
+					</button>
 					<button
 						type="button"
 						onClick={() => router.push('/chat')}

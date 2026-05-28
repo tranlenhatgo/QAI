@@ -15,6 +15,11 @@ export default function CreateQuizRoomForm() {
       e.preventDefault();
       setQuizQuery('uid', user.uid);
 
+      if (!quizQuery.categories || quizQuery.categories.length === 0) {
+         alert("Please select a category.");
+         return;
+      }
+
       // Save the quiz using the current quizQuery values
       await saveQuiz();
       router.push(`/create`);

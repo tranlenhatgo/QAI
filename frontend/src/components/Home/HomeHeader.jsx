@@ -1,6 +1,7 @@
 import { BsArrowRepeat } from 'react-icons/bs'
 import { useBoundStore } from '@/store/useBoundStore'
 import { CgProfile } from "react-icons/cg";
+import { getAvatarSrc } from '@/components/Profile/AvatarPicker'
 import playSound from '@/helpers/playSound'
 import { useRouter } from 'next/router';
 
@@ -24,7 +25,7 @@ export default function HomeHeader() {
 					<button href="/" className='block' onClick={handleLogin}>
 						{user ? (
 							<img
-								src={user?.photoURL || '/default-avatar.jpg'}
+								src={getAvatarSrc(user?.uid)}
 								alt="Profile"
 								className="w-10 h-10 rounded-full mb-4 mx-auto"
 							/>

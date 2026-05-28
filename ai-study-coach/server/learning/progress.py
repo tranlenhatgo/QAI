@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from server.models.schemas import TakeQuizResponse, QuizResponse
 
@@ -94,7 +94,7 @@ class ProgressTracker:
             try:
                 timestamp = datetime.fromisoformat(attempt.updatedAt.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
-                timestamp = datetime.now()
+                timestamp = datetime.now(timezone.utc)
 
             # Get categories from quiz details
             quiz = quiz_details.get(attempt.quizId)
@@ -180,7 +180,7 @@ class ProgressTracker:
                 streak=0,
             )
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         decay_factor = 0.85
 
         weighted_sum = 0.0

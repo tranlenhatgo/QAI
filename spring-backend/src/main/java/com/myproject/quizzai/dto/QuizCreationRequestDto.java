@@ -27,8 +27,8 @@ public class QuizCreationRequestDto {
 
     private String description;
 
-    @Schema(description = "List of category IDs related to the quiz (max 1)")
-    @Size(max = 1, message = "A quiz must have at most one category")
+    @Schema(description = "List of category IDs related to the quiz (exactly 1)")
+    @Size(min = 1, max = 1, message = "A quiz must have exactly one category")
     private List<String> categories;
 
     @Schema(description = "Start time of the quiz")

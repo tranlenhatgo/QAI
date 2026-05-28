@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from server.capabilities.solve import StepSolver
+from server.config import settings
 from server.router import Tier, create_llm_provider
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,8 @@ async def solve_problem(request: SolveRequest):
     - Numbered plan steps with reasoning and results
     - Final answer with confidence level
     """
-    provider = create_llm_provider(Tier.FULL)
+    tier = Tier.FULL if settings.external_llm_api_key else Tier.LITE
+    provider = create_llm_provider(tier)
     solver = StepSolver(provider=provider)
 
     solution = await solver.run_http(request.problem)

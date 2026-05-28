@@ -51,13 +51,13 @@ export default function MainHome() {
 					Play an infinite number of possible questions!
 				</p>
 			</article>
-			<button onClick={handleCoach} id='coach' className='btn-primary uppercase px-4 py-3 text-md w-full max-w-md !bg-emerald-500 before:!bg-emerald-700 ring-4 ring-white/80 shadow-[0_0_0_6px_rgba(16,185,129,0.28)] hover:!bg-emerald-400' >
-				<span className='inline-flex items-center justify-center gap-2'>
-					<FiZap className='text-lg' />
-					AI Coach
-				</span>
-			</button>
 			<div className='sticky bottom-4 z-30 flex flex-col gap-4 mt-auto w-full max-w-md'>
+				<button onClick={handleCoach} id='coach' className='btn-primary uppercase px-6 py-4 text-lg w-full !bg-emerald-500 before:!bg-emerald-700 ring-4 ring-white/80 shadow-[0_0_0_6px_rgba(16,185,129,0.28)] hover:!bg-emerald-400' >
+					<span className='inline-flex items-center justify-center gap-2'>
+						<FiZap className='text-lg' />
+						AI Coach
+					</span>
+				</button>
 				<button onClick={handlePlay} id='play' href="play" className='btn-primary uppercase px-6 py-4 text-lg w-full' >
 					Play
 				</button>

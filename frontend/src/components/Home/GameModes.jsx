@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { ImInfinite } from 'react-icons/im'
 import { BiTimeFive } from 'react-icons/bi'
 import { TbDeviceGamepad2 } from 'react-icons/tb'
-import { FiMessageCircle, FiMessageSquare, FiRefreshCw, FiZap } from 'react-icons/fi'
+import { FiMessageCircle, FiMessageSquare, FiRefreshCw, FiTrash2, FiZap } from 'react-icons/fi'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import { useBoundStore } from '@/store/useBoundStore'
 
@@ -36,6 +36,7 @@ export default function GameModes () {
 		sendChatMessage,
 		setDraft,
 		newConversation,
+		clearAllConversations,
 		isConnected,
 		isStreaming,
 		draft,
@@ -78,7 +79,7 @@ export default function GameModes () {
 	}
 
 	return (
-		<section className='lg:max-w-6xl mx-auto lg:col-start-1 lg:col-end-2 px-8 py-6 flex flex-col justify-center bg-[url("/bg-gamemodes.svg")] text-slate-900 w-full'>
+		<section className='lg:max-w-6xl mx-auto lg:col-start-1 lg:col-end-2 px-8 py-6 flex h-screen flex-col justify-center bg-[url("/bg-gamemodes.svg")] text-slate-900 w-full overflow-hidden'>
 			<h2 className='text-2xl mb-4 font-medium '>Game modes </h2>
 			<nav>
 				<ul className='flex flex-col sm:flex-row justify-center gap-5'>
@@ -91,7 +92,7 @@ export default function GameModes () {
 					))}
 				</ul>
 			</nav>
-			<section className='mt-5 flex h-[28rem] w-full flex-col overflow-hidden rounded-md border border-blue-100 bg-white text-slate-900 shadow-lg'>
+			<section className='mt-5 flex min-h-0 flex-1 w-full flex-col overflow-hidden rounded-md border border-blue-100 bg-white text-slate-900 shadow-lg'>
 				<div className='sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-blue-600 px-4 py-3'>
 					<div className='flex items-center gap-2'>
 						<FiMessageSquare className='text-xl' />
@@ -120,6 +121,15 @@ export default function GameModes () {
 								<span>Agentic</span>
 							</button>
 						</div>
+						<button
+							type='button'
+							onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
+							className='inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 hover:text-red-300'
+							title='Delete all chat history'
+							aria-label='Delete all chat history'
+						>
+							<FiTrash2 className='text-base' />
+						</button>
 						<button
 							type='button'
 							onClick={handleClearChat}

@@ -145,6 +145,7 @@ public class TakeQuizService {
             TakeQuizResponseDto takeQuizResponseDto = TakeQuizResponseDto.builder()
                     .quizId(quizId)
                     .quizTitle(quizTitle)
+                    .categories(quizResponse != null ? quizResponse.getCategories() : null)
                     .score(takeQuiz.getScore())
                     .status(takeQuiz.getStatus().toString())
                     .updatedAt(TimeUtils.toIsoString(takeQuiz.getUpdated_at()))

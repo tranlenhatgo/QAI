@@ -54,6 +54,7 @@ export default function ChatPage() {
 		newConversation,
 		selectConversation,
 		deleteConversation,
+		clearAllConversations,
 		setSidebarSection,
 		setSetting,
 		setChatMode,
@@ -155,14 +156,24 @@ export default function ChatPage() {
 							title="History"
 							icon={<FiMessageSquare className="text-blue-500" />}
 							action={
-								<button
-									type="button"
-									onClick={() => newConversation('New chat')}
-									className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100"
-								>
-									<FiPlus />
-									New
-								</button>
+								<div className="flex items-center gap-2">
+									<button
+										type="button"
+										onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
+										className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100"
+									>
+										<FiTrash2 />
+										Clear
+									</button>
+									<button
+										type="button"
+										onClick={() => newConversation('New chat')}
+										className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100"
+									>
+										<FiPlus />
+										New
+									</button>
+								</div>
 							}
 						>
 							<div className="space-y-2">

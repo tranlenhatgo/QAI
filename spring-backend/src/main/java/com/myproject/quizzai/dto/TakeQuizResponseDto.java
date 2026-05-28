@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class TakeQuizResponseDto {
     private String quizId;
     private String quizTitle;
+    private List<String> categories;
     private String score;
     private String status;
     private String updatedAt;

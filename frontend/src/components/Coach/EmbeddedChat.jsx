@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FiChevronDown, FiChevronUp, FiMessageSquare } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiMessageSquare, FiTrash2 } from 'react-icons/fi'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import { useBoundStore } from '@/store/useBoundStore'
 
@@ -25,6 +25,7 @@ export default function EmbeddedChat() {
 		conversations,
 		activeConversationId,
 		coachTier,
+		clearAllConversations,
 	} = useBoundStore(state => state)
 
 	useEffect(() => {
@@ -66,14 +67,24 @@ export default function EmbeddedChat() {
 						<p className="text-xs text-slate-500">{isStreaming ? 'Thinking...' : `${tierLabel}, ${modeLabel}`}</p>
 					</div>
 				</div>
-				<button
-					type="button"
-					onClick={() => setCollapsed(!collapsed)}
-					className="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-gray-50"
-				>
-					<FiMessageSquare />
-					{collapsed ? <FiChevronUp /> : <FiChevronDown />}
-				</button>
+				<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
+						className="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+						title="Delete all chat history"
+					>
+						<FiTrash2 />
+					</button>
+					<button
+						type="button"
+						onClick={() => setCollapsed(!collapsed)}
+						className="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-gray-50"
+					>
+						<FiMessageSquare />
+						{collapsed ? <FiChevronUp /> : <FiChevronDown />}
+					</button>
+				</div>
 			</div>
 
 			{!collapsed ? (

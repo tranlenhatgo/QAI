@@ -362,6 +362,16 @@ export const useChatStore = (set, get) => ({
 		persistStorage(get())
 	},
 
+	clearAllConversations: () => {
+		const freshConversation = createConversation()
+		set({
+			conversations: [freshConversation],
+			activeConversationId: freshConversation.id,
+			streamingText: '',
+		})
+		persistStorage(get())
+	},
+
 	renameConversation: (conversationId, title) => {
 		set(state => ({
 			conversations: updateConversation(state.conversations, conversationId, conversation => ({

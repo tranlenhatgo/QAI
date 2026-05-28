@@ -1250,4 +1250,86 @@
 			"correctAnswer": "Mandarin Chinese"
 		}
 	]
+,
+        "Math": [
+                {
+                        "question": "What is 2 + 2?",
+                        "answers": ["4", "3", "5", "6"],
+                        "correctAnswer": "4"
+                },
+                {
+                        "question": "What is the square root of 144?",
+                        "answers": ["12", "14", "11", "13"],
+                        "correctAnswer": "12"
+                },
+                {
+                        "question": "What is 7 x 8?",
+                        "answers": ["56", "54", "48", "64"],
+                        "correctAnswer": "56"
+                },
+                {
+                        "question": "What is 15% of 200?",
+                        "answers": ["30", "25", "35", "20"],
+                        "correctAnswer": "30"
+                },
+                {
+                        "question": "What is the value of pi to two decimal places?",
+                        "answers": ["3.14", "3.16", "3.12", "3.18"],
+                        "correctAnswer": "3.14"
+                }
+        ],
+        "Literature": [
+                {
+                        "question": "Who wrote Romeo and Juliet?",
+                        "answers": ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
+                        "correctAnswer": "William Shakespeare"
+                },
+                {
+                        "question": "What is the first book of the Harry Potter series?",
+                        "answers": ["The Philosopher's Stone", "The Chamber of Secrets", "The Prisoner of Azkaban", "The Goblet of Fire"],
+                        "correctAnswer": "The Philosopher's Stone"
+                },
+                {
+                        "question": "Who wrote 1984?",
+                        "answers": ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
+                        "correctAnswer": "George Orwell"
+                },
+                {
+                        "question": "What literary device gives human qualities to non-human things?",
+                        "answers": ["Personification", "Metaphor", "Simile", "Hyperbole"],
+                        "correctAnswer": "Personification"
+                },
+                {
+                        "question": "Who is the author of The Great Gatsby?",
+                        "answers": ["F. Scott Fitzgerald", "Ernest Hemingway", "John Steinbeck", "William Faulkner"],
+                        "correctAnswer": "F. Scott Fitzgerald"
+                }
+        ],
+        "Sports": [
+                {
+                        "question": "How many players are on a soccer team?",
+                        "answers": ["11", "9", "10", "12"],
+                        "correctAnswer": "11"
+                },
+                {
+                        "question": "In which sport is the term 'love' used for zero?",
+                        "answers": ["Tennis", "Badminton", "Cricket", "Golf"],
+                        "correctAnswer": "Tennis"
+                },
+                {
+                        "question": "How many rings are on the Olympic flag?",
+                        "answers": ["5", "4", "6", "7"],
+                        "correctAnswer": "5"
+                },
+                {
+                        "question": "Which country won the 2022 FIFA World Cup?",
+                        "answers": ["Argentina", "France", "Brazil", "Germany"],
+                        "correctAnswer": "Argentina"
+                },
+                {
+                        "question": "What is the diameter of a basketball hoop in inches?",
+                        "answers": ["18", "16", "20", "15"],
+                        "correctAnswer": "18"
+                }
+        ]
 }

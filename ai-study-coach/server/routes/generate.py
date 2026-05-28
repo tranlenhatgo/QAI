@@ -84,7 +84,9 @@ async def _call_llm_for_questions(prompt: str) -> list[dict[str, Any]]:
     """Send prompt to LLM and parse JSON response."""
     import json
 
-    provider = create_llm_provider(Tier.FULL)
+    # Use Full tier if API key available, otherwise fall back to Lite (LM Studio)
+    tier = Tier.FULL if settings.external_llm_api_key else Tier.LITE
+    provider = create_llm_provider(tier)
     messages = [
         Message(role=Role.SYSTEM, content="You are a precise quiz question generator. Always respond with valid JSON only."),
         Message(role=Role.USER, content=prompt),

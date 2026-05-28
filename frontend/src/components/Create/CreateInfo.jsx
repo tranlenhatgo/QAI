@@ -31,7 +31,7 @@ const QuestionSidebar = ({ questions }) => {
 
 			{/* Sidebar */}
 			<aside
-				className={`fixed w-55 h-fit transition-all z-10 shadow-lg lg:bottom-4 left-4 md:top-1/2 md:-translate-y-1/2 text-center text-slate-900 font-medium 2xl:!scale-100 2xl:!opacity-100 ${showInfo ? "bottom-12 scale-100 opacity-100" : "bottom-0 scale-20 opacity-0"
+				className={`fixed w-55 h-fit transition-all z-10 shadow-lg lg:bottom-4 left-4 md:top-1/2 md:-translate-y-1/2 text-center text-slate-900 font-medium 2xl:!scale-100 2xl:!opacity-100 2xl:!pointer-events-auto ${showInfo ? "bottom-12 scale-100 opacity-100 pointer-events-auto" : "bottom-0 scale-20 opacity-0 pointer-events-none"
 					}`}
 			>
 				{/* Time Mode Toggle */}
