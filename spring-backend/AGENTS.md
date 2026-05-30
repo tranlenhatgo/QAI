@@ -59,6 +59,7 @@
 | `take_question` | 8-char UUID | take_id, question_id, answer, check_answer |
 | `review_schedule` | 8-char UUID | user_id, category, easiness, interval_days, repetitions, next_review |
 | `notification` | 8-char UUID | user_id, type, title, message, read, created_at |
+| `users/{uid}/documents` | document-UUID | name, status, ragStatus, ragError, ragDocumentId, uploadedAt, questions[], ragChunks (managed by frontend directly via Firebase JS SDK) |
 
 ## Project-specific conventions (important)
 

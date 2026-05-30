@@ -21,6 +21,10 @@ router = APIRouter(prefix="/generate", tags=["Generation"])
 class GenerateFromTopicsRequest(BaseModel):
     topics: list[str]
     count: int = 3  # questions per topic
+    tier: str | None = None  # "lite" | "full" | None (auto-detect)
+    title: str | None = None  # optional title to narrow question focus
+    document_name: str | None = None  # optional: generate from uploaded document via RAG
+    user_id: str | None = None  # required when document_name is provided
 
 
 class GeneratedQuestion(BaseModel):
@@ -35,7 +39,7 @@ class GenerateResponse(BaseModel):
 
 # ─── Prompts ─────────────────────────────────────────────────────────────────
 
-TOPIC_GENERATION_PROMPT = """You are a quiz question generator. Generate exactly {count} multiple-choice questions about the following topics: {topics}.
+TOPIC_GENERATION_PROMPT = """You are a quiz question generator. Generate exactly {count} multiple-choice questions about the following topics: {topics}.{title_context}
 
 Each question must have:
 - A clear question text
@@ -80,22 +84,43 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanation):
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
 
-async def _call_llm_for_questions(prompt: str) -> list[dict[str, Any]]:
-    """Send prompt to LLM and parse JSON response."""
+def _resolve_tier(requested_tier: str | None) -> Tier:
+    """Resolve tier from request parameter, falling back to auto-detect."""
+    if requested_tier == "lite":
+        return Tier.LITE
+    if requested_tier == "full":
+        return Tier.FULL
+    # Auto-detect: prefer Full if API key available
+    return Tier.FULL if settings.external_llm_api_key else Tier.LITE
+
+
+async def _call_llm_for_questions(prompt: str, tier: Tier | None = None) -> list[dict[str, Any]]:
+    """Send prompt to LLM and parse JSON response. Full tier falls back to Lite on failure."""
     import json
 
-    # Use Full tier if API key available, otherwise fall back to Lite (LM Studio)
-    tier = Tier.FULL if settings.external_llm_api_key else Tier.LITE
-    provider = create_llm_provider(tier)
+    resolved_tier = tier or (Tier.FULL if settings.external_llm_api_key else Tier.LITE)
+    provider = create_llm_provider(resolved_tier)
     messages = [
         Message(role=Role.SYSTEM, content="You are a precise quiz question generator. Always respond with valid JSON only."),
         Message(role=Role.USER, content=prompt),
     ]
 
-    result_parts = []
-    async for chunk in provider.complete(messages, tools=None, temperature=0.7):
-        if chunk.type == ChunkType.CONTENT:
-            result_parts.append(chunk.content)
+    try:
+        result_parts = []
+        async for chunk in provider.complete(messages, tools=None, temperature=0.7):
+            if chunk.type == ChunkType.CONTENT:
+                result_parts.append(chunk.content)
+    except Exception as e:
+        # Full tier can fall back to Lite (LM Studio), but NOT vice versa
+        if resolved_tier == Tier.FULL:
+            logger.warning(f"Full tier LLM failed ({e}), falling back to Lite (LM Studio)")
+            provider = create_llm_provider(Tier.LITE)
+            result_parts = []
+            async for chunk in provider.complete(messages, tools=None, temperature=0.7):
+                if chunk.type == ChunkType.CONTENT:
+                    result_parts.append(chunk.content)
+        else:
+            raise
 
     raw = "".join(result_parts).strip()
 
@@ -127,12 +152,35 @@ async def generate_from_topics(req: GenerateFromTopicsRequest):
         raise HTTPException(status_code=400, detail="At least one topic is required")
 
     total_count = req.count * len(req.topics)
+    title_context = f"\nFocus specifically on: {req.title}" if req.title else ""
+
+    # If document_name is provided, search RAG for relevant content
+    document_context = ""
+    if req.document_name and req.user_id:
+        try:
+            from server.services.supabase_client import get_supabase_client
+
+            client = get_supabase_client()
+            if client:
+                # Search using the document name + topics as query
+                query = f"{req.document_name} {' '.join(req.topics)}"
+                results = await client.search_documents(
+                    kb_id=req.user_id, query=query, top_k=8
+                )
+                if results:
+                    chunks = "\n---\n".join(r.get("content", "") for r in results)
+                    document_context = f"\n\nUse the following content from the uploaded document '{req.document_name}' as the primary source for generating questions:\n\n{chunks}\n"
+        except Exception as e:
+            logger.warning(f"RAG search failed for document generation: {e}")
+
     prompt = TOPIC_GENERATION_PROMPT.format(
         count=total_count,
         topics=", ".join(req.topics),
+        title_context=title_context + document_context,
     )
 
-    questions = await _call_llm_for_questions(prompt)
+    resolved_tier = _resolve_tier(req.tier)
+    questions = await _call_llm_for_questions(prompt, tier=resolved_tier)
     return GenerateResponse(questions=[GeneratedQuestion(**q) for q in questions])
 
 
@@ -141,6 +189,7 @@ async def generate_from_file(
     file: UploadFile = File(...),
     quiz_id: str = Form(""),
     count: int = Form(5),
+    tier: str = Form(""),
 ):
     """Generate quiz questions from an uploaded document.
 
@@ -182,7 +231,8 @@ async def generate_from_file(
         text_content = text_content[:max_chars] + "\n\n[... content truncated ...]"
 
     prompt = FILE_GENERATION_PROMPT.format(count=count, content=text_content)
-    questions = await _call_llm_for_questions(prompt)
+    resolved_tier = _resolve_tier(tier or None)
+    questions = await _call_llm_for_questions(prompt, tier=resolved_tier)
     return GenerateResponse(questions=[GeneratedQuestion(**q) for q in questions])
 
 

@@ -2,6 +2,13 @@ import getQuestions from '@/helpers/getQuestions'
 import getQuestionsByQuizId from '@/helpers/question/getQuestionsByQuizId'
 import takeQuiz from '@/helpers/take/takeQuiz'
 
+function shuffleAnswers(questions) {
+	return questions.map(q => ({
+		...q,
+		answers: [...q.answers].sort(() => Math.random() - 0.5),
+	}))
+}
+
 export const useQuestionsStore = (set, get) => ({
 	questions: [],
 	takeId: null,
@@ -15,7 +22,7 @@ export const useQuestionsStore = (set, get) => ({
 	getQuestions: (topics, number, infinity) => {
 		infinity ? set({ loadingInfinity: true }) : set({ loading: true })
 		getQuestions(topics, number)
-			.then(data => set({ questions: data }))
+			.then(data => set({ questions: shuffleAnswers(data) }))
 			.catch(err => set({ error: [true, err] }))
 			.finally(() => infinity ? set({ loadingInfinity: false }) : set({ loading: false }))
 	},
@@ -36,7 +43,7 @@ export const useQuestionsStore = (set, get) => ({
 		}
 		await takeQuiz(id, name, uid)
 			.then(data => {
-				set({ questions: data.questions, takeId: data.takeId })
+				set({ questions: shuffleAnswers(data.questions), takeId: data.takeId })
 				const { infiniteLifes } = get();
 				infiniteLifes();
 			})

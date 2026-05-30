@@ -152,9 +152,23 @@ Download and install [LM Studio](https://lmstudio.ai), load a model in the app, 
 
 ## 4. Running All Together
 
-Terminal 1: `cd spring-backend && .\mvnw.cmd spring-boot:run`
-Terminal 2: `cd frontend && npm run dev`
-Terminal 3: `cd ai-study-coach && .\venv\Scripts\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000`
+Terminal 1:
+```powershell
+cd spring-backend
+.\mvnw.cmd spring-boot:run
+```
+
+Terminal 2:
+```powershell
+cd frontend
+npm run dev
+```
+
+Terminal 3:
+```powershell
+cd ai-study-coach
+.\venv\Scripts\python.exe -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+```
 
 | Service | URL |
 |---------|-----|
@@ -225,13 +239,16 @@ The API key must match `COACH_API_KEY` in the AI Coach `.env`.
 
 ```bash
 # Spring Boot: compile check
-cd spring-backend && .\mvnw.cmd -q -DskipTests compile
+cd spring-backend
+.\mvnw.cmd -q -DskipTests compile
 
 # AI Coach: unit tests (10 tests)
-cd ai-study-coach && python -m pytest tests/ -v
+cd ai-study-coach
+python -m pytest tests/ -v
 
 # Frontend: lint
-cd frontend && npm run lint
+cd frontend
+npm run lint
 ```
 
 ---

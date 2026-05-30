@@ -10,6 +10,7 @@ const PUBLIC_STUDY_COACH_API_KEY = process.env.NEXT_PUBLIC_STUDY_COACH_API_KEY |
 
 let chatSocket = null
 let reconnectTimer = null
+let webhookAbortController = null
 
 function createId(prefix = 'chat') {
 	if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -158,7 +159,7 @@ function updateConversationTitle(conversation, title) {
 	}
 }
 
-async function fallbackRequest(payload, chatMode) {
+async function fallbackRequest(payload, chatMode, signal) {
 	const bearerToken = await auth.currentUser?.getIdToken().catch(() => null)
 	const response = await fetch('/api/coach/chat', {
 		method: 'POST',
@@ -171,6 +172,7 @@ async function fallbackRequest(payload, chatMode) {
 			history: payload.history,
 			chatMode,
 		}),
+		signal,
 	})
 
 	const data = await response.json().catch(() => ({}))
@@ -388,6 +390,38 @@ export const useChatStore = (set, get) => ({
 	},
 
 	resetAssistantStream: () => set({ streamingText: '' }),
+
+	stopStreaming: () => {
+		const state = get()
+		if (!state.isStreaming) return
+
+		// Abort webhook fetch if in progress
+		if (webhookAbortController) {
+			webhookAbortController.abort()
+			webhookAbortController = null
+		}
+
+		// For WebSocket: send stop signal
+		if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+			chatSocket.send(JSON.stringify({ type: 'stop' }))
+		}
+
+		// Save whatever was streamed so far as the assistant message
+		const conversationId = state.activeConversationId
+		const streamingMessage = state.streamingText
+		if (streamingMessage && conversationId) {
+			set(chatState => ({
+				conversations: updateConversation(chatState.conversations, conversationId, conversation =>
+					appendMessageToConversation(conversation, createMessage('assistant', streamingMessage + '\n\n*(stopped)*'))
+				),
+				isStreaming: false,
+				streamingText: '',
+			}))
+			persistStorage(get())
+		} else {
+			set({ isStreaming: false, streamingText: '' })
+		}
+	},
 
 	checkServiceHealth: async () => {
 		const { chatConfig } = get()
@@ -635,10 +669,13 @@ export const useChatStore = (set, get) => ({
 		}
 
 		try {
+			webhookAbortController = new AbortController()
 			const data = await fallbackRequest(
 				payload,
 				state.chatConfig.chatMode || DEFAULT_CHAT_MODE,
+				webhookAbortController.signal,
 			)
+			webhookAbortController = null
 			if (data?.content) {
 				set(chatState => {
 					const withAssistant = updateConversation(

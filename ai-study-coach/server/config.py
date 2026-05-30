@@ -20,8 +20,9 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_key: str = ""
 
-    # Search API (web_search tool)
+    # Search API (web_search tool — Google Custom Search)
     search_api_key: str = ""
+    search_cx: str = ""  # Google Custom Search Engine ID
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./study_coach.db"

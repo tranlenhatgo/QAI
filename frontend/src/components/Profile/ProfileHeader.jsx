@@ -1,6 +1,7 @@
 import { BiArrowBack } from 'react-icons/bi'
 import { useRouter } from 'next/router'
 import { useBoundStore } from '@/store/useBoundStore'
+import { getAvatarSrc } from '@/components/Profile/AvatarPicker'
 
 export default function ProfileHeader() {
 	const router = useRouter()
@@ -21,9 +22,9 @@ export default function ProfileHeader() {
 				{/* User Info (Center) */}
 				<div className='flex items-center gap-3 flex-1'>
 					<img
-						src={user?.photoURL || '/default-avatar.jpg'}
+						src={user?.photoURL || getAvatarSrc(user?.uid)}
 						alt="Profile"
-						className='w-12 h-12 rounded-full border-2 border-white shadow-md'
+						className='w-12 h-12 rounded-full border-2 border-white shadow-md object-cover'
 					/>
 					<div className='hidden sm:flex sm:flex-col bg-black bg-opacity-40 backdrop-blur-sm rounded-lg px-4 py-2'>
 						<h2 className='text-white font-bold text-lg'>{user?.displayName || 'User'}</h2>

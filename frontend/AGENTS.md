@@ -28,7 +28,7 @@ Merged slices in `src/store/useBoundStore.js`:
 | `useQuiz` | `quizStore.js` | Quiz CRUD state |
 | `usePlay` | `playStore.js` | Gameplay state (questions, score, timer) |
 | `useChat` | `chatStore.js` | WebSocket chat state |
-| `useCoach` | `coachStore.js` | Coach dashboard state (progress, reviews, notifications) |
+| `useCoach` | `coachStore.js` | Coach dashboard state (progress, reviews, notifications, documents via Firestore) |
 | `useProfile` | `profileStore.js` | Profile data, history |
 | `useUI` | `uiStore.js` | Modal/dialog visibility |
 
@@ -37,14 +37,15 @@ Merged slices in `src/store/useBoundStore.js`:
 | Directory | Purpose |
 | --- | --- |
 | `src/components/Auth/` | Login/register forms |
-| `src/components/Chat/` | AI coaching chat widget |
-| `src/components/Coach/` | Coach Dashboard (Overview, Generate, Solver, Materials, Weaknesses, Chat, DueReviews, NotificationBell) |
+| `src/components/Chat/` | AI coaching chat widget (vertical resize, stop streaming) |
+| `src/components/Coach/` | Coach Dashboard (Overview, Generate, Solver, Materials, Weaknesses, Chat, DueReviews, NotificationBell, GenerateQuestions with document picker) |
 | `src/components/Create/` | Quiz creation UI |
 | `src/components/Form/` | Global modal forms (play, auth, join) |
 | `src/components/Home/` | Landing page sections |
-| `src/components/Play/` | Gameplay, GameOver, results |
+| `src/components/Play/` | Gameplay, GameOver (with AI explain answer), results |
 | `src/components/Profile/` | Profile, history, leaderboard |
 | `src/components/Questions/` | Question display during play |
+| `src/components/TierSelector.jsx` | Tier picker modal (Lite/Full) shown in HomeHeader |
 
 ## Core Data Flows
 
@@ -54,6 +55,7 @@ Merged slices in `src/store/useBoundStore.js`:
 - **Quiz completion**: `GameOver.jsx` → `saveAttempt` → Spring Boot `take-quiz/end` → `WebhookService` fires to AI Coach
 - **Answer security**: Answers encrypted at fetch time (`take-quiz.js`), checked/decrypted via `check-answer.js` and `get-answer.js`
 - **Coach dashboard**: `/coach` → `useCoach` actions → BFF routes (`/api/coach/*`) → AI Coach / Spring Boot; embedded chat uses direct AI Coach WebSocket
+- **Document management**: Upload → Firestore `users/{uid}/documents/{docId}` (metadata) + Supabase pgvector (RAG chunks); loaded via `loadUserDocuments()` on auth
 - **Spaced repetition**: DueReviews loads via `fetchDueReviews()` → coach progress endpoint → user clicks [Review] → quiz play → webhook cycle
 - **Notifications**: `NotificationBell` polls `GET /api/coach/notifications/{userId}` → displays unread → mark-read on dismiss
 
@@ -67,12 +69,16 @@ Merged slices in `src/store/useBoundStore.js`:
 | `/api/quiz/*` | Spring Boot / AI Coach | Quiz CRUD, upload for AI generation |
 | `/api/take/*` | Spring Boot | Start/end quiz attempts |
 | `/api/coach/chat` | AI Coach | Legacy HTTP chat proxy; normal chat uses WebSocket `/ws` |
-| `/api/coach/generate-questions` | AI Coach | Dashboard question generation |
+| `/api/coach/explain-answer` | AI Coach | AI explanation of quiz answers |
+| `/api/coach/generate-questions` | AI Coach | Dashboard question generation (supports document_name + user_id for RAG-based generation) |
 | `/api/coach/solve` | AI Coach | Step-by-step solver |
 | `/api/coach/progress/[userId]` | AI Coach | Progress metrics |
 | `/api/coach/review-completed` | AI Coach | Notify review quiz done |
 | `/api/coach/notifications/[userId]` | Spring Boot | Fetch unread notifications |
 | `/api/coach/notifications/[id]/read` | Spring Boot | Mark notification read |
+| `/api/coach/ingest` | AI Coach | Upload + index document for RAG (multipart) |
+| `/api/coach/documents/[userId]` | AI Coach | List indexed documents for a user |
+| `/api/coach/documents/[userId]/[documentId]` | AI Coach | Delete indexed document |
 
 ## Conventions to Preserve
 
@@ -88,9 +94,10 @@ Merged slices in `src/store/useBoundStore.js`:
 
 - Required env vars: `REST_API_URL`, `NEXT_PUBLIC_REST_API_URL`, `ANSWER_ENCRYPTION_KEY`, `STUDY_COACH_API_URL`, `COACH_API_KEY`, `NEXT_PUBLIC_STUDY_COACH_API_URL`.
 - If the AI Coach enforces `COACH_API_KEY`, browser WebSocket clients also need `NEXT_PUBLIC_STUDY_COACH_API_KEY` so they can connect with `?api_key=...`.
-- AI question generation: AI Study Coach `/generate/from-topics` and `/generate/from-file`.
+- AI question generation: AI Study Coach `/generate/from-topics` (with optional `document_name` for RAG-based generation) and `/generate/from-file`.
 - Step solving: AI Study Coach `/solve` through BFF `/api/coach/solve`.
 - Firebase auth: client-side in `src/helpers/auth/firebase.js`; session auth uses `sessionStorage.user` + `dest` redirect.
+- Firestore: `db` instance from `src/helpers/auth/firebase.js`; used for document metadata (`users/{uid}/documents/{docId}`). Security rules must allow user-scoped access.
 - PWA: enabled through `next.config.js` (`@ducanh2912/next-pwa`), disabled in development.
 
 ## Developer Workflow

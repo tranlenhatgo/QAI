@@ -48,7 +48,7 @@ Next.js Frontend ──WebSocket──→ FastAPI AI Service (Python)
 | 10 | [LITE-ORCHESTRATOR.md](./10-LITE-ORCHESTRATOR.md) | Code-driven orchestration for Lite Agentic |
 | 11 | [DATA-FLOW-SCENARIOS.md](./11-DATA-FLOW-SCENARIOS.md) | End-to-end data flows for every major user scenario |
 | 12 | [TESTING-STRATEGY.md](./12-TESTING-STRATEGY.md) | Test scenarios, prompts, and acceptance checklist |
-| 13 | [WEB-SEARCH.md](./13-WEB-SEARCH.md) | Production web search tool (provider abstraction) |
+| 13 | [WEB-SEARCH.md](./13-WEB-SEARCH.md) | Web search tool (DuckDuckGo, no API key) |
 | 14 | [SPACED-REPETITION.md](./14-SPACED-REPETITION.md) | SM-2 spaced repetition scheduling |
 | 15 | [PROGRESS-TRACKING.md](./15-PROGRESS-TRACKING.md) | Learning metrics, mastery, velocity, streaks |
 | 16 | [SCHEDULER.md](./16-SCHEDULER.md) | Background task scheduler (APScheduler) |

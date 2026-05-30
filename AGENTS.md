@@ -37,7 +37,7 @@ Browser → Next.js (Pages Router, :3000)
 
 - **IDs**: 8-char UUID slices (`IdUtil.generateId()` in backend, matched by coach quiz client)
 - **Score format**: `"correct/total"` string everywhere (parse with `_parse_score`)
-- **Categories**: **always lowercase** in API responses, Firestore fields, and AI Coach storage. Java enum is UPPER_CASE internally; API serializes to lowercase. Frontend sends UPPER_CASE on create (for `Category.valueOf()`), receives lowercase on read. **A quiz must have exactly 1 category** — enforced by frontend (single-select radio buttons) and backend (`@Size(max = 1)` validation on `QuizCreationRequestDto.categories`). This constraint ensures AI features (weakness analysis, spaced repetition, progress tracking) attribute quiz results to the correct category.
+- **Categories**: **always lowercase** in API responses, Firestore fields, and AI Coach storage.
 - **API error shape**: `{ message, statusCode }` from Spring Boot, consumed by both frontend and coach
 - **Auth**: Firebase client-side (frontend) + FirebaseAdmin server-side (Spring Boot); coach uses `X-API-Key`
 - **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints (DeepSeek LLM)
@@ -70,10 +70,13 @@ Browser → Next.js (Pages Router, :3000)
 - ✅ Coach Dashboard (tabbed: Overview, Generate, Solver, Materials, Weaknesses, Chat)
 - ✅ Due Reviews UI (ReviewCard with [Review] button)
 - ✅ PWA (service worker, offline manifest)
+- ✅ Web search tool (DuckDuckGo via ddgs library, agentic mode only, no API key needed)
+- ✅ Explain Answer (AI explains correct answer in GameOver lightbulb menu)
+- ✅ Tier Selector (Lite/Full toggle on home page)
+- ✅ Chat widget vertical resize + stop streaming
 
 ## What's Incomplete
 
-- `[PARTIAL] 13-WEB-SEARCH.md` — web search tool stub exists but no real provider integrated
 - `[PARTIAL] 12-TESTING-STRATEGY.md` — test strategy defined, not all scenarios automated
 - Frontend floating chat widget not rendered on non-coach pages (only `/coach` has chat)
 - No automated end-to-end tests yet (E2E test plan exists in `AGENTS-E2E-TEST.md`)

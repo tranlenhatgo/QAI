@@ -27,7 +27,15 @@ export default function ProfileInfo({ user, logout }) {
 		<article className='bg-gradient-to-br from-white to-blue-50 p-5 rounded-xl shadow-md border border-blue-100 w-full text-black'>
 			{/* Compact Header */}
 			<div className='flex items-center gap-3 mb-4 pb-4 border-b border-blue-200'>
-				<AvatarPicker userId={user?.uid} />
+				{user?.photoURL ? (
+					<img
+						src={user.photoURL}
+						alt="Profile avatar"
+						className="h-16 w-16 rounded-full border-2 border-blue-400 shadow-md object-cover"
+					/>
+				) : (
+					<AvatarPicker userId={user?.uid} />
+				)}
 				<div>
 					<h3 className='text-xl font-bold text-blue-900'>{user?.displayName || "User"}</h3>
 					<p className='text-sm text-gray-600'>{user?.email}</p>

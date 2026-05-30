@@ -46,6 +46,12 @@ async def execute_tool(
             case "search_quizzes":
                 return await _search_quizzes(args, user_id)
 
+            case "web_search":
+                return await _web_search(args)
+
+            case "search_study_materials":
+                return await _search_study_materials(args, user_id)
+
             case _:
                 return f"Unknown tool: {name}", None
 
@@ -226,3 +232,51 @@ async def _search_quizzes(
     except Exception as e:
         logger.error(f"Quiz search failed: {e}")
         return f"Quiz search failed: {str(e)}", None
+
+
+async def _web_search(args: dict) -> tuple[str, AgentAction | None]:
+    """Search the web using Google Custom Search."""
+    query = args.get("query", "")
+    if not query:
+        return "No search query provided.", None
+
+    from server.tools.web_search import WebSearchTool
+
+    tool = WebSearchTool()
+    result = await tool.execute(args)
+    return result, None
+
+
+async def _search_study_materials(args: dict, user_id: str) -> tuple[str, AgentAction | None]:
+    """Search the student's uploaded study materials via RAG."""
+    query = args.get("query", "")
+    if not query:
+        return "No search query provided.", None
+
+    from server.services.supabase_client import get_supabase_client
+
+    client = get_supabase_client()
+    if client is None:
+        return "Study materials search is not configured (Supabase not available).", None
+
+    try:
+        results = await client.search_documents(user_id, query, top_k=5)
+        if not results:
+            return "No relevant content found in the student's study materials.", None
+
+        # Format results for the LLM
+        parts = [f"Found {len(results)} relevant passage(s) from study materials:\n"]
+        for i, doc in enumerate(results, 1):
+            content = doc.get("content", "")
+            metadata = doc.get("metadata", {})
+            filename = metadata.get("filename", "unknown")
+            similarity = doc.get("similarity", 0)
+            parts.append(f"--- [{filename}] (relevance: {similarity:.2f}) ---")
+            parts.append(content[:800])
+            parts.append("")
+
+        return "\n".join(parts), None
+
+    except Exception as e:
+        logger.error(f"RAG search failed: {e}")
+        return f"Failed to search study materials: {str(e)}", None

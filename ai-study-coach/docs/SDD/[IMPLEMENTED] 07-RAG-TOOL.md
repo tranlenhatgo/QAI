@@ -4,7 +4,65 @@
 
 Implement Retrieval-Augmented Generation using Supabase's pgvector extension. Embeds user queries, searches the vector store for relevant document chunks, and returns formatted context to the LLM.
 
+**Status: ✅ Implemented** — Full pipeline: upload → extract → chunk → embed → store → search. Integrated in agentic loop as `search_study_materials` tool.
+
 ---
+
+## Implementation Summary
+
+### Files Created/Modified
+
+| File | Role |
+|------|------|
+| `server/routes/ingest.py` | POST/GET/DELETE endpoints for document ingestion |
+| `server/agent/tools.py` | `search_study_materials` tool definition |
+| `server/agent/tool_executor.py` | `_search_study_materials()` executor |
+| `server/services/supabase_client.py` | `store_document()` + `search_documents()` |
+| `server/services/embeddings.py` | `get_embedding()` via LM Studio |
+| `server/tools/registry.py` | RAG tool in full registry (kb_id = user_id) |
+| `frontend/src/pages/api/coach/ingest.js` | BFF proxy for upload |
+| `frontend/src/pages/api/coach/documents/[userId].js` | BFF proxy for listing |
+| `frontend/src/pages/api/coach/documents/[userId]/[documentId].js` | BFF proxy for deletion |
+| `frontend/src/store/useCoach.js` | Calls ingest after upload (Full tier) |
+| `frontend/src/components/Coach/StudyMaterials.jsx` | RAG status badges |
+
+### Ingestion Flow
+
+```text
+User uploads file (Materials tab, Full tier)
+  → POST /ingest (multipart: file + user_id)
+  → _extract_text() (PyMuPDF for PDF, utf-8 for txt/md)
+  → Sanitize: strip null bytes (\x00) that PostgreSQL rejects
+  → _is_meaningful_text() check (>70% printable chars, >50 chars)
+     → If fails: HTTP 400 "This PDF appears to contain images rather than selectable text"
+  → _chunk_text() (2000 chars, 200 overlap, paragraph→sentence→word boundary)
+  → LM Studio embedding (nomic-embed-text-v1.5, 768 dims)
+  → Supabase documents table (kb_id = user_id, metadata: filename, chunk_index)
+  → Returns document_id + chunk count
+```
+
+### Document Metadata Persistence
+
+```text
+Document metadata is stored in Firestore (not localStorage):
+  Collection: users/{uid}/documents/{docId}
+  Fields: name, status, ragStatus, ragError, ragDocumentId, uploadedAt, questions[], ragChunks
+  
+  Loaded via loadUserDocuments() on auth (in _app.js onIdTokenChanged)
+  Saved via saveDocumentToFirestore() at each status change
+  Deleted via deleteDocumentFromFirestore() + AI coach DELETE /ingest/{uid}/{docId}
+```
+
+### Search Flow (Agentic Chat)
+
+```text
+User asks question → LLM decides to call search_study_materials tool
+  → tool_executor._search_study_materials(query, user_id)
+  → supabase_client.search_documents(user_id, query, top_k=5)
+  → embed query → match_documents RPC → cosine similarity
+  → formatted results returned to LLM (with filename + relevance score)
+  → LLM answers grounded in student's uploaded materials
+```
 
 ## Interface Contract
 
@@ -371,28 +429,34 @@ class DocumentIngester:
 
 ## Acceptance Criteria
 
-- [ ] `RAGTool.execute()` embeds query and searches Supabase
-- [ ] Returns formatted results with source attribution (filename, page)
-- [ ] Returns "no results" message when similarity threshold not met
-- [ ] `EmbeddingService` works with both local (sentence-transformers) and Google models
-- [ ] `SupabaseClient.rpc()` correctly calls `match_documents` function
-- [ ] Document ingestion: PDF → chunks → embeddings → stored in Supabase
-- [ ] Chunk overlap prevents context loss at boundaries
-- [ ] Similarity threshold (0.7 default) filters irrelevant results
-- [ ] Max 5 results returned (configurable)
-- [ ] Handles empty knowledge base gracefully
-- [ ] Handles Supabase connection errors gracefully
+- [x] `RAGTool.execute()` embeds query and searches Supabase
+- [x] Returns formatted results with source attribution (filename)
+- [x] Returns "no results" message when no relevant content found
+- [x] Embeddings generated via LM Studio (nomic-embed-text-v1.5, 768 dims)
+- [x] `SupabaseClient.rpc()` correctly calls `match_documents` function
+- [x] Document ingestion: PDF/TXT/MD → chunks → embeddings → stored in Supabase
+- [x] Chunk overlap (200 chars) prevents context loss at boundaries
+- [x] Max 5 results returned (configurable via top_k)
+- [x] Handles empty knowledge base gracefully
+- [x] Handles Supabase connection errors gracefully
+- [x] Storage limit: 50MB per user with validation
+- [x] Duplicate detection by filename
+- [x] Document listing and deletion endpoints
+- [x] `search_study_materials` tool in agentic loop (tool_executor + tools.py)
+- [x] Frontend RAG status badges (indexed / failed)
+- [x] BFF proxy routes (ingest, list, delete)
 
 ---
 
 ## Dependencies
 
 ```text
-supabase>=2.0.0              # Supabase Python client (or just httpx)
-sentence-transformers>=2.2.0 # Local embeddings (optional)
-google-generativeai>=0.8.0   # Google embeddings (optional)
-pymupdf>=1.24.0              # PDF parsing
+supabase>=2.16.0             # Supabase Python client
+httpx>=0.28.1                # HTTP client (already in requirements)
+pymupdf>=1.24.0              # PDF parsing (optional — graceful fallback)
 ```
+
+Embedding model: `text-embedding-nomic-embed-text-v1.5` via LM Studio (768 dimensions).
 
 ---
 

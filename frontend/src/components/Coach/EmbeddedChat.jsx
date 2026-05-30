@@ -15,6 +15,7 @@ export default function EmbeddedChat() {
 		ensureConversation,
 		setChatMode,
 		sendChatMessage,
+		stopStreaming,
 		setDraft,
 		chatConfig,
 		user,
@@ -89,12 +90,16 @@ export default function EmbeddedChat() {
 
 			{!collapsed ? (
 				<div className="h-[32rem] min-h-0 bg-slate-900 px-4 py-4">
+					<p className={`mb-3 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-300/30 bg-indigo-500/10 text-indigo-300' : 'border-amber-300/30 bg-amber-500/10 text-amber-300'}`}>
+						<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Smart coach with full capabilities: analyzes your quiz history, gives personalized recommendations, performs deep reasoning, searches the web, and references your study materials.' : 'Basic coach with limited capabilities: can review your quiz history and give recommendations.'}
+					</p>
 					<ChatTranscript
 						messages={messages}
 						streamingText={streamingText}
 						draft={draft}
 						setDraft={setDraft}
 						onSend={sendChatMessage}
+						onStop={stopStreaming}
 						isConnected={isConnected}
 						isStreaming={isStreaming}
 						chatMode={chatMode}

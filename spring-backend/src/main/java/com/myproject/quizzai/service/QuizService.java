@@ -23,6 +23,24 @@ import java.util.Objects;
 public class QuizService {
     private final Firestore firestore;
 
+    /**
+     * Compute quiz availability based on start_time and end_time.
+     * Returns "upcoming", "active", "expired", or null (no time restriction).
+     */
+    private String computeAvailability(Quiz quiz) {
+        if (quiz.getStart_time() == null && quiz.getEnd_time() == null) {
+            return null;
+        }
+        Timestamp now = Timestamp.now();
+        if (quiz.getStart_time() != null && now.compareTo(quiz.getStart_time()) < 0) {
+            return "upcoming";
+        }
+        if (quiz.getEnd_time() != null && now.compareTo(quiz.getEnd_time()) > 0) {
+            return "expired";
+        }
+        return "active";
+    }
+
     @SneakyThrows
     public String create(@NonNull final QuizCreationRequestDto quizCreationRequest) {
         String quizId = IdUtil.generateId();
@@ -68,6 +86,7 @@ public class QuizService {
                                 : Collections.emptyList())
                         .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                         .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .availability(computeAvailability(quiz))
                         .build())
                 .toList();
     }
@@ -90,6 +109,7 @@ public class QuizService {
                         : Collections.emptyList())
                 .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                 .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                .availability(computeAvailability(quiz))
                 .build();
     }
 
@@ -129,6 +149,7 @@ public class QuizService {
                                 : List.of())
                         .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                         .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .availability(computeAvailability(quiz))
                         .build())
                 .toList();
     }
@@ -161,6 +182,7 @@ public class QuizService {
                                 : Collections.emptyList())
                         .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
                         .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .availability(computeAvailability(quiz))
                         .build())
                 .toList();
     }

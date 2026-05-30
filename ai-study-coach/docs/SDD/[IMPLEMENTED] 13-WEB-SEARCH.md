@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Implement a production-ready web search tool that the AI Coach can invoke during agentic conversations to find current information, explanations, and educational resources.
+Web search tool that the AI Coach invokes during agentic conversations to find current information, explanations, and educational resources.
 
-**Status: ⚠️ Partial** — Stub exists in `server/tools/web_search.py` but returns placeholder text. Needs real search provider integration.
+**Status: ✅ Implemented** — Uses DuckDuckGo (`ddgs` library) for search. No API key required. Integrated in agentic loop via `server/agent/tools.py` and `server/agent/tool_executor.py`.
 
 **Reference**: DeepTutor's `deeptutor/services/search/` implements 6 pluggable SERP providers with template-based consolidation.
 

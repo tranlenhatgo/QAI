@@ -16,7 +16,7 @@ All state is managed via **Zustand** with a merged store pattern. Individual sli
 | `useWildcards` | `useWildcards.js` | Wildcard items (50/50, skip, etc.) |
 | `useCreate` | `useCreate.js` | Quiz creation form state (single category selection) |
 | `useChat` | `useChat.js` | AI coach conversations, WebSocket session state, settings |
-| `useCoach` | `useCoach.js` | Coach dashboard: progress, generation, solver, reviews, notifications |
+| `useCoach` | `useCoach.js` | Coach dashboard: progress, generation, solver, reviews, notifications, documents (Firestore-backed) |
 
 ---
 

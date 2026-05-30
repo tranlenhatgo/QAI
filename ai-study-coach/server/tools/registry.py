@@ -36,10 +36,11 @@ def create_full_registry(user_id: str = "", kb_id: str = "") -> ToolRegistry:
         WebSearchTool(),
     ]
 
-    # Add RAG tool if kb_id provided
-    if kb_id:
+    # Add RAG tool — use kb_id if provided, otherwise use user_id
+    effective_kb_id = kb_id or user_id
+    if effective_kb_id:
         from server.tools.rag import RAGTool
-        tools.append(RAGTool(kb_id=kb_id))
+        tools.append(RAGTool(kb_id=effective_kb_id))
 
     return ToolRegistry(tools)
 

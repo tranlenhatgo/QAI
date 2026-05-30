@@ -79,16 +79,20 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 **User sees**:
 
 - Topic input field (text or select from categories)
+- Title field (optional — narrows focus)
+- Source document dropdown (optional — generate from uploaded material, Full tier only)
 - Question count slider (1–20, default 5)
 - [Generate] button
 - Loading spinner during generation
 - Generated questions listed below (expandable cards)
 
-**Data source**: `POST /generate/from-topics` (AI Study Coach)
+**Data source**: `POST /generate/from-topics` (AI Study Coach). When a document is selected, passes `documentName` to trigger RAG-based generation on the backend.
 
 **Interactions**:
 
 - Type topic → click Generate → see questions appear
+- Select a source document → generates questions from that document's RAG content
+- Source document dropdown disabled in Lite mode (shows "Available in Full mode only")
 - Expand question card → see all 4 answers + correct one highlighted
 - [Save to Quiz] button → creates quiz in Spring Boot
 - [Regenerate] → generates new set
@@ -150,16 +154,19 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 
 ### 5. Study Materials
 
-**Status**: ✅ Implemented (UI component ready, backend RAG endpoint planned)
+**Status**: ✅ Implemented (Full RAG pipeline working)
 
 **User sees**:
 
-- Drag-and-drop upload area (accepts PDF, TXT, MD)
-- List of uploaded documents (name, date, page count)
-- [Delete] button per document
+- Drag-and-drop upload area (accepts PDF, TXT, MD) — disabled in Lite mode
+- List of uploaded documents (name, date, status, RAG badge)
+- [Delete] button per document (deletes from Firestore + Supabase)
 - Upload status indicator (processing/indexed/failed)
+- RAG status badge (🔍 RAG = indexed, ⚠️ = failed with error message)
 
-**Data source**: Supabase pgvector (document chunks + embeddings)
+**Data source**: Firestore `users/{uid}/documents/{docId}` (metadata), Supabase pgvector (RAG chunks)
+
+**Persistence**: Document metadata stored in Firestore (survives page reload, cross-device). Loaded via `loadUserDocuments()` on auth state change in `_app.js`.
 
 **Interactions**:
 
@@ -167,6 +174,8 @@ A dedicated dashboard page (`/coach`) that showcases all AI Study Coach capabili
 - Once indexed, documents are used by RAG tool in chat/agentic mode
 - Click document → preview first page
 - [Generate questions from this] → calls `/generate/from-file`
+- Delete → removes from Firestore + deletes RAG chunks from Supabase via AI coach
+- Image-only PDFs are rejected with clear error: "This PDF appears to contain images rather than selectable text."
 
 ---
 

@@ -33,12 +33,12 @@ export default function Profile() {
 			{authloading && <PageLoading />}
 			{!authloading && <>
 				<ProfileHeader />
-				<main className='pt-4 pb-12'>
+				<main className='pt-6 pb-12'>
 					<div className='max-w-7xl mx-auto px-4 md:px-8'>
 						{/* 2-Column Layout: Profile Card (Left) + Quiz History (Right) */}
 						<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 							{/* Profile Info Card - Sticky on Desktop */}
-							<div className='lg:col-span-1 h-fit lg:sticky lg:top-20'>
+							<div className='lg:col-span-1 h-fit lg:sticky lg:top-24'>
 								<ProfileInfo user={user} logout={handleLogout} />
 							</div>
 

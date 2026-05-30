@@ -24,4 +24,5 @@ public class QuizResponseDto {
     private List<String> categories;
     private String start_time;
     private String end_time;
+    private String availability;
 }

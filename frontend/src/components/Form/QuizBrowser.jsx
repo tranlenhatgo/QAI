@@ -71,21 +71,36 @@ export default function QuizBrowser({ onSelectQuiz, isOpen }) {
             {!loading && !error && filtered.length === 0 && (
                <p className='text-sm text-gray-500 p-2'>No quizzes found</p>
             )}
-            {filtered.map(quiz => (
+            {filtered.map(quiz => {
+               const isUnavailable = quiz.availability === 'upcoming' || quiz.availability === 'expired'
+               return (
                <button
                   key={quiz.quiz_id}
                   type='button'
-                  className='w-full text-left p-2 hover:bg-blue-50 border-b last:border-b-0 transition-colors'
+                  disabled={isUnavailable}
+                  className={`w-full text-left p-2 border-b last:border-b-0 transition-colors ${isUnavailable ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-blue-50'}`}
                   onClick={() => onSelectQuiz(quiz)}
                >
-                  <div className='font-medium text-sm truncate'>{quiz.title || 'Untitled Quiz'}</div>
+                  <div className='flex items-center gap-2'>
+                     <span className='font-medium text-sm truncate flex-1'>{quiz.title || 'Untitled Quiz'}</span>
+                     {quiz.availability === 'upcoming' && (
+                        <span className='shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700'>Upcoming</span>
+                     )}
+                     {quiz.availability === 'expired' && (
+                        <span className='shrink-0 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700'>Expired</span>
+                     )}
+                  </div>
                   {quiz.categories?.length > 0 && (
                      <div className='text-xs text-gray-500 truncate'>
                         {quiz.categories.join(', ')}
                      </div>
                   )}
+                  {quiz.availability === 'upcoming' && quiz.start_time && (
+                     <div className='text-[10px] text-amber-600 mt-0.5'>Starts {new Date(quiz.start_time).toLocaleString()}</div>
+                  )}
                </button>
-            ))}
+               )
+            })}
          </div>
       </div>
    )
