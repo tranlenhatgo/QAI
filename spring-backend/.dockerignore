@@ -1,0 +1,12 @@
+target/
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+*.log
+
+# Firebase service account key (mount at runtime via docker-compose volume)
+src/main/resources/serviceAccountKey.json
+
+# Keep .mvn/ and mvnw (required for build)

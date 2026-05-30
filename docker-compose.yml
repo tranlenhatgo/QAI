@@ -1,0 +1,57 @@
+services:
+  spring-backend:
+    build:
+      context: ./spring-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    # Firebase service account key is required at runtime.
+    # Place it at: spring-backend/src/main/resources/serviceAccountKey.json
+    volumes:
+      - ./spring-backend/src/main/resources:/app/src/main/resources:ro
+
+  ai-study-coach:
+    build:
+      context: ./ai-study-coach
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - spring-backend
+    environment:
+      # Inside Docker, reach the backend via service DNS name.
+      COACH_QUIZ_API_URL: http://spring-backend:8080
+
+      # LM Studio runs on the host (outside Docker). This hostname works on Docker Desktop.
+      # Override if needed.
+      COACH_EXTERNAL_LLM_PROVIDER: lm_studio
+      COACH_LM_STUDIO_URL: http://host.docker.internal:1234
+
+      # Optional auth key if you have X-API-Key enabled.
+      # COACH_API_KEY: ""
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - spring-backend
+    environment:
+      # Next.js API routes run server-side in the container, so this must be reachable from the container.
+      REST_API_URL: http://spring-backend:8080
+
+      # Optional; only needed if your client code references it.
+      NEXT_PUBLIC_REST_API_URL: http://localhost:8080
+
+      # Coach URL: client-side should hit host port mapping; server-side can use service DNS.
+      NEXT_PUBLIC_STUDY_COACH_API_URL: http://localhost:8000
+      STUDY_COACH_API_URL: http://ai-study-coach:8000
+
+      # If your app requires it, provide a value (or use an env_file).
+      # ANSWER_ENCRYPTION_KEY: ""
+
+# Note: n8n (:5678) is not containerized here.
