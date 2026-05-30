@@ -261,6 +261,33 @@ input:focus-visible {
 	opacity: 1;
 }
 
+/* Tooltip ============================ */
+.tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted #0f172a;
+	cursor: pointer;
+}
+
+.tooltiptext {
+	visibility: hidden;
+	width: 130px;
+	background-color: #0f172a;
+	color: #ffffff;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+	position: absolute;
+	z-index: 1;
+	left: 50%;
+	bottom: calc(100% + 6px);
+	transform: translateX(-50%);
+}
+
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+}
+
 /* Checkbox ========================= */
 .cbx,
 .cbx2 {

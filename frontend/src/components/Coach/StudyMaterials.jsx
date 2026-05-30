@@ -68,7 +68,7 @@ export default function StudyMaterials() {
 					setDragActive(false)
 					handleFiles(event.dataTransfer.files)
 				}}
-				className={`flex min-h-40 flex-col items-center justify-center rounded-md border border-dashed px-4 text-center transition-colors ${isLite ? 'pointer-events-none border-gray-200 bg-gray-100 opacity-50' : dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
+				className={`flex min-h-40 p-10 flex-col items-center justify-center rounded-md border border-dashed px-4 text-center transition-colors ${isLite ? 'pointer-events-none border-gray-200 bg-gray-100 opacity-50' : dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
 			>
 				<FiUploadCloud className={`text-3xl ${isLite ? 'text-gray-400' : 'text-blue-600'}`} />
 				<p className="mt-2 text-sm font-semibold text-slate-800">{isLite ? 'Upload disabled in Lite mode' : isUploading ? 'Uploading...' : 'Drop file or browse'}</p>
