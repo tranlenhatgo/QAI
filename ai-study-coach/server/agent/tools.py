@@ -157,6 +157,28 @@ TOOL_DEFINITIONS: list[dict] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": (
+                "Search the web for current information on a topic. "
+                "Use this when the student asks about recent events, needs "
+                "up-to-date references, or when your training data may be outdated. "
+                "Also use this when explicitly asked to search."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to look up on the web.",
+                    }
+                },
+                "required": ["query"],
+            },
+        },
+    },
 ]
 
 

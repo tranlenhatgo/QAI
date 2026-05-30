@@ -46,9 +46,11 @@ export default function GenerateQuestions() {
 		generatedQuestions,
 		isGenerating,
 		generateTopic,
+		generateTitle,
 		generateCount,
 		generateError,
 		setGenerateTopic,
+		setGenerateTitle,
 		setGenerateCount,
 		generateQuestions,
 		setCreateQuestions,
@@ -92,25 +94,26 @@ export default function GenerateQuestions() {
 			<form onSubmit={handleSubmit} className="grid gap-3">
 				<label className="grid gap-2">
 					<span className="text-sm font-semibold text-slate-700">Topic</span>
-					<div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_12rem]">
-						<input
-							type="text"
-							value={generateTopic}
-							onChange={event => setGenerateTopic(event.target.value)}
-							className="rounded-md border border-gray-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500"
-							placeholder="Science, algebra, world history"
-						/>
-						<select
-							value={categoriesJSON.some(category => category.name === generateTopic) ? generateTopic : ''}
-							onChange={event => event.target.value && setGenerateTopic(event.target.value)}
-							className="rounded-md border border-gray-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500"
-						>
-							<option value="">Categories</option>
-							{categoriesJSON.map(category => (
-								<option key={category.id} value={category.name}>{category.name}</option>
-							))}
-						</select>
-					</div>
+					<select
+						value={generateTopic}
+						onChange={event => setGenerateTopic(event.target.value)}
+						className="rounded-md border border-gray-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500"
+					>
+						{categoriesJSON.map(category => (
+							<option key={category.id} value={category.name}>{category.name}</option>
+						))}
+					</select>
+				</label>
+
+				<label className="grid gap-2">
+					<span className="text-sm font-semibold text-slate-700">Title <span className="font-normal text-slate-400">(optional — narrows the focus)</span></span>
+					<input
+						type="text"
+						value={generateTitle}
+						onChange={event => setGenerateTitle(event.target.value)}
+						className="rounded-md border border-gray-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500"
+						placeholder="e.g. Photosynthesis, World War II, Algebra basics"
+					/>
 				</label>
 
 				<label className="grid gap-2">
@@ -134,7 +137,7 @@ export default function GenerateQuestions() {
 						className="btn-primary inline-flex items-center gap-2 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-70"
 					>
 						{isGenerating ? <FiRefreshCw className="animate-spin" /> : <FiSend />}
-						<span>{isGenerating ? 'Generating' : 'Generate'}</span>
+						<span>{isGenerating ? 'Generating' : generatedQuestions.length > 0 ? 'More' : 'Generate'}</span>
 					</button>
 					<button
 						type="button"

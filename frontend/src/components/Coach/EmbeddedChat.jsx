@@ -15,6 +15,7 @@ export default function EmbeddedChat() {
 		ensureConversation,
 		setChatMode,
 		sendChatMessage,
+		stopStreaming,
 		setDraft,
 		chatConfig,
 		user,
@@ -98,6 +99,7 @@ export default function EmbeddedChat() {
 						draft={draft}
 						setDraft={setDraft}
 						onSend={sendChatMessage}
+						onStop={stopStreaming}
 						isConnected={isConnected}
 						isStreaming={isStreaming}
 						chatMode={chatMode}

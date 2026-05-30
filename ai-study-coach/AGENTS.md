@@ -34,7 +34,7 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/config.py` — All settings via `pydantic-settings`; env vars prefixed `COACH_`; loaded from `.env`
 - `server/agent/coach.py` — **Main orchestrator**: `handle_chat()` (non-agentic) and `handle_chat_agentic()` (tool-use loop)
 - `server/agent/prompts.py` — System prompts (`SYSTEM_PROMPT` + `AGENTIC_SYSTEM_PROMPT`) and context builder
-- `server/agent/tools.py` — Tool definitions registry (7 tools in OpenAI function-calling format)
+- `server/agent/tools.py` — Tool definitions registry (8 tools in OpenAI function-calling format)
 - `server/agent/tool_executor.py` — Executes tool calls; returns result text (for LLM) + `AgentAction` (for frontend)
 - `server/llm/external.py` — LLM client (LM Studio / DeepSeek via OpenAI-compatible API)
 - `server/llm/deepseek.py` — DeepSeekProvider for Full tier (streaming + function calling)
@@ -50,7 +50,9 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/routes/solve.py` — `POST /solve` — Step-by-step problem solving (structured 3-phase pipeline)
 - `server/routes/progress.py` — `GET /progress/{user_id}` — Progress metrics + due reviews
 - `server/routes/webhook.py` — `POST /webhook/quiz-completed` — Receives quiz completion, updates SR schedule
+- `server/routes/explain.py` — `POST /explain-answer` — AI explanation of quiz answers (streams via DeepSeek, Lite fallback)
 - `server/routes/health.py` — `GET /health` with LLM status
+- `server/tools/web_search.py` — `WebSearchTool` — Google Custom Search integration (requires `COACH_SEARCH_API_KEY` + `COACH_SEARCH_CX`)
 
 ## Running the Server
 
@@ -105,6 +107,7 @@ Integration tests require LM Studio running with a model loaded.
 | `create_practice_quiz` | Create a new quiz targeting weak categories | Call save-quiz API + redirect |
 | `show_weakness_report` | Display weakness analysis in chat | Render inline report |
 | `search_quizzes` | Find quizzes by category from user profile | Filter + display quiz list |
+| `web_search` | Search the web via Google Custom Search API | None (result fed back to LLM) |
 
 ## REST Endpoints
 
@@ -119,6 +122,7 @@ Integration tests require LM Studio running with a model loaded.
 | `/solve` | POST | X-API-Key | Step-by-step problem solving |
 | `/progress/{user_id}` | GET | X-API-Key | Progress metrics + due reviews |
 | `/webhook/quiz-completed` | POST | X-API-Key | Quiz completion webhook (from Spring Boot) |
+| `/explain-answer` | POST | X-API-Key | AI explanation of a quiz answer (2-4 sentences) |
 
 ## Learning Modules (server/learning/)
 
@@ -139,5 +143,5 @@ Uses APScheduler `AsyncIOScheduler`, started during FastAPI lifespan:
 
 ## Planned/Incomplete
 
-- `server/tools/web_search.py` — Stub exists but no real search provider integrated
+- Web search returns 403 until the Google Cloud project enables "Custom Search JSON API" for the configured API key
 - Full automated test coverage (test strategy defined in SDD 12, not all automated)

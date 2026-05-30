@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { BiArrowBack } from 'react-icons/bi'
 import { FiChevronRight, FiMessageSquare, FiPlus, FiSettings, FiTrash2, FiUser } from 'react-icons/fi'
 import { useBoundStore } from '@/store/useBoundStore'
+import { getAvatarSrc } from '@/components/Profile/AvatarPicker'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import PageFooter from '@/components/PageFooter'
 
@@ -59,6 +60,7 @@ export default function ChatPage() {
 		setSetting,
 		setChatMode,
 		sendChatMessage,
+		stopStreaming,
 		setDraft,
 		chatConfig,
 		user,
@@ -208,7 +210,7 @@ export default function ChatPage() {
 						{/* Account */}
 						<SidebarSection title="Account" icon={<FiUser className="text-blue-500" />}>
 							<div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
-								<img src={user?.photoURL || '/default-avatar.jpg'} alt="Profile" className="h-12 w-12 rounded-full border-2 border-blue-200 object-cover" />
+								<img src={user?.photoURL || getAvatarSrc(user?.uid)} alt="Profile" className="h-12 w-12 rounded-full border-2 border-blue-200 object-cover" />
 								<div className="min-w-0">
 									<p className="truncate text-sm font-semibold text-slate-800">{displayName}</p>
 									<p className="truncate text-xs text-slate-500">{displayEmail}</p>
@@ -273,6 +275,7 @@ export default function ChatPage() {
 										draft={draft}
 										setDraft={setDraft}
 										onSend={sendChatMessage}
+										onStop={stopStreaming}
 										isConnected={isConnected}
 										isStreaming={isStreaming}
 										chatMode={chatMode}

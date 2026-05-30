@@ -22,6 +22,7 @@ class GenerateFromTopicsRequest(BaseModel):
     topics: list[str]
     count: int = 3  # questions per topic
     tier: str | None = None  # "lite" | "full" | None (auto-detect)
+    title: str | None = None  # optional title to narrow question focus
 
 
 class GeneratedQuestion(BaseModel):
@@ -36,7 +37,7 @@ class GenerateResponse(BaseModel):
 
 # ─── Prompts ─────────────────────────────────────────────────────────────────
 
-TOPIC_GENERATION_PROMPT = """You are a quiz question generator. Generate exactly {count} multiple-choice questions about the following topics: {topics}.
+TOPIC_GENERATION_PROMPT = """You are a quiz question generator. Generate exactly {count} multiple-choice questions about the following topics: {topics}.{title_context}
 
 Each question must have:
 - A clear question text
@@ -149,9 +150,11 @@ async def generate_from_topics(req: GenerateFromTopicsRequest):
         raise HTTPException(status_code=400, detail="At least one topic is required")
 
     total_count = req.count * len(req.topics)
+    title_context = f"\nFocus specifically on: {req.title}" if req.title else ""
     prompt = TOPIC_GENERATION_PROMPT.format(
         count=total_count,
         topics=", ".join(req.topics),
+        title_context=title_context,
     )
 
     resolved_tier = _resolve_tier(req.tier)

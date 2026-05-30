@@ -46,6 +46,9 @@ async def execute_tool(
             case "search_quizzes":
                 return await _search_quizzes(args, user_id)
 
+            case "web_search":
+                return await _web_search(args)
+
             case _:
                 return f"Unknown tool: {name}", None
 
@@ -226,3 +229,16 @@ async def _search_quizzes(
     except Exception as e:
         logger.error(f"Quiz search failed: {e}")
         return f"Quiz search failed: {str(e)}", None
+
+
+async def _web_search(args: dict) -> tuple[str, AgentAction | None]:
+    """Search the web using Google Custom Search."""
+    query = args.get("query", "")
+    if not query:
+        return "No search query provided.", None
+
+    from server.tools.web_search import WebSearchTool
+
+    tool = WebSearchTool()
+    result = await tool.execute(args)
+    return result, None

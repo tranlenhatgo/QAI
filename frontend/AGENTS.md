@@ -37,14 +37,15 @@ Merged slices in `src/store/useBoundStore.js`:
 | Directory | Purpose |
 | --- | --- |
 | `src/components/Auth/` | Login/register forms |
-| `src/components/Chat/` | AI coaching chat widget |
+| `src/components/Chat/` | AI coaching chat widget (vertical resize, stop streaming) |
 | `src/components/Coach/` | Coach Dashboard (Overview, Generate, Solver, Materials, Weaknesses, Chat, DueReviews, NotificationBell) |
 | `src/components/Create/` | Quiz creation UI |
 | `src/components/Form/` | Global modal forms (play, auth, join) |
 | `src/components/Home/` | Landing page sections |
-| `src/components/Play/` | Gameplay, GameOver, results |
+| `src/components/Play/` | Gameplay, GameOver (with AI explain answer), results |
 | `src/components/Profile/` | Profile, history, leaderboard |
 | `src/components/Questions/` | Question display during play |
+| `src/components/TierSelector.jsx` | Tier picker modal (Lite/Full) shown in HomeHeader |
 
 ## Core Data Flows
 
@@ -67,6 +68,7 @@ Merged slices in `src/store/useBoundStore.js`:
 | `/api/quiz/*` | Spring Boot / AI Coach | Quiz CRUD, upload for AI generation |
 | `/api/take/*` | Spring Boot | Start/end quiz attempts |
 | `/api/coach/chat` | AI Coach | Legacy HTTP chat proxy; normal chat uses WebSocket `/ws` |
+| `/api/coach/explain-answer` | AI Coach | AI explanation of quiz answers |
 | `/api/coach/generate-questions` | AI Coach | Dashboard question generation |
 | `/api/coach/solve` | AI Coach | Step-by-step solver |
 | `/api/coach/progress/[userId]` | AI Coach | Progress metrics |

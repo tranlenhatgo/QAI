@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { FiMessageCircle, FiSend, FiZap } from 'react-icons/fi'
+import { FiMessageCircle, FiSend, FiSquare, FiZap } from 'react-icons/fi'
 import DOMPurify from 'dompurify'
 
 export function renderMarkdown(text) {
@@ -50,6 +50,7 @@ export default function ChatTranscript({
 	draft,
 	setDraft,
 	onSend,
+	onStop,
 	isConnected,
 	isStreaming,
 	chatMode = 'simple',
@@ -123,15 +124,27 @@ export default function ChatTranscript({
 						rows={1}
 						className="max-h-28 min-h-11 flex-1 resize-none bg-transparent px-3 py-2 text-sm leading-6 text-white outline-none placeholder:text-slate-300 disabled:cursor-not-allowed"
 					/>
-					<button
-						type="button"
-						onClick={() => onSend(draft)}
-						disabled={sendDisabled}
-						className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white transition-transform duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-						aria-label="Send message"
-					>
-						<FiSend className="text-lg" />
-					</button>
+					{isStreaming && onStop ? (
+						<button
+							type="button"
+							onClick={onStop}
+							className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 text-white transition-transform duration-200 hover:scale-105"
+							aria-label="Stop generating"
+							title="Stop"
+						>
+							<FiSquare className="text-lg" />
+						</button>
+					) : (
+						<button
+							type="button"
+							onClick={() => onSend(draft)}
+							disabled={sendDisabled}
+							className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white transition-transform duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+							aria-label="Send message"
+						>
+							<FiSend className="text-lg" />
+						</button>
+					)}
 				</div>
 				<p className="mt-2 text-center text-[11px] uppercase tracking-[0.24em] text-slate-500">Shift + Enter for a new line</p>
 			</div>

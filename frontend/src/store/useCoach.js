@@ -144,6 +144,7 @@ export const useCoachStore = (set, get) => ({
 	generatedQuestions: [],
 	isGenerating: false,
 	generateTopic: 'Science',
+	generateTitle: '',
 	generateCount: DEFAULT_GENERATE_COUNT,
 	generateError: null,
 
@@ -180,8 +181,13 @@ export const useCoachStore = (set, get) => ({
 	notifications: [],
 
 	setActiveCoachFeature: (activeCoachFeature) => set({ activeCoachFeature }),
-	setCoachTier: (coachTier) => set({ coachTier: coachTier === 'lite' ? 'lite' : 'full' }),
+	setCoachTier: (coachTier) => {
+		const tier = coachTier === 'lite' ? 'lite' : 'full'
+		set({ coachTier: tier })
+		get().setChatConfig({ tier })
+	},
 	setGenerateTopic: (generateTopic) => set({ generateTopic }),
+	setGenerateTitle: (generateTitle) => set({ generateTitle }),
 	setGenerateCount: (generateCount) => set({ generateCount: clampCount(generateCount) }),
 	setCurrentProblem: (currentProblem) => set({ currentProblem }),
 	clearGeneratedQuestions: () => set({ generatedQuestions: [], generateError: null }),
@@ -232,6 +238,7 @@ export const useCoachStore = (set, get) => ({
 	generateQuestions: async (topic, count) => {
 		const normalizedTopic = String(topic || get().generateTopic || '').trim()
 		const normalizedCount = clampCount(count ?? get().generateCount)
+		const title = (get().generateTitle || '').trim()
 		if (!normalizedTopic) {
 			set({ generateError: 'Topic is required' })
 			return []
@@ -247,7 +254,7 @@ export const useCoachStore = (set, get) => ({
 			const response = await fetch('/api/coach/generate-questions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ topics: [normalizedTopic], count: normalizedCount, tier: get().coachTier }),
+				body: JSON.stringify({ topics: [normalizedTopic], count: normalizedCount, tier: get().coachTier, title: title || undefined }),
 			})
 			const data = await readJsonResponse(response, 'Failed to generate questions')
 			const questions = normalizeQuestions(data.questions, normalizedTopic)

@@ -1,11 +1,16 @@
-"""WebSearchTool — web search with citations (stub, requires API key)."""
+"""WebSearchTool — Google Custom Search integration."""
 
 import logging
 from typing import Any
 
+import httpx
+
+from server.config import settings
 from server.tools import BaseTool
 
 logger = logging.getLogger(__name__)
+
+GOOGLE_SEARCH_URL = "https://www.googleapis.com/customsearch/v1"
 
 
 class WebSearchTool(BaseTool):
@@ -41,10 +46,45 @@ class WebSearchTool(BaseTool):
         if not query:
             return "No query provided."
 
-        # TODO: Integrate with a web search API (e.g., SerpAPI, Brave Search)
-        # For now, return a stub response
-        logger.info(f"web_search called with query: {query}")
-        return (
-            f"[Web search not yet configured] "
-            f"Query: '{query}' — To enable, set COACH_SEARCH_API_KEY in environment."
-        )
+        if not settings.search_api_key or not settings.search_cx:
+            logger.warning("Web search not configured: missing COACH_SEARCH_API_KEY or COACH_SEARCH_CX")
+            return (
+                f"[Web search not configured] "
+                f"Query: '{query}' — Set COACH_SEARCH_API_KEY and COACH_SEARCH_CX in environment."
+            )
+
+        logger.info(f"web_search: querying Google for '{query}'")
+
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.get(
+                    GOOGLE_SEARCH_URL,
+                    params={
+                        "key": settings.search_api_key,
+                        "cx": settings.search_cx,
+                        "q": query,
+                        "num": 5,
+                    },
+                )
+                resp.raise_for_status()
+                data = resp.json()
+
+            items = data.get("items", [])
+            if not items:
+                return f"No results found for: '{query}'"
+
+            results = []
+            for i, item in enumerate(items, 1):
+                title = item.get("title", "No title")
+                link = item.get("link", "")
+                snippet = item.get("snippet", "").replace("\n", " ").strip()
+                results.append(f"{i}. **{title}**\n   {snippet}\n   Source: {link}")
+
+            return f"Search results for '{query}':\n\n" + "\n\n".join(results)
+
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Google Search API error: {e.response.status_code} — {e.response.text[:200]}")
+            return f"Search failed (HTTP {e.response.status_code}). Please try again."
+        except Exception as e:
+            logger.error(f"Web search failed: {e}")
+            return f"Search failed: {str(e)}"
