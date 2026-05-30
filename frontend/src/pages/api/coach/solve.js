@@ -27,6 +27,7 @@ async function handler(req, res) {
 			body: JSON.stringify({
 				problem,
 				user_id: req.userId,
+				tier: req.body?.tier || null,
 			}),
 			signal: controller.signal,
 		})

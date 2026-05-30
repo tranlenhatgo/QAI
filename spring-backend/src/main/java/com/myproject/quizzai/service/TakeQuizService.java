@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,19 @@ public class TakeQuizService {
     public TakeQuizStartResponseDto StartQuiz(TakeQuizStartRequestDto takeQuizDto) {
         String quizId = takeQuizDto.getQuizId();
         String playerName = takeQuizDto.getPlayerName();
+
+        // Enforce quiz date limits
+        Quiz quiz = firestore.collection("quiz").document(quizId).get().get().toObject(Quiz.class);
+        if (quiz != null) {
+            Timestamp now = Timestamp.now();
+            if (quiz.getStart_time() != null && now.compareTo(quiz.getStart_time()) < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Quiz not available yet. Starts at " + TimeUtils.toIsoString(quiz.getStart_time()));
+            }
+            if (quiz.getEnd_time() != null && now.compareTo(quiz.getEnd_time()) > 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quiz has expired");
+            }
+        }
 
         List<QuestionResponseDto> questionDtos = questionService.getQuestionsByQuizId(quizId);
 

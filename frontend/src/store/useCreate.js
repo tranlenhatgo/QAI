@@ -15,6 +15,7 @@ export const useCreateQuestionsStore = (set, get) => ({
 		uid: "",
 		roomName: "",
 		roomDesc: "",
+		unlimitedTime: true,
 		startTime: "",
 		endTime: "",
 		categories: [],
@@ -84,9 +85,11 @@ export const useCreateQuestionsStore = (set, get) => ({
 	// Save quiz
 	saveQuiz: async () => {
 		const { quizQuery } = get();
-		const { uid, roomName, roomDesc, startTime, endTime, categories } = quizQuery;
+		const { uid, roomName, roomDesc, startTime, endTime, categories, unlimitedTime } = quizQuery;
+		const effectiveStart = unlimitedTime === false ? startTime : '';
+		const effectiveEnd = unlimitedTime === false ? endTime : '';
 
-		saveQuiz(roomName, roomDesc, startTime, endTime, categories, uid)
+		saveQuiz(roomName, roomDesc, effectiveStart, effectiveEnd, categories, uid)
 			.then((response) => {
 				set({ quizId: response.quizId });
 				if (response.statusCode >= 400) {

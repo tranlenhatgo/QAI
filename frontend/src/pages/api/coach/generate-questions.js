@@ -39,7 +39,7 @@ async function handler(req, res) {
 		const upstreamResponse = await fetch(`${COACH_URL.replace(/\/+$/, '')}/generate/from-topics`, {
 			method: 'POST',
 			headers,
-			body: JSON.stringify({ topics, count }),
+			body: JSON.stringify({ topics, count, tier: req.body?.tier || null }),
 		})
 
 		const data = await upstreamResponse.json().catch(() => ({}))

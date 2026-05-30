@@ -5,9 +5,9 @@ export default function saveQuiz(name, description, startTime, endTime, categori
       title: name,
       description: description,
       categories: categories.map(category => category.toUpperCase().replace(/\s+/g, '_')),
-      start_time: startTime + ":00Z",
-      end_time: endTime + ":00Z",
    };
+   if (startTime) payload.start_time = startTime + ":00Z";
+   if (endTime) payload.end_time = endTime + ":00Z";
    const save = fetch('/api/quiz/save-quiz', {
       method: 'POST',
       headers: {

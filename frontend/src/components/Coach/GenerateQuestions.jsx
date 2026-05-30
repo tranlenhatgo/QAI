@@ -52,6 +52,7 @@ export default function GenerateQuestions() {
 		setGenerateCount,
 		generateQuestions,
 		setCreateQuestions,
+		coachTier,
 	} = useBoundStore(state => state)
 
 	async function handleSubmit(event) {
@@ -83,6 +84,10 @@ export default function GenerateQuestions() {
 				</div>
 				<span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">{generatedQuestions.length} ready</span>
 			</div>
+
+			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Higher quality questions generated using advanced AI. Automatically retries with backup if needed.' : 'Questions generated using a lightweight local model. May produce simpler output.'}
+			</p>
 
 			<form onSubmit={handleSubmit} className="grid gap-3">
 				<label className="grid gap-2">

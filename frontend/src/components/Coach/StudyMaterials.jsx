@@ -20,6 +20,7 @@ export default function StudyMaterials() {
 		uploadStudyMaterial,
 		removeDocument,
 		setActiveCoachFeature,
+		coachTier,
 	} = useBoundStore(state => state)
 
 	async function handleFiles(files) {
@@ -46,6 +47,10 @@ export default function StudyMaterials() {
 				</div>
 				<span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-slate-600">{documents.length} files</span>
 			</div>
+
+			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Advanced AI extracts key concepts and generates high-quality questions from your documents. Automatically retries with backup if needed.' : 'Lightweight local model generates questions from your documents. May produce simpler results.'}
+			</p>
 
 			<div
 				onDragOver={event => {

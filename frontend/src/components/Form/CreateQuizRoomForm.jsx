@@ -96,28 +96,44 @@ export default function CreateQuizRoomForm() {
                               required
                            ></textarea>
                         </label>
-                        <label className='flex flex-col'>
-                           <span className='font-semibold mb-2'>Start Time</span>
-                           <input
-                              type='datetime-local'
-                              name='startTime'
-                              value={quizQuery.startTime}
-                              onChange={handleInputs}
-                              className='p-2 border rounded'
-                              required
-                           />
-                        </label>
-                        <label className='flex flex-col'>
-                           <span className='font-semibold mb-2'>End Time</span>
-                           <input
-                              type='datetime-local'
-                              name='endTime'
-                              value={quizQuery.endTime}
-                              onChange={handleInputs}
-                              className='p-2 border rounded'
-                              required
-                           />
-                        </label>
+                        <div className='flex flex-col gap-2'>
+                           <label className='flex items-center gap-2 cursor-pointer'>
+                              <input
+                                 type='checkbox'
+                                 name='unlimitedTime'
+                                 checked={quizQuery.unlimitedTime ?? true}
+                                 onChange={handleInputs}
+                                 className='w-4 h-4'
+                              />
+                              <span className='font-semibold'>No time limit (always available)</span>
+                           </label>
+                           {!quizQuery.unlimitedTime && (
+                              <>
+                                 <label className='flex flex-col'>
+                                    <span className='font-semibold mb-2'>Start Time</span>
+                                    <input
+                                       type='datetime-local'
+                                       name='startTime'
+                                       value={quizQuery.startTime}
+                                       onChange={handleInputs}
+                                       className='p-2 border rounded'
+                                       required
+                                    />
+                                 </label>
+                                 <label className='flex flex-col'>
+                                    <span className='font-semibold mb-2'>End Time</span>
+                                    <input
+                                       type='datetime-local'
+                                       name='endTime'
+                                       value={quizQuery.endTime}
+                                       onChange={handleInputs}
+                                       className='p-2 border rounded'
+                                       required
+                                    />
+                                 </label>
+                              </>
+                           )}
+                        </div>
                      </div>
                   </div>
 
@@ -179,16 +195,16 @@ export default function CreateQuizRoomForm() {
                   {/* Categories Selection */}
                   <fieldset>
                      <legend className='text-lg font-semibold mb-2'>Category</legend>
-                     <div className='grid grid-cols-4 sm:grid-cols-2 gap-2 h-[80%]'>
+                     <div className='grid grid-cols-4 sm:grid-cols-3 gap-2'>
                         {categoriesJSON.map(category => (
-                           <label key={'cqr-' + category.name} className="relative cursor-pointer" title={category.name}>
+                           <label key={'cqr-' + category.name} className="relative w-16 h-16 cursor-pointer" title={category.name}>
                               <input
                                  defaultChecked={quizQuery.categories.includes(category.name)}
-                                 className="peer relative h-16 opacity-0 w-full md:h-full block cursor-pointer"
+                                 className="peer absolute opacity-0 w-full h-full block cursor-pointer"
                                  type="radio" name="categories" value={category.name} onClick={handleInputs}
                               />
 
-                              <Image className={`absolute transition-all w-full h-full peer-checked:scale-90 p-2 rounded peer-checked:bg-[${category.color}] invert peer-checked:invert-0 peer-checked:bg-[var(--bgColor)] top-0 pointer-events-none peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline outline-[var(--bgColor)]`} src={`/categories-icons/${category.name.toLowerCase()}.svg`} alt={category.name} width={40} height={40} style={{ '--bgColor': category.color }} />
+                              <Image className={`absolute transition-all w-full h-full peer-checked:scale-90 p-2 rounded peer-checked:bg-[${category.color}] invert peer-checked:invert-0 peer-checked:bg-[var(--bgColor)] top-0 pointer-events-none peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline outline-[var(--bgColor)]`} src={`/categories-icons/${category.name.toLowerCase()}.svg`} alt={category.name} fill style={{ '--bgColor': category.color }} />
                            </label>
                         ))}
                      </div>

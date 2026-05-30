@@ -19,6 +19,7 @@ router = APIRouter(prefix="/solve")
 class SolveRequest(BaseModel):
     problem: str
     user_id: str = ""
+    tier: str | None = None  # "lite" | "full" | None (auto-detect)
 
 
 class SolveStepResponse(BaseModel):
@@ -48,11 +49,27 @@ async def solve_problem(request: SolveRequest):
     - Numbered plan steps with reasoning and results
     - Final answer with confidence level
     """
-    tier = Tier.FULL if settings.external_llm_api_key else Tier.LITE
-    provider = create_llm_provider(tier)
-    solver = StepSolver(provider=provider)
+    # Resolve tier from request, with fallback logic
+    if request.tier == "lite":
+        resolved_tier = Tier.LITE
+    elif request.tier == "full":
+        resolved_tier = Tier.FULL
+    else:
+        resolved_tier = Tier.FULL if settings.external_llm_api_key else Tier.LITE
 
-    solution = await solver.run_http(request.problem)
+    try:
+        provider = create_llm_provider(resolved_tier)
+        solver = StepSolver(provider=provider)
+        solution = await solver.run_http(request.problem)
+    except Exception as e:
+        # Full tier can fall back to Lite, but NOT vice versa
+        if resolved_tier == Tier.FULL:
+            logger.warning(f"Full tier LLM failed ({e}), falling back to Lite (LM Studio)")
+            provider = create_llm_provider(Tier.LITE)
+            solver = StepSolver(provider=provider)
+            solution = await solver.run_http(request.problem)
+        else:
+            raise
 
     return SolveResponse(
         problem=solution.problem,

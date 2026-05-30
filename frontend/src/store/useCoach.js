@@ -247,7 +247,7 @@ export const useCoachStore = (set, get) => ({
 			const response = await fetch('/api/coach/generate-questions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ topics: [normalizedTopic], count: normalizedCount }),
+				body: JSON.stringify({ topics: [normalizedTopic], count: normalizedCount, tier: get().coachTier }),
 			})
 			const data = await readJsonResponse(response, 'Failed to generate questions')
 			const questions = normalizeQuestions(data.questions, normalizedTopic)
@@ -286,7 +286,7 @@ export const useCoachStore = (set, get) => ({
 			const response = await fetch('/api/coach/solve', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ problem: normalizedProblem }),
+				body: JSON.stringify({ problem: normalizedProblem, tier: get().coachTier }),
 			})
 			const data = await readJsonResponse(response, 'Failed to solve problem')
 			set({
@@ -323,6 +323,7 @@ export const useCoachStore = (set, get) => ({
 			formData.append('file', file, file.name)
 			formData.append('count', String(DEFAULT_GENERATE_COUNT))
 			formData.append('quiz_id', '')
+			formData.append('tier', get().coachTier)
 
 			const response = await fetch('/api/quiz/upload', {
 				method: 'POST',
