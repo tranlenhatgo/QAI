@@ -52,7 +52,7 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/routes/webhook.py` — `POST /webhook/quiz-completed` — Receives quiz completion, updates SR schedule
 - `server/routes/explain.py` — `POST /explain-answer` — AI explanation of quiz answers (streams via DeepSeek, Lite fallback)
 - `server/routes/health.py` — `GET /health` with LLM status
-- `server/tools/web_search.py` — `WebSearchTool` — Google Custom Search integration (requires `COACH_SEARCH_API_KEY` + `COACH_SEARCH_CX`)
+- `server/tools/web_search.py` — `WebSearchTool` — DuckDuckGo web search via `ddgs` library (no API key required)
 
 ## Running the Server
 
@@ -107,7 +107,7 @@ Integration tests require LM Studio running with a model loaded.
 | `create_practice_quiz` | Create a new quiz targeting weak categories | Call save-quiz API + redirect |
 | `show_weakness_report` | Display weakness analysis in chat | Render inline report |
 | `search_quizzes` | Find quizzes by category from user profile | Filter + display quiz list |
-| `web_search` | Search the web via Google Custom Search API | None (result fed back to LLM) |
+| `web_search` | Search the web via DuckDuckGo (ddgs library) | None (result fed back to LLM) |
 
 ## REST Endpoints
 
@@ -143,5 +143,4 @@ Uses APScheduler `AsyncIOScheduler`, started during FastAPI lifespan:
 
 ## Planned/Incomplete
 
-- Web search returns 403 until the Google Cloud project enables "Custom Search JSON API" for the configured API key
 - Full automated test coverage (test strategy defined in SDD 12, not all automated)

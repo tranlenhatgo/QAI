@@ -70,14 +70,13 @@ Browser → Next.js (Pages Router, :3000)
 - ✅ Coach Dashboard (tabbed: Overview, Generate, Solver, Materials, Weaknesses, Chat)
 - ✅ Due Reviews UI (ReviewCard with [Review] button)
 - ✅ PWA (service worker, offline manifest)
-- ✅ Web search tool (Google Custom Search API, agentic mode only)
+- ✅ Web search tool (DuckDuckGo via ddgs library, agentic mode only, no API key needed)
 - ✅ Explain Answer (AI explains correct answer in GameOver lightbulb menu)
 - ✅ Tier Selector (Lite/Full toggle on home page)
 - ✅ Chat widget vertical resize + stop streaming
 
 ## What's Incomplete
 
-- `[PARTIAL] 13-WEB-SEARCH.md` — web search tool integrated with Google Custom Search API; requires API enabled in Google Cloud project
 - `[PARTIAL] 12-TESTING-STRATEGY.md` — test strategy defined, not all scenarios automated
 - Frontend floating chat widget not rendered on non-coach pages (only `/coach` has chat)
 - No automated end-to-end tests yet (E2E test plan exists in `AGENTS-E2E-TEST.md`)
