@@ -15,8 +15,8 @@ async function handler(req, res) {
 
    try {
       const headers = { 'Content-Type': 'application/json' }
-      if (process.env.COACH_API_KEY) {
-         headers['X-API-Key'] = process.env.COACH_API_KEY
+      if (process.env.STUDY_COACH_API_KEY || process.env.COACH_API_KEY) {
+         headers['X-API-Key'] = process.env.STUDY_COACH_API_KEY || process.env.COACH_API_KEY
       }
 
       const response = await fetch(`${COACH_URL}/generate/get-question?quiz_id=${encodeURIComponent(id)}`, {

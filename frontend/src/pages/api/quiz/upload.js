@@ -19,8 +19,8 @@ async function handler(req, res) {
       // Forward the content-type (includes multipart boundary)
       'content-type': req.headers['content-type'],
     }
-    if (process.env.COACH_API_KEY) {
-      headers['X-API-Key'] = process.env.COACH_API_KEY
+    if (process.env.STUDY_COACH_API_KEY || process.env.COACH_API_KEY) {
+      headers['X-API-Key'] = process.env.STUDY_COACH_API_KEY || process.env.COACH_API_KEY
     }
 
     // Forward multipart stream to AI Study Coach

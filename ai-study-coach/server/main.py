@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from server.config import settings
-from server.routes import chat, health, generate, solve, progress, webhook, explain
+from server.routes import chat, health, generate, solve, progress, webhook, explain, ingest
 from server.ws.endpoint import ws_handler
 
 # Logging
@@ -129,6 +129,7 @@ app.include_router(solve.router, tags=["Solve"])
 app.include_router(progress.router, tags=["Progress"])
 app.include_router(webhook.router, tags=["Webhook"])
 app.include_router(explain.router, tags=["Explain"])
+app.include_router(ingest.router, tags=["Ingest"])
 
 
 # WebSocket endpoint

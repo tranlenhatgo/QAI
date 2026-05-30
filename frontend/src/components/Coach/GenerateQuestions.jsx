@@ -40,6 +40,7 @@ function QuestionCard({ question, index }) {
 
 export default function GenerateQuestions() {
 	const router = useRouter()
+	const [selectedDocument, setSelectedDocument] = useState('')
 	const {
 		user,
 		setDest,
@@ -55,7 +56,10 @@ export default function GenerateQuestions() {
 		generateQuestions,
 		setCreateQuestions,
 		coachTier,
+		documents,
 	} = useBoundStore(state => state)
+
+	const indexedDocuments = documents.filter(d => d.status === 'indexed')
 
 	async function handleSubmit(event) {
 		event.preventDefault()
@@ -64,7 +68,12 @@ export default function GenerateQuestions() {
 			document.getElementById('authDialog')?.showModal()
 			return
 		}
-		await generateQuestions(generateTopic, generateCount)
+		if (selectedDocument) {
+			const doc = documents.find(d => d.id === selectedDocument)
+			await generateQuestions(generateTopic, generateCount, doc?.name)
+		} else {
+			await generateQuestions(generateTopic, generateCount)
+		}
 	}
 
 	function openInCreate() {
@@ -115,6 +124,24 @@ export default function GenerateQuestions() {
 						placeholder="e.g. Photosynthesis, World War II, Algebra basics"
 					/>
 				</label>
+
+				{indexedDocuments.length > 0 && (
+					<label className={`grid gap-2 ${coachTier !== 'full' ? 'pointer-events-none opacity-50' : ''}`}>
+						<span className="text-sm font-semibold text-slate-700">Source document <span className="font-normal text-slate-400">(optional — generate from uploaded material)</span></span>
+						{coachTier !== 'full' && <span className="text-xs text-amber-600">Available in Full mode only</span>}
+						<select
+							value={coachTier === 'full' ? selectedDocument : ''}
+							onChange={event => setSelectedDocument(event.target.value)}
+							disabled={coachTier !== 'full'}
+							className="rounded-md border border-gray-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:cursor-not-allowed"
+						>
+							<option value="">Topic-based (no document)</option>
+							{indexedDocuments.map(doc => (
+								<option key={doc.id} value={doc.id}>{doc.name}</option>
+							))}
+						</select>
+					</label>
+				)}
 
 				<label className="grid gap-2">
 					<span className="flex items-center justify-between text-sm font-semibold text-slate-700">

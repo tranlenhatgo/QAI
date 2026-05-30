@@ -132,3 +132,37 @@ CoachDashboard → ProgressOverview.jsx → useCoach.fetchProgress()
 
 **Actors**: Coach Dashboard → Progress components → AI Study Coach → Firestore
 **Result**: User sees score trend, mastery levels, and identified weaknesses
+
+---
+
+## Document Management Flow (RAG)
+
+```text
+Upload:
+  StudyMaterials.jsx → useCoach.uploadStudyMaterial(file)
+    → saves metadata to Firestore (users/{uid}/documents/{docId}, status: 'processing')
+    → POST /api/quiz/upload (generates questions from file)
+    → updates Firestore (status: 'indexed', questions[])
+    → POST /api/coach/ingest (Full tier only, non-blocking RAG indexing)
+    → updates Firestore (ragStatus: 'indexed', ragDocumentId, ragChunks)
+
+Load:
+  _app.js → onIdTokenChanged → loadUserDocuments()
+    → getDocs(users/{uid}/documents) ordered by uploadedAt desc
+    → set({ documents }) in store
+
+Delete:
+  StudyMaterials.jsx → useCoach.removeDocument(documentId)
+    → remove from store
+    → deleteDoc from Firestore
+    → DELETE /api/coach/documents/{userId}/{ragDocumentId} (removes Supabase chunks)
+
+Generate from document:
+  GenerateQuestions.jsx → select source document → handleSubmit()
+    → generateQuestions(topic, count, doc.name)
+    → POST /api/coach/generate-questions { documentName, topics, count }
+    → AI Coach: RAG search (user's Supabase chunks) → LLM generates questions from content
+```
+
+**Actors**: Coach Dashboard → Firestore (metadata) + Supabase pgvector (RAG chunks) + AI Coach
+**Result**: User uploads documents, they persist across sessions, and can be used for RAG search or question generation

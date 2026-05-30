@@ -1,5 +1,7 @@
 import categoriesJSON from '@/assets/categories.json'
 import getQuizByUserId from '@/helpers/quiz/getQuizByUserId'
+import { db } from '@/helpers/auth/firebase'
+import { collection, doc, setDoc, deleteDoc, getDocs, query, orderBy } from 'firebase/firestore'
 
 const DEFAULT_GENERATE_COUNT = 5
 const MAX_GENERATE_COUNT = 20
@@ -137,6 +139,56 @@ function normalizeQuestions(questions, topic) {
 	}))
 }
 
+function loadDocuments() {
+	// Initial load returns empty — real load happens via loadDocumentsFromFirestore
+	return []
+}
+
+function saveDocuments() {
+	// No-op: documents are now saved individually to Firestore
+}
+
+async function saveDocumentToFirestore(userId, document) {
+	if (!userId || !document?.id) return
+	try {
+		const docRef = doc(db, 'users', userId, 'documents', document.id)
+		await setDoc(docRef, {
+			name: document.name || '',
+			status: document.status || 'processing',
+			ragStatus: document.ragStatus || null,
+			ragError: document.ragError || null,
+			ragDocumentId: document.ragDocumentId || null,
+			uploadedAt: document.uploadedAt || new Date().toISOString(),
+			questions: document.questions || [],
+			ragChunks: document.ragChunks || 0,
+		}, { merge: true })
+	} catch (e) {
+		console.error('[useCoach] Failed to save document to Firestore:', e)
+	}
+}
+
+async function deleteDocumentFromFirestore(userId, documentId) {
+	if (!userId || !documentId) return
+	try {
+		const docRef = doc(db, 'users', userId, 'documents', documentId)
+		await deleteDoc(docRef)
+	} catch (e) {
+		console.error('[useCoach] Failed to delete document from Firestore:', e)
+	}
+}
+
+async function loadDocumentsFromFirestore(userId) {
+	if (!userId) return []
+	try {
+		const q = query(collection(db, 'users', userId, 'documents'), orderBy('uploadedAt', 'desc'))
+		const snapshot = await getDocs(q)
+		return snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+	} catch (e) {
+		console.error('[useCoach] Failed to load documents from Firestore:', e)
+		return []
+	}
+}
+
 export const useCoachStore = (set, get) => ({
 	activeCoachFeature: 'overview',
 	coachTier: process.env.NEXT_PUBLIC_STUDY_COACH_TIER === 'full' ? 'full' : 'lite',
@@ -162,7 +214,7 @@ export const useCoachStore = (set, get) => ({
 	isLoadingProfile: false,
 	coachProgressError: null,
 
-	documents: [],
+	documents: loadDocuments(),
 	isUploading: false,
 	uploadError: null,
 
@@ -235,11 +287,11 @@ export const useCoachStore = (set, get) => ({
 		}
 	},
 
-	generateQuestions: async (topic, count) => {
+	generateQuestions: async (topic, count, documentName) => {
 		const normalizedTopic = String(topic || get().generateTopic || '').trim()
 		const normalizedCount = clampCount(count ?? get().generateCount)
 		const title = (get().generateTitle || '').trim()
-		if (!normalizedTopic) {
+		if (!normalizedTopic && !documentName) {
 			set({ generateError: 'Topic is required' })
 			return []
 		}
@@ -254,7 +306,7 @@ export const useCoachStore = (set, get) => ({
 			const response = await fetch('/api/coach/generate-questions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ topics: [normalizedTopic], count: normalizedCount, tier: get().coachTier, title: title || undefined }),
+				body: JSON.stringify({ topics: [normalizedTopic || 'General'], count: normalizedCount, tier: get().coachTier, title: title || documentName || undefined, documentName: documentName || undefined }),
 			})
 			const data = await readJsonResponse(response, 'Failed to generate questions')
 			const questions = normalizeQuestions(data.questions, normalizedTopic)
@@ -315,15 +367,17 @@ export const useCoachStore = (set, get) => ({
 		if (!file) return null
 		const documentId = createId('document')
 		const uploadedAt = new Date().toISOString()
+		const user = get().user
 
+		const newDoc = { id: documentId, name: file.name, status: 'processing', uploadedAt, questions: [] }
 		set(state => ({
 			isUploading: true,
 			uploadError: null,
-			documents: [
-				{ id: documentId, name: file.name, status: 'processing', uploadedAt, questions: [] },
-				...state.documents,
-			],
+			documents: [newDoc, ...state.documents],
 		}))
+
+		// Save initial doc to Firestore
+		if (user?.uid) saveDocumentToFirestore(user.uid, newDoc)
 
 		try {
 			const formData = new FormData()
@@ -339,29 +393,80 @@ export const useCoachStore = (set, get) => ({
 			const data = await readJsonResponse(response, 'Failed to upload study material')
 			const questions = normalizeQuestions(data.questions, file.name)
 
+			const updatedDoc = { ...newDoc, status: 'indexed', questions }
 			set(state => ({
 				generatedQuestions: questions,
-				documents: state.documents.map(document => document.id === documentId
-					? { ...document, status: 'indexed', questions }
-					: document),
+				documents: state.documents.map(d => d.id === documentId ? updatedDoc : d),
 			}))
+			if (user?.uid) saveDocumentToFirestore(user.uid, updatedDoc)
+
+			// RAG indexing (Full tier only, non-blocking)
+			if (get().coachTier === 'full' && user?.uid) {
+				const ingestForm = new FormData()
+				ingestForm.append('file', file, file.name)
+				ingestForm.append('user_id', user.uid)
+				fetch('/api/coach/ingest', { method: 'POST', body: ingestForm })
+					.then(async r => {
+						if (!r.ok) {
+							const errData = await r.json().catch(() => ({}))
+							throw new Error(errData.detail || errData.message || 'RAG indexing failed')
+						}
+						return r.json()
+					})
+					.then(result => {
+						const ragDoc = { ...updatedDoc, ragStatus: 'indexed', ragChunks: result.chunks_indexed, ragDocumentId: result.document_id }
+						set(state => ({
+							documents: state.documents.map(d => d.id === documentId ? ragDoc : d),
+						}))
+						saveDocumentToFirestore(user.uid, ragDoc)
+					})
+					.catch(err => {
+						const failedDoc = { ...updatedDoc, ragStatus: 'failed', ragError: err.message }
+						set(state => ({
+							documents: state.documents.map(d => d.id === documentId ? failedDoc : d),
+						}))
+						saveDocumentToFirestore(user.uid, failedDoc)
+					})
+			}
+
 			return data
 		} catch (error) {
+			const failedDoc = { ...newDoc, status: 'failed' }
 			set(state => ({
 				uploadError: error.message,
-				documents: state.documents.map(document => document.id === documentId
-					? { ...document, status: 'failed' }
-					: document),
+				documents: state.documents.map(d => d.id === documentId ? failedDoc : d),
 			}))
+			if (user?.uid) saveDocumentToFirestore(user.uid, failedDoc)
 			return null
 		} finally {
 			set({ isUploading: false })
 		}
 	},
 
-	removeDocument: (documentId) => set(state => ({
-		documents: state.documents.filter(document => document.id !== documentId),
-	})),
+	removeDocument: async (documentId) => {
+		const user = get().user
+		const docToRemove = get().documents.find(d => d.id === documentId)
+		set(state => ({
+			documents: state.documents.filter(d => d.id !== documentId),
+		}))
+
+		// Delete from Firestore
+		if (user?.uid) {
+			deleteDocumentFromFirestore(user.uid, documentId)
+			// Delete RAG chunks from Supabase (via AI coach) using the backend document_id
+			const ragId = docToRemove?.ragDocumentId
+			if (ragId) {
+				fetch(`/api/coach/documents/${user.uid}/${ragId}`, { method: 'DELETE' }).catch(() => {})
+			}
+		}
+	},
+
+	loadUserDocuments: async () => {
+		const user = get().user
+		if (!user?.uid) return
+		const documents = await loadDocumentsFromFirestore(user.uid)
+		set({ documents })
+	},
 
 	// ─── Progress & Spaced Repetition Actions ────────────────────────────────
 

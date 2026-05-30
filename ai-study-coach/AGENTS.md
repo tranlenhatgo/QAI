@@ -34,7 +34,7 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/config.py` — All settings via `pydantic-settings`; env vars prefixed `COACH_`; loaded from `.env`
 - `server/agent/coach.py` — **Main orchestrator**: `handle_chat()` (non-agentic) and `handle_chat_agentic()` (tool-use loop)
 - `server/agent/prompts.py` — System prompts (`SYSTEM_PROMPT` + `AGENTIC_SYSTEM_PROMPT`) and context builder
-- `server/agent/tools.py` — Tool definitions registry (8 tools in OpenAI function-calling format)
+- `server/agent/tools.py` — Tool definitions registry (9 tools in OpenAI function-calling format)
 - `server/agent/tool_executor.py` — Executes tool calls; returns result text (for LLM) + `AgentAction` (for frontend)
 - `server/llm/external.py` — LLM client (LM Studio / DeepSeek via OpenAI-compatible API)
 - `server/llm/deepseek.py` — DeepSeekProvider for Full tier (streaming + function calling)
@@ -46,13 +46,16 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/scheduler/scheduler.py` — APScheduler: hourly due-review check + daily progress snapshot
 - `server/models/schemas.py` — All Pydantic v2 models (chat, quiz API responses, analysis, agent actions, webhook, notifications)
 - `server/routes/chat.py` — compatibility `POST /chat` and `POST /chat/agentic` endpoints
-- `server/routes/generate.py` — `POST /generate/from-topics`, `/generate/from-file`, `/generate/get-question` — AI question generation
+- `server/routes/generate.py` — `POST /generate/from-topics` (with optional `document_name` for RAG-based generation), `/generate/from-file`, `/generate/get-question` — AI question generation
 - `server/routes/solve.py` — `POST /solve` — Step-by-step problem solving (structured 3-phase pipeline)
 - `server/routes/progress.py` — `GET /progress/{user_id}` — Progress metrics + due reviews
 - `server/routes/webhook.py` — `POST /webhook/quiz-completed` — Receives quiz completion, updates SR schedule
 - `server/routes/explain.py` — `POST /explain-answer` — AI explanation of quiz answers (streams via DeepSeek, Lite fallback)
+- `server/routes/ingest.py` — `POST /ingest`, `GET /ingest/{user_id}`, `DELETE /ingest/{user_id}/{document_id}` — RAG document ingestion pipeline (text extraction with PyMuPDF, image-PDF detection, null-byte sanitization)
 - `server/routes/health.py` — `GET /health` with LLM status
 - `server/tools/web_search.py` — `WebSearchTool` — DuckDuckGo web search via `ddgs` library (no API key required)
+- `server/services/supabase_client.py` — Supabase pgvector client: `store_document()`, `search_documents()` (embeddings + cosine similarity)
+- `server/services/embeddings.py` — `get_embedding()` via LM Studio (nomic-embed-text-v1.5, 768 dims)
 
 ## Running the Server
 
@@ -108,6 +111,7 @@ Integration tests require LM Studio running with a model loaded.
 | `show_weakness_report` | Display weakness analysis in chat | Render inline report |
 | `search_quizzes` | Find quizzes by category from user profile | Filter + display quiz list |
 | `web_search` | Search the web via DuckDuckGo (ddgs library) | None (result fed back to LLM) |
+| `search_study_materials` | Search user's uploaded documents via RAG (Supabase pgvector) | None (result fed back to LLM) |
 
 ## REST Endpoints
 
@@ -116,13 +120,16 @@ Integration tests require LM Studio running with a model loaded.
 | `/health` | GET | Public | Health check + LLM status |
 | `/ws` | WebSocket | `api_key` query | Streaming chat (session_start, user_message, mode_switch) |
 | `/chat/{mode}` | POST | X-API-Key | Compatibility chat (mode: chat/agentic) |
-| `/generate/from-topics` | POST | X-API-Key | Generate questions from topic list |
+| `/generate/from-topics` | POST | X-API-Key | Generate questions from topic list (optional `document_name` + `user_id` for RAG-based generation) |
 | `/generate/from-file` | POST | X-API-Key | Generate questions from uploaded file |
 | `/generate/get-question` | POST | X-API-Key | Generate single question |
 | `/solve` | POST | X-API-Key | Step-by-step problem solving |
 | `/progress/{user_id}` | GET | X-API-Key | Progress metrics + due reviews |
 | `/webhook/quiz-completed` | POST | X-API-Key | Quiz completion webhook (from Spring Boot) |
 | `/explain-answer` | POST | X-API-Key | AI explanation of a quiz answer (2-4 sentences) |
+| `/ingest` | POST | X-API-Key | Upload + index document for RAG (multipart: file + user_id) |
+| `/ingest/{user_id}` | GET | X-API-Key | List indexed documents for a user |
+| `/ingest/{user_id}/{document_id}` | DELETE | X-API-Key | Delete all chunks for a document |
 
 ## Learning Modules (server/learning/)
 
@@ -144,3 +151,4 @@ Uses APScheduler `AsyncIOScheduler`, started during FastAPI lifespan:
 ## Planned/Incomplete
 
 - Full automated test coverage (test strategy defined in SDD 12, not all automated)
+- RAG: scanned/image PDF OCR not supported — server returns clear error message for image-only PDFs (< 70% printable characters). Only text-based PDFs (exported from Word, Google Docs, etc.) are supported.

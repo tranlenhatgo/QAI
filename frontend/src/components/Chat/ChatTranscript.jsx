@@ -29,6 +29,16 @@ export function renderMarkdown(text) {
 }
 
 export function ChatMessageBubble({ role, content }) {
+	if (role === 'action') {
+		return (
+			<div className="flex justify-start">
+				<div className="rounded-full border border-white/20 bg-blue-800/50 px-3 py-1 text-xs font-medium text-slate-300">
+					{content}
+				</div>
+			</div>
+		)
+	}
+
 	const bubbleClassName = role === 'user'
 		? 'rounded-br-md bg-gradient-to-r bg-sky-500 text-white'
 		: role === 'error'

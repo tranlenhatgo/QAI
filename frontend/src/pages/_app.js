@@ -13,7 +13,7 @@ import StudyCoachWidget from '@/components/Chat/StudyCoachWidget';
 const rubik = Rubik({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
-	const { user, setUser, setAuthReady, setChatConfig, hydrateChat } = useBoundStore(state => state);
+	const { user, setUser, setAuthReady, setChatConfig, hydrateChat, loadUserDocuments } = useBoundStore(state => state);
 	const studyCoachHiddenPaths = ['/', '/chat', '/play', '/coach'];
 	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	
@@ -30,6 +30,7 @@ export default function App({ Component, pageProps }) {
 						},
 						body: JSON.stringify({ token }),
 					})
+					loadUserDocuments()
 				} else {
 					await fetch('/api/auth/clear-token', { method: 'POST' })
 				}
@@ -41,7 +42,7 @@ export default function App({ Component, pageProps }) {
 		});
 
 		return () => unsubscribe();
-	}, [setUser, setAuthReady]);
+	}, [setUser, setAuthReady, loadUserDocuments]);
 
 	useEffect(() => {
 		setChatConfig({
