@@ -1,4 +1,5 @@
 import withAuth from '@/lib/withAuth'
+import { resolveCoachTierForRequest } from '@/lib/coachSubscription'
 
 const COACH_URL = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
 const TIMEOUT_MS = Number(process.env.STUDY_COACH_TIMEOUT_MS || 180000)
@@ -17,6 +18,7 @@ async function handler(req, res) {
 	const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
 	try {
+		const tier = await resolveCoachTierForRequest(req, req.body?.tier || null)
 		const headers = { 'Content-Type': 'application/json' }
 		const apiKey = process.env.COACH_API_KEY || process.env.STUDY_COACH_API_KEY
 		if (apiKey) headers['X-API-Key'] = apiKey
@@ -27,7 +29,7 @@ async function handler(req, res) {
 			body: JSON.stringify({
 				problem,
 				user_id: req.userId,
-				tier: req.body?.tier || null,
+				tier,
 			}),
 			signal: controller.signal,
 		})

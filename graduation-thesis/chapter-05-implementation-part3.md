@@ -475,6 +475,10 @@ async def verify_api_key(request: Request):
         raise HTTPException(status_code=401, detail="Invalid API key")
 ```
 
+### 5.27.2 Subscription Entitlement Boundary
+
+The AI Coach does not perform Firebase subscription checks directly. Lite/Full entitlement is resolved by the Next.js BFF and Spring Boot before requests are forwarded. Unauthorized Full requests are coerced to Lite, and Full-only document ingestion is blocked at the BFF layer. The FastAPI service therefore treats the incoming `tier` field only as model-routing input for LM Studio (Lite) or DeepSeek (Full).
+
 ### 5.27.2 CORS Configuration
 
 ```python

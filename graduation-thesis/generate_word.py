@@ -1,6 +1,7 @@
 """
 Generate a Word document from all thesis markdown files.
 Preserves formatting: headings, bold, italic, code blocks, tables, lists.
+Replaces ASCII diagrams with rendered Mermaid PNG images.
 """
 
 import re
@@ -32,6 +33,54 @@ THESIS_FILES = [
 ]
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DIAGRAMS_DIR = os.path.join(SCRIPT_DIR, "diagrams")
+
+# Map diagram headings/contexts to their PNG images
+# When we encounter a code block with ASCII art (lines with box-drawing chars),
+# we check if there's a matching diagram image to use instead.
+DIAGRAM_IMAGES = {
+    "A.1 High-Level Architecture": "01-high-level-architecture.png",
+    "A.2 WebSocket Communication Sequence": "02-websocket-sequence.png",
+    "A.3 Quiz Completion Webhook Flow": "03-webhook-flow.png",
+    "A.4 RAG Pipeline Flow": "04-rag-pipeline.png",
+    "A.5 Spaced Repetition State Machine": "05-sm2-state-machine.png",
+    "4.1 Architectural Overview": "06-system-overview.png",
+}
+
+# Additional diagrams to insert AFTER specific headings (where no ASCII art exists)
+# These are new diagrams added to enrich the thesis
+INSERT_AFTER_HEADING = {
+    "3.4 Use Cases": "07-use-case.png",
+    "3.5 System Context Diagram": "08-c4-context.png",
+    "4.2 Service Responsibilities": "09-c4-container.png",
+    "4.6 Deployment Architecture": "10-deployment.png",
+    "4.5 Security Architecture": "11-auth-sequence.png",
+    "4.8 Database Design": "12-er-diagram.png",
+    "4.11 AI Coach Architecture": "13-ai-coach-component.png",
+    "4.12 RAG Pipeline Design": "14-ingestion-activity.png",
+    "4.13 Spaced Repetition Algorithm": "16-sm2-activity.png",
+    "4.15 Question Generation Design": "19-question-generation-flow.png",
+    "5.2 Project Structure": "18-spring-component.png",
+    "5.5 Webhook Integration": "17-quiz-gameplay-sequence.png",
+    "5.13 BFF API Routes": "11-auth-sequence.png",
+    "5.22 Document Ingestion Pipeline": "14-ingestion-activity.png",
+}
+
+
+def insert_diagram_after_heading(doc, heading_text):
+    """Check if a diagram should be inserted after this heading."""
+    for key, filename in INSERT_AFTER_HEADING.items():
+        if key in heading_text:
+            img_path = os.path.join(DIAGRAMS_DIR, filename)
+            if os.path.exists(img_path):
+                # Add a small caption
+                cap = doc.add_paragraph()
+                cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                run = cap.add_run()
+                run.add_picture(img_path, width=Inches(5.8))
+                doc.add_paragraph()  # spacing
+                return True
+    return False
 
 
 def set_cell_shading(cell, color):
@@ -40,6 +89,25 @@ def set_cell_shading(cell, color):
     shading_elm.set(qn('w:fill'), color)
     shading_elm.set(qn('w:val'), 'clear')
     cell._tc.get_or_add_tcPr().append(shading_elm)
+
+
+def is_ascii_diagram(text):
+    """Detect if a code block is an ASCII art diagram (box-drawing characters)."""
+    box_chars = set('┌┐└┘├┤┬┴┼─│▼▲►◄▽△▷◁═║╔╗╚╝╠╣╦╩╬┃━┏┓┗┛┣┫┳┻╋')
+    line_count = text.count('\n')
+    box_count = sum(1 for c in text if c in box_chars)
+    # If more than 20 box-drawing chars and at least 5 lines, it's likely a diagram
+    return box_count > 20 and line_count >= 5
+
+
+def get_diagram_image_for_heading(heading_text):
+    """Find a matching diagram image for the current section heading."""
+    for key, filename in DIAGRAM_IMAGES.items():
+        if key in heading_text:
+            img_path = os.path.join(DIAGRAMS_DIR, filename)
+            if os.path.exists(img_path):
+                return img_path
+    return None
 
 
 def add_code_paragraph(doc, text):
@@ -160,6 +228,7 @@ def process_markdown_file(doc, filepath):
     i = 0
     in_code_block = False
     code_lines = []
+    current_heading = ""  # Track current heading for diagram matching
     
     while i < len(lines):
         line = lines[i]
@@ -170,7 +239,21 @@ def process_markdown_file(doc, filepath):
                 # End code block - write collected code
                 code_text = '\n'.join(code_lines)
                 if code_text.strip():
-                    add_code_paragraph(doc, code_text)
+                    # Check if this is an ASCII diagram that should be an image
+                    if is_ascii_diagram(code_text):
+                        img_path = get_diagram_image_for_heading(current_heading)
+                        if img_path:
+                            # Insert diagram image instead of ASCII art
+                            para = doc.add_paragraph()
+                            para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            run = para.add_run()
+                            run.add_picture(img_path, width=Inches(5.5))
+                            doc.add_paragraph()  # spacing
+                        else:
+                            # No matching image, keep as code
+                            add_code_paragraph(doc, code_text)
+                    else:
+                        add_code_paragraph(doc, code_text)
                 code_lines = []
                 in_code_block = False
             else:
@@ -189,18 +272,24 @@ def process_markdown_file(doc, filepath):
             i += 1
             continue
         
-        # Headings
+        # Headings - track current heading for diagram matching
         if line.startswith('# '):
-            heading = doc.add_heading(line[2:].strip(), level=1)
+            current_heading = line[2:].strip()
+            heading = doc.add_heading(current_heading, level=1)
             heading.runs[0].font.size = Pt(18)
+            insert_diagram_after_heading(doc, current_heading)
             i += 1
             continue
         elif line.startswith('## '):
-            doc.add_heading(line[3:].strip(), level=2)
+            current_heading = line[3:].strip()
+            doc.add_heading(current_heading, level=2)
+            insert_diagram_after_heading(doc, current_heading)
             i += 1
             continue
         elif line.startswith('### '):
-            doc.add_heading(line[4:].strip(), level=3)
+            current_heading = line[4:].strip()
+            doc.add_heading(current_heading, level=3)
+            insert_diagram_after_heading(doc, current_heading)
             i += 1
             continue
         elif line.startswith('#### '):

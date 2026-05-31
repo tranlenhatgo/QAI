@@ -213,6 +213,7 @@ test('parseScore returns null for invalid', () => {
 | FR-06: Document Management | ✓ Complete | Upload → index → search flow |
 | FR-07: Step-by-Step Solver | ✓ Complete | LLM output format verified |
 | FR-08: Authentication | ✓ Complete | Firebase Auth integration |
+| FR-09: Subscription Gate | Complete | Browser + API mock checkout tests |
 
 ### 6.5.2 Non-Functional Requirements Verification
 
@@ -241,11 +242,15 @@ Note: These are approximate assessments based on manual inspection during develo
 
 The Full tier (DeepSeek) was observed to produce noticeably higher quality output than Lite tier (local models) in terms of factual accuracy and distractor plausibility.
 
-### 6.5.4 Spaced Repetition Effectiveness
+### 6.5.4 Subscription and Payment Flow
+
+The subscription flow was verified with both API calls and Playwright browser checks. A locked Lite user remains in Lite when requesting Full, the subscription modal opens, and the `View plans` action navigates to `/payment`. Selecting monthly, yearly, or forever performs a mock checkout through the Next.js BFF and Spring Boot before Firestore is updated. After checkout, Full mode is enabled immediately, while expired monthly/yearly plans are treated as Lite by backend entitlement reads and coach API forwarding.
+
+### 6.5.5 Spaced Repetition Effectiveness
 
 The SM-2 algorithm's effectiveness is well-established in cognitive science literature (see Chapter 2). Our implementation follows the standard algorithm with minor interval adjustments (initial intervals of 1 and 3 days instead of 1 and 6). No controlled user study was conducted within the scope of this project; effectiveness claims are based on the underlying algorithm's published research results.
 
-### 6.5.5 RAG Retrieval Quality
+### 6.5.6 RAG Retrieval Quality
 
 Tested informally with uploaded documents and representative queries during development:
 

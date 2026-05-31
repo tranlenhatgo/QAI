@@ -40,6 +40,7 @@ Browser → Next.js (Pages Router, :3000)
 - **Categories**: **always lowercase** in API responses, Firestore fields, and AI Coach storage.
 - **API error shape**: `{ message, statusCode }` from Spring Boot, consumed by both frontend and coach
 - **Auth**: Firebase client-side (frontend) + FirebaseAdmin server-side (Spring Boot); coach uses `X-API-Key`
+- **Subscription**: New users get Lite at `users/{uid}/subscription/current`; mock payment upgrades go through Spring Boot `/subscription/*` first, then Spring writes Firestore. Missing subscription docs are legacy Full access.
 - **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints (DeepSeek LLM)
 - **Spaced Repetition**: SM-2 algorithm in AI Coach, schedule persisted to Firestore `review_schedule` via Spring Boot
 - **Notifications**: Created by AI Coach scheduler, stored in Firestore `notification` via Spring Boot
@@ -74,6 +75,7 @@ Browser → Next.js (Pages Router, :3000)
 - ✅ Explain Answer (AI explains correct answer in GameOver lightbulb menu)
 - ✅ Tier Selector (Lite/Full toggle on home page)
 - ✅ Chat widget vertical resize + stop streaming
+- ✅ Mock subscription payment page (monthly/yearly/forever) with backend-owned Firestore subscription updates
 
 ## What's Incomplete
 

@@ -29,11 +29,11 @@ const TIERS = [
 
 export default function TierSelector() {
 	const [open, setOpen] = useState(false)
-	const { coachTier, setCoachTier } = useBoundStore(state => state)
+	const { coachTier, requestCoachTier } = useBoundStore(state => state)
 	const currentTier = TIERS.find(t => t.id === coachTier) || TIERS[0]
 
-	function handleSelect(tier) {
-		setCoachTier(tier.id)
+	async function handleSelect(tier) {
+		await requestCoachTier(tier.id)
 		setOpen(false)
 	}
 

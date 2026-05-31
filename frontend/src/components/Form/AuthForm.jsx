@@ -27,7 +27,7 @@ export default function AuthForm() {
 	const router = useRouter();
 
 	// Whitelist of valid post-auth redirect destinations to prevent open redirects
-	const ALLOWED_DESTS = ['profile', 'create', 'play', 'chat'];
+	const ALLOWED_DESTS = ['profile', 'create', 'play', 'chat', 'coach'];
 
 	// State for expanding/collapsing the sign-up section
 	const [isSignUpExpanded, setIsSignUpExpanded] = useState(false);
@@ -57,6 +57,9 @@ export default function AuthForm() {
 
 			setIsSignUpExpanded(false);
 			closeDialog();
+			if (dest === 'coach') {
+				router.push('/coach');
+			}
 			setDest(null);
 			return;
 		}

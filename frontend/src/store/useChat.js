@@ -5,7 +5,7 @@ const DEFAULT_SERVER_URL = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http:
 const DEFAULT_HIDDEN_PATHS = ['/chat']
 const DEFAULT_CHAT_MODE = 'simple'
 const DEFAULT_CHAT_TRANSPORT = 'websocket'
-const DEFAULT_COACH_TIER = process.env.NEXT_PUBLIC_STUDY_COACH_TIER === 'full' ? 'full' : 'lite'
+const DEFAULT_COACH_TIER = 'lite'
 const PUBLIC_STUDY_COACH_API_KEY = process.env.NEXT_PUBLIC_STUDY_COACH_API_KEY || process.env.NEXT_PUBLIC_COACH_API_KEY || ''
 
 let chatSocket = null
@@ -170,6 +170,7 @@ async function fallbackRequest(payload, chatMode, signal) {
 		body: JSON.stringify({
 			message: payload.message,
 			history: payload.history,
+			tier: payload.tier,
 			chatMode,
 		}),
 		signal,
@@ -646,6 +647,7 @@ export const useChatStore = (set, get) => ({
 			user_id: state.chatConfig.userId || 'anonymous',
 			message: trimmed,
 			history,
+			tier: normalizeTier(state.chatConfig.tier),
 		}
 		const transport = state.chatConfig.transport || DEFAULT_CHAT_TRANSPORT
 

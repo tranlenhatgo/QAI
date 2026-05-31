@@ -191,7 +191,11 @@ async function loadDocumentsFromFirestore(userId) {
 
 export const useCoachStore = (set, get) => ({
 	activeCoachFeature: 'overview',
-	coachTier: process.env.NEXT_PUBLIC_STUDY_COACH_TIER === 'full' ? 'full' : 'lite',
+	coachTier: 'lite',
+	subscription: null,
+	subscriptionReady: false,
+	canUseFull: false,
+	subscriptionModalOpen: false,
 
 	generatedQuestions: [],
 	isGenerating: false,
@@ -235,8 +239,122 @@ export const useCoachStore = (set, get) => ({
 	setActiveCoachFeature: (activeCoachFeature) => set({ activeCoachFeature }),
 	setCoachTier: (coachTier) => {
 		const tier = coachTier === 'lite' ? 'lite' : 'full'
+		if (tier === 'full' && !get().canUseFull) {
+			set({ coachTier: 'lite' })
+			get().setChatConfig({ tier: 'lite' })
+			return
+		}
 		set({ coachTier: tier })
 		get().setChatConfig({ tier })
+	},
+	requestCoachTier: async (coachTier) => {
+		const tier = coachTier === 'lite' ? 'lite' : 'full'
+		if (tier === 'lite') {
+			get().setCoachTier('lite')
+			return true
+		}
+
+		if (!get().subscriptionReady && get().user?.uid) {
+			await get().loadSubscriptionForUser(get().user.uid)
+		}
+
+		if (!get().canUseFull) {
+			set({ subscriptionModalOpen: true, coachTier: 'lite' })
+			get().setChatConfig({ tier: 'lite' })
+			return false
+		}
+
+		get().setCoachTier('full')
+		return true
+	},
+	closeSubscriptionModal: () => set({ subscriptionModalOpen: false }),
+	resetSubscription: () => {
+		set({
+			subscription: null,
+			subscriptionReady: false,
+			canUseFull: false,
+			subscriptionModalOpen: false,
+			coachTier: 'lite',
+		})
+		get().setChatConfig({ tier: 'lite' })
+	},
+	loadSubscriptionForUser: async (userId) => {
+		if (!userId) {
+			get().resetSubscription()
+			return null
+		}
+
+		const previousTier = get().coachTier === 'full' ? 'full' : 'lite'
+		set({
+			subscription: null,
+			subscriptionReady: false,
+			canUseFull: false,
+			coachTier: 'lite',
+		})
+		get().setChatConfig({ tier: 'lite' })
+
+		try {
+			const response = await fetch('/api/subscription/current')
+			const subscription = await readJsonResponse(response, 'Failed to load subscription')
+			const canUseFull = !!subscription.fullAccess
+			const nextTier = canUseFull && previousTier === 'full' ? 'full' : 'lite'
+			set({
+				subscription,
+				subscriptionReady: true,
+				canUseFull,
+				coachTier: nextTier,
+			})
+			get().setChatConfig({ tier: nextTier })
+			return subscription
+		} catch (error) {
+			console.error('[useCoach] Failed to load subscription:', error)
+			set({
+				subscription: {
+					plan: 'lite',
+					fullAccess: false,
+					subscriptionStatus: 'unavailable',
+					source: 'load_error',
+				},
+				subscriptionReady: true,
+				canUseFull: false,
+				coachTier: 'lite',
+			})
+			get().setChatConfig({ tier: 'lite' })
+			return null
+		}
+	},
+	createLiteSubscriptionForNewUser: async (userId) => {
+		if (!userId) return null
+
+		const response = await fetch('/api/subscription/signup', { method: 'POST' })
+		const subscription = await readJsonResponse(response, 'Failed to create subscription')
+
+		set({
+			subscription,
+			subscriptionReady: true,
+			canUseFull: !!subscription.fullAccess,
+			coachTier: subscription.fullAccess ? get().coachTier : 'lite',
+		})
+		if (!subscription.fullAccess) get().setChatConfig({ tier: 'lite' })
+		return subscription
+	},
+	checkoutSubscription: async (plan) => {
+		const response = await fetch('/api/subscription/checkout', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ plan }),
+		})
+		const subscription = await readJsonResponse(response, 'Failed to update subscription')
+
+		set({
+			subscription,
+			subscriptionReady: true,
+			canUseFull: !!subscription.fullAccess,
+			coachTier: subscription.fullAccess ? 'full' : 'lite',
+			subscriptionModalOpen: false,
+		})
+		get().setChatConfig({ tier: subscription.fullAccess ? 'full' : 'lite' })
+		return subscription
 	},
 	setGenerateTopic: (generateTopic) => set({ generateTopic }),
 	setGenerateTitle: (generateTitle) => set({ generateTitle }),
@@ -287,7 +405,7 @@ export const useCoachStore = (set, get) => ({
 		}
 	},
 
-	generateQuestions: async (topic, count, documentName) => {
+	generateQuestions: async (topic, count, documentName, { append = true } = {}) => {
 		const normalizedTopic = String(topic || get().generateTopic || '').trim()
 		const normalizedCount = clampCount(count ?? get().generateCount)
 		const title = (get().generateTitle || '').trim()
@@ -310,7 +428,7 @@ export const useCoachStore = (set, get) => ({
 			})
 			const data = await readJsonResponse(response, 'Failed to generate questions')
 			const questions = normalizeQuestions(data.questions, normalizedTopic)
-			set({ generatedQuestions: questions })
+			set({ generatedQuestions: append ? [...get().generatedQuestions, ...questions] : questions })
 			return questions
 		} catch (error) {
 			set({ generateError: error.message })
@@ -322,7 +440,7 @@ export const useCoachStore = (set, get) => ({
 
 	practiceTopic: async (category) => {
 		set({ generateTopic: category, generateCount: DEFAULT_GENERATE_COUNT })
-		return get().generateQuestions(category, DEFAULT_GENERATE_COUNT)
+		return get().generateQuestions(category, DEFAULT_GENERATE_COUNT, undefined, { append: false })
 	},
 
 	solveProblem: async (problem) => {
@@ -517,7 +635,7 @@ export const useCoachStore = (set, get) => ({
 
 	startReview: (category) => {
 		set({ reviewQuizActive: category, activeCoachFeature: 'generate', generateTopic: category, generateCount: 5 })
-		get().generateQuestions(category, 5)
+		get().generateQuestions(category, 5, undefined, { append: false })
 	},
 
 	completeReview: async (category, score) => {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FiChevronDown, FiChevronUp, FiMessageSquare, FiTrash2 } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiMessageCircle, FiMessageSquare, FiTrash2, FiZap } from 'react-icons/fi'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import { useBoundStore } from '@/store/useBoundStore'
 
@@ -69,6 +69,38 @@ export default function EmbeddedChat() {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
+					<div className="flex items-center gap-2">
+						<button
+							type="button"
+							onClick={() => setChatMode('simple')}
+							disabled={isStreaming}
+							aria-pressed={chatMode === 'simple'}
+							className={`inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+								chatMode === 'simple'
+									? 'bg-blue-50 text-blue-700'
+									: 'text-slate-700 hover:bg-gray-50'
+							}`}
+							title="Chat mode"
+						>
+							<FiMessageCircle />
+							<span>Chat</span>
+						</button>
+						<button
+							type="button"
+							onClick={() => setChatMode('agentic')}
+							disabled={isStreaming}
+							aria-pressed={chatMode === 'agentic'}
+							className={`inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+								chatMode === 'agentic'
+									? 'bg-blue-50 text-blue-700'
+									: 'text-slate-700 hover:bg-gray-50'
+							}`}
+							title="Agentic mode"
+						>
+							<FiZap />
+							<span>Agentic</span>
+						</button>
+					</div>
 					<button
 						type="button"
 						onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
@@ -89,32 +121,33 @@ export default function EmbeddedChat() {
 			</div>
 
 			{!collapsed ? (
-				<div className="h-[32rem] min-h-0 bg-slate-900 px-4 py-4">
-					<p className={`mb-3 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-300/30 bg-indigo-500/10 text-indigo-300' : 'border-amber-300/30 bg-amber-500/10 text-amber-300'}`}>
+				<div className="flex h-[40rem] min-h-0 flex-col rounded-b-lg bg-slate-900 px-4 py-4">
+					<p className={`mb-3 shrink-0 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-300/30 bg-indigo-500/10 text-indigo-300' : 'border-amber-300/30 bg-amber-500/10 text-amber-300'}`}>
 						<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Smart coach with full capabilities: analyzes your quiz history, gives personalized recommendations, performs deep reasoning, searches the web, and references your study materials.' : 'Basic coach with limited capabilities: can review your quiz history and give recommendations.'}
 					</p>
-					<ChatTranscript
-						messages={messages}
-						streamingText={streamingText}
-						draft={draft}
-						setDraft={setDraft}
-						onSend={sendChatMessage}
-						onStop={stopStreaming}
-						isConnected={isConnected}
-						isStreaming={isStreaming}
-						chatMode={chatMode}
-						onChatModeChange={setChatMode}
-						canSendWithoutSocket={isWebhookMode}
-						messageListClassName="space-y-3"
-						composerClassName="mt-4"
-						placeholder="Message AI Study Coach..."
-						compact={true}
-						emptyState={(
-							<div className="flex h-full min-h-[16rem] items-center justify-center rounded-md border border-dashed border-white/10 bg-white/5 px-4 text-center text-sm text-slate-400">
-								No messages yet.
-							</div>
-						)}
-					/>
+					<div className="min-h-0 flex-1">
+						<ChatTranscript
+							messages={messages}
+							streamingText={streamingText}
+							draft={draft}
+							setDraft={setDraft}
+							onSend={sendChatMessage}
+							onStop={stopStreaming}
+							isConnected={isConnected}
+							isStreaming={isStreaming}
+							chatMode={chatMode}
+							canSendWithoutSocket={isWebhookMode}
+							messageListClassName="space-y-3"
+							composerClassName="mt-3"
+							placeholder="Message AI Study Coach..."
+							compact={true}
+							emptyState={(
+								<div className="flex h-full min-h-[16rem] items-center justify-center rounded-md border border-dashed border-white/10 bg-white/5 px-4 text-center text-sm text-slate-400">
+									No messages yet. Ask me about your studies!
+								</div>
+							)}
+						/>
+					</div>
 				</div>
 			) : null}
 		</section>

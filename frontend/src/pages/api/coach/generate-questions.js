@@ -1,4 +1,5 @@
 import withAuth from '@/lib/withAuth'
+import { resolveCoachTierForRequest } from '@/lib/coachSubscription'
 
 const COACH_URL = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
 const MAX_COUNT = 20
@@ -32,6 +33,7 @@ async function handler(req, res) {
 	}
 
 	try {
+		const tier = await resolveCoachTierForRequest(req, req.body?.tier || null)
 		const headers = { 'Content-Type': 'application/json' }
 		const apiKey = process.env.COACH_API_KEY || process.env.STUDY_COACH_API_KEY
 		if (apiKey) headers['X-API-Key'] = apiKey
@@ -39,7 +41,7 @@ async function handler(req, res) {
 		const upstreamResponse = await fetch(`${COACH_URL.replace(/\/+$/, '')}/generate/from-topics`, {
 			method: 'POST',
 			headers,
-			body: JSON.stringify({ topics, count, tier: req.body?.tier || null, title: req.body?.title || null, document_name: req.body?.documentName || null, user_id: req.user?.uid || null }),
+			body: JSON.stringify({ topics, count, tier, title: req.body?.title || null, document_name: req.body?.documentName || null, user_id: req.userId || null }),
 		})
 
 		const data = await upstreamResponse.json().catch(() => ({}))

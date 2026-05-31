@@ -24,6 +24,7 @@
 | `UserController` | `/user` | Profile, quiz-profile aggregate |
 | `ReviewScheduleController` | `/review-schedule` | CRUD spaced repetition schedules |
 | `NotificationController` | `/notification` | Create/read/mark-read notifications |
+| `SubscriptionController` | `/subscription` | Firebase-token-protected Lite/Full subscription reads, signup creation, and mock checkout |
 
 ## Services
 
@@ -36,6 +37,7 @@
 | `UserService` | Firebase Auth | User profile management |
 | `ReviewScheduleService` | `review_schedule` | SM-2 schedule CRUD, due-review queries |
 | `NotificationService` | `notification` | Notification CRUD, unread queries |
+| `SubscriptionService` | `users/{uid}/subscription/current` | Subscription entitlement, mock checkout persistence, expiry enforcement |
 | `WebhookService` | — (outbound) | Fires `POST /webhook/quiz-completed` to AI Coach |
 
 ## Core data flows
@@ -60,6 +62,7 @@
 | `review_schedule` | 8-char UUID | user_id, category, easiness, interval_days, repetitions, next_review |
 | `notification` | 8-char UUID | user_id, type, title, message, read, created_at |
 | `users/{uid}/documents` | document-UUID | name, status, ragStatus, ragError, ragDocumentId, uploadedAt, questions[], ragChunks (managed by frontend directly via Firebase JS SDK) |
+| `users/{uid}/subscription/current` | `current` | plan, fullAccess, subscriptionStatus, source, priceUsd, startedAt, expiresAt, createdAt, updatedAt |
 
 ## Project-specific conventions (important)
 
@@ -71,6 +74,7 @@
 - Service methods often use `@SneakyThrows` and synchronous `.get()` on Firestore futures; keep async assumptions explicit if refactoring.
 - Score format is always `"correct/total"` string (e.g., "7/10").
 - AI Coach history reads `GET /take-quiz/player/{playerId}` and falls back to `GET /user/quiz-profile?userId=`.
+- Subscription endpoints must verify the Firebase ID token from `Authorization: Bearer <token>` and derive the user id from Firebase Admin. Do not accept a client-provided user id for subscription writes.
 
 ## Integrations and local setup constraints
 

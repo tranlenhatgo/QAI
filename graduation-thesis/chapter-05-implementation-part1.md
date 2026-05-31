@@ -228,7 +228,13 @@ A global exception handler converts exceptions to consistent error responses:
 | ValidationException | 400 | `{"message": "...", "code": "VALIDATION_ERROR"}` |
 | FirestoreException | 500 | `{"message": "Database error", "code": "INTERNAL"}` |
 
-## 5.9 Build and Deployment
+## 5.9 Subscription Entitlement
+
+Subscription ownership is implemented in Spring Boot so the browser cannot grant Full access by writing directly to Firestore. `SubscriptionController` exposes `GET /subscription/current`, `POST /subscription/signup`, and `POST /subscription/checkout`.
+
+Each endpoint requires `Authorization: Bearer <Firebase ID token>`. The controller verifies the token using the `FirebaseAuth` bean and passes the verified UID to `SubscriptionService`. The service persists the document at `users/{uid}/subscription/current`, preserves missing documents as legacy Full access, and downgrades expired monthly/yearly records by setting `subscriptionStatus = "expired"` and `fullAccess = false`.
+
+## 5.10 Build and Deployment
 
 The project builds as a fat JAR via Maven:
 

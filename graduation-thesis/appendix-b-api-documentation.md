@@ -54,8 +54,6 @@ Update a quiz by ID.
 
 **Response** `204 No Content`
 
----
-
 ### B.1.2 Question Endpoints
 
 #### POST /question
@@ -256,6 +254,37 @@ Mark all notifications as read for a user.
 Delete a notification.
 
 **Response** `204 No Content`
+
+---
+
+### B.1.6 Subscription Endpoints
+
+#### GET /subscription/current
+
+Return the authenticated user's subscription entitlement.
+
+**Headers**: `Authorization: Bearer <Firebase ID token>`
+
+Missing subscription documents return virtual legacy Full access and do not create a Firestore document.
+
+#### POST /subscription/signup
+
+Create the Lite subscription document for a new account if it does not already exist.
+
+**Headers**: `Authorization: Bearer <Firebase ID token>`
+
+#### POST /subscription/checkout
+
+Apply a mock Full subscription plan.
+
+**Headers**: `Authorization: Bearer <Firebase ID token>`
+
+**Request**:
+```json
+{ "plan": "monthly" }
+```
+
+Allowed plans are `monthly` (`$2`), `yearly` (`$20`), and `forever` (`$100`).
 
 ---
 

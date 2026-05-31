@@ -501,3 +501,22 @@ The frontend maps actions to router pushes, API calls, or UI state changes.
 - (+) Actions are auditable (logged as events)
 - (-) Frontend must implement handler for every action type
 - (-) Actions may fail silently if frontend handler is incomplete
+
+---
+
+### ADR-008: Backend-Owned Subscription Entitlement
+
+**Status:** Accepted
+**Date:** 2026-05
+
+**Context:**
+Full mode uses higher-cost cloud LLM and RAG features, so entitlement cannot be granted by client-side Firestore writes.
+
+**Decision:**
+Next.js presents the payment UI and authenticated BFF routes, but subscription writes go through Spring Boot. Spring Boot verifies the Firebase ID token, derives the UID, and writes `users/{uid}/subscription/current` via Firebase Admin. The AI Coach receives only the already-resolved `tier` value; unauthorized Full requests are coerced to Lite before reaching the coach.
+
+**Consequences:**
+- (+) Subscription state has a single trusted writer
+- (+) Existing users with no subscription document can retain legacy Full access
+- (+) Payment provider integration can replace mock checkout without changing AI Coach contracts
+- (-) Full entitlement depends on Spring Boot availability

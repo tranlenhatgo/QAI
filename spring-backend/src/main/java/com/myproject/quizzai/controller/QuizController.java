@@ -105,4 +105,25 @@ public class QuizController {
         List<QuizResponseDto> quizzes = quizService.getQuizzesByCategory(category);
         return ResponseEntity.ok(quizzes);
     }
+
+    // Delete quiz by ID (soft delete - sets status to DELETED)
+    // DELETE /quiz/{id}
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete quiz by ID (soft delete)")
+    public ResponseEntity<Void> deleteQuiz(@PathVariable String id) {
+        logger.info("deleteQuiz() method called with ID: {}", id);
+
+        quizService.deleteQuizById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    // POST /quiz/delete/{id}
+    @PostMapping("/delete/{id}")
+    @Operation(summary = "Delete quiz by ID (soft delete)")
+    public ResponseEntity<Void> deleteQuizPost(@PathVariable String id) {
+        logger.info("deleteQuizPost() method called with ID: {}", id);
+
+        quizService.deleteQuizById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

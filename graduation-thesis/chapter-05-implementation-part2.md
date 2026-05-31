@@ -151,6 +151,12 @@ Manages the Coach dashboard state with Firestore persistence:
 **Question Generation**:
 - `generateQuestions(topic, count, documentName)`: Calls BFF route, optional RAG context.
 
+**Subscription State**:
+- `loadSubscriptionForUser()`: Reads subscription through `/api/subscription/current`.
+- `createLiteSubscriptionForNewUser()`: Creates the Lite signup record through `/api/subscription/signup`.
+- `checkoutSubscription(plan)`: Performs mock checkout through `/api/subscription/checkout` and enables Full mode.
+- `requestCoachTier(tier)`: Centralizes Lite/Full switching and opens the subscription modal when Full is locked.
+
 ## 5.13 BFF API Routes
 
 ### 5.13.1 Authentication Middleware
@@ -189,7 +195,19 @@ export default function withAuth(handler) {
 
 This approach avoids the Firebase Admin SDK dependency in the Next.js serverless environment by using Google's REST-based token verification endpoint.
 
-### 5.13.2 Secret Injection
+### 5.13.2 Subscription BFF Routes
+
+Subscription routes use the same Firebase session cookie as other protected BFF endpoints, but forward the raw Firebase ID token to Spring Boot:
+
+| BFF Route | Spring Boot Target | Purpose |
+|-----------|--------------------|---------|
+| `/api/subscription/current` | `/subscription/current` | Load Lite/Full entitlement |
+| `/api/subscription/signup` | `/subscription/signup` | Create Lite record for new accounts |
+| `/api/subscription/checkout` | `/subscription/checkout` | Apply monthly, yearly, or forever mock plan |
+
+This keeps `users/{uid}/subscription/current` writes under Firebase Admin in Spring Boot while still giving the React UI immediate state updates after checkout.
+
+### 5.13.3 Secret Injection
 
 The BFF injects server-side secrets when proxying to AI Coach:
 
@@ -236,6 +254,10 @@ Document management interface:
   - Green "RAG" when indexed.
   - Amber "Failed" with error tooltip.
 - Delete button per document (confirms, then removes from Firestore + Supabase).
+
+### 5.14.4 Payment Page
+
+The protected `/payment` route presents three mock subscription choices for Full mode: 1 month for `$2`, 1 year for `$20`, and forever for `$100`. Selecting a plan calls the subscription BFF route, waits for Spring Boot to persist the Firestore record, then updates the local store to enable Full mode immediately. No real card data or payment provider is used in this prototype.
 
 ## 5.15 PWA Implementation
 

@@ -53,6 +53,7 @@ Next.js Frontend ──WebSocket──→ FastAPI AI Service (Python)
 | 15 | [PROGRESS-TRACKING.md](./15-PROGRESS-TRACKING.md) | Learning metrics, mastery, velocity, streaks |
 | 16 | [SCHEDULER.md](./16-SCHEDULER.md) | Background task scheduler (APScheduler) |
 | 17 | [QUIZ-WEBHOOK.md](./17-QUIZ-WEBHOOK.md) | Quiz completion webhook (Spring Boot → Coach) |
+| 18 | [SUBSCRIPTION-ENTITLEMENT.md](./[IMPLEMENTED] 18-SUBSCRIPTION-ENTITLEMENT.md) | Lite/Full subscription enforcement boundary |
 
 ---
 

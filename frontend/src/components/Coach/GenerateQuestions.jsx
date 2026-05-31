@@ -169,7 +169,7 @@ export default function GenerateQuestions() {
 					<button
 						type="button"
 						disabled={isGenerating || generatedQuestions.length === 0}
-						onClick={() => generateQuestions(generateTopic, generateCount)}
+						onClick={() => generateQuestions(generateTopic, generateCount, undefined, { append: false })}
 						className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						<FiRefreshCw />

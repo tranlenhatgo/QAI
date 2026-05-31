@@ -128,6 +128,26 @@ users/
 
 ---
 
+### C.1.9 Document: `users/{uid}/subscription/current`
+
+Spring Boot manages this nested document through Firebase Admin. The frontend never writes subscription entitlement directly.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `plan` | string | Yes | `lite`, `monthly`, `yearly`, or `forever` |
+| `fullAccess` | boolean | Yes | Enables Full AI mode when true |
+| `subscriptionStatus` | string | Yes | `none`, `active`, or `expired` |
+| `source` | string | Yes | `signup` or `mock_payment` |
+| `priceUsd` | number | No | Mock checkout price: 2, 20, or 100 |
+| `startedAt` | timestamp | No | Paid plan start time |
+| `expiresAt` | timestamp | No | Monthly/yearly expiry; omitted for forever |
+| `createdAt` | timestamp | Yes | Initial record creation |
+| `updatedAt` | timestamp | Yes | Last update |
+
+Missing subscription documents are interpreted by the application as legacy Full access.
+
+---
+
 ## C.2 Supabase Tables (RAG Vector Storage)
 
 ### C.2.1 Table: `documents`
