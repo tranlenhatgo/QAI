@@ -94,10 +94,27 @@ async def get_pending_notifications(user_id: str) -> list[dict]:
 # ─── Job Implementations ─────────────────────────────────────────────────────
 
 
+async def _has_unread_review_notification(user_id: str) -> bool:
+    """Check if user already has an unread REVIEW_DUE notification."""
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(f"{_BASE_URL}/notification/user/{user_id}/unread")
+            if resp.status_code == 200:
+                notifications = resp.json()
+                return any(
+                    n.get("type", "").upper() == "REVIEW_DUE"
+                    for n in notifications
+                )
+    except httpx.HTTPError:
+        pass
+    return False
+
+
 async def check_due_reviews() -> None:
     """
     Periodic job: check all users for due spaced repetition reviews.
     Runs every hour. Stores notifications for users with due items.
+    Skips users who already have an unread REVIEW_DUE notification.
     """
     from server.learning.spaced_repetition import (
         SpacedRepetitionScheduler,
@@ -112,6 +129,11 @@ async def check_due_reviews() -> None:
             due_items = scheduler.get_due_reviews(items)
 
             if due_items:
+                # Check if user already has an unread REVIEW_DUE notification
+                existing = await _has_unread_review_notification(user_id)
+                if existing:
+                    continue
+
                 due_categories = [item.category for item in due_items]
                 overdue = any(
                     (datetime.now() - item.next_review).days > 1 for item in due_items

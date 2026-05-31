@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useBoundStore } from "@/store/useBoundStore";
 import categoriesJSON from "@/assets/categories.json";
 import { BsArrowRepeat } from "react-icons/bs";
+import { FiTrash2 } from "react-icons/fi";
 import QuizQuestionsModal from './QuizQuestionsModal'
 import ProfileLeaderboard from './ProfileLeaderboard'
 import { useRouter } from "next/router";
 
 export default function QuizHistory() {
-   const { quizzes, history, getQuizByUserId, getQuestionsByQuizId, quizQuestions, setCreatedQuestions, setUpdate, isAuthenticated } = useBoundStore(state => state);
+   const { quizzes, history, getQuizByUserId, getQuestionsByQuizId, quizQuestions, setCreatedQuestions, setUpdate, isAuthenticated, deleteQuiz } = useBoundStore(state => state);
    const [activeTab, setActiveTab] = useState('history');
    const [modalOpen, setModalOpen] = useState(false);
    const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -201,6 +202,17 @@ export default function QuizHistory() {
                                  }}
                               >
                                  Edit
+                              </button>
+                              <button
+                                 className="px-3 py-1 text-xs rounded whitespace-nowrap bg-red-100 text-red-600 hover:bg-red-200 transition-colors flex items-center gap-1 justify-center"
+                                 onClick={async () => {
+                                    if (window.confirm('Are you sure you want to delete this quiz?')) {
+                                       await deleteQuiz(quiz.quiz_id);
+                                    }
+                                 }}
+                              >
+                                 <FiTrash2 className="w-3 h-3" />
+                                 Delete
                               </button>
                            </div>
                         </div>

@@ -90,4 +90,19 @@ export const useAuthStore = (set, get) => ({
       set({ quizzes })
       set({ history })
    },
+   deleteQuiz: async (quizId) => {
+      if (!quizId) return
+      const response = await fetch('/api/quiz/delete-quiz', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ quizId }),
+      })
+      if (!response.ok) {
+         const data = await response.json().catch(() => ({}))
+         throw new Error(data.message || 'Failed to delete quiz')
+      }
+      set((state) => ({
+         quizzes: (state.quizzes || []).filter((q) => q.quiz_id !== quizId),
+      }))
+   },
 })

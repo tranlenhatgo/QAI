@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { FiBell, FiCheck, FiClock } from 'react-icons/fi'
+import { FiBell, FiCheck, FiClock, FiInfo } from 'react-icons/fi'
 import { useBoundStore } from '@/store/useBoundStore'
 import ReviewCard from './ReviewCard'
 
 export default function DueReviews() {
 	const { user, dueReviews, upcomingReviews, isLoadingReviews, fetchDueReviews } = useBoundStore(state => state)
+	const [showTooltip, setShowTooltip] = useState(false)
 
 	useEffect(() => {
 		if (user?.uid) {
@@ -37,6 +38,24 @@ export default function DueReviews() {
 						{dueReviews.length} due
 					</span>
 				)}
+				<div className="relative ml-auto">
+					<button
+						type="button"
+						className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-slate-400 transition-colors hover:border-blue-400 hover:text-blue-500"
+						onMouseEnter={() => setShowTooltip(true)}
+						onMouseLeave={() => setShowTooltip(false)}
+						onClick={() => setShowTooltip(!showTooltip)}
+						aria-label="How spaced repetition works"
+					>
+						<FiInfo size={12} />
+					</button>
+					{showTooltip && (
+						<div className="absolute right-0 top-7 z-10 w-64 rounded-lg border border-gray-200 bg-white p-3 text-xs text-slate-600 shadow-lg">
+							<p className="mb-1 font-semibold text-slate-800">How it works</p>
+							<p>After each quiz, the system schedules your next review using the SM-2 algorithm. Topics you score well on are reviewed less often, while weak topics come back sooner — helping you remember more with less effort.</p>
+						</div>
+					)}
+				</div>
 			</div>
 
 			{dueReviews.length > 0 ? (

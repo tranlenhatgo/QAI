@@ -287,7 +287,7 @@ export const useCoachStore = (set, get) => ({
 		}
 	},
 
-	generateQuestions: async (topic, count, documentName) => {
+	generateQuestions: async (topic, count, documentName, { append = true } = {}) => {
 		const normalizedTopic = String(topic || get().generateTopic || '').trim()
 		const normalizedCount = clampCount(count ?? get().generateCount)
 		const title = (get().generateTitle || '').trim()
@@ -310,7 +310,7 @@ export const useCoachStore = (set, get) => ({
 			})
 			const data = await readJsonResponse(response, 'Failed to generate questions')
 			const questions = normalizeQuestions(data.questions, normalizedTopic)
-			set({ generatedQuestions: questions })
+			set({ generatedQuestions: append ? [...get().generatedQuestions, ...questions] : questions })
 			return questions
 		} catch (error) {
 			set({ generateError: error.message })
@@ -322,7 +322,7 @@ export const useCoachStore = (set, get) => ({
 
 	practiceTopic: async (category) => {
 		set({ generateTopic: category, generateCount: DEFAULT_GENERATE_COUNT })
-		return get().generateQuestions(category, DEFAULT_GENERATE_COUNT)
+		return get().generateQuestions(category, DEFAULT_GENERATE_COUNT, undefined, { append: false })
 	},
 
 	solveProblem: async (problem) => {
@@ -517,7 +517,7 @@ export const useCoachStore = (set, get) => ({
 
 	startReview: (category) => {
 		set({ reviewQuizActive: category, activeCoachFeature: 'generate', generateTopic: category, generateCount: 5 })
-		get().generateQuestions(category, 5)
+		get().generateQuestions(category, 5, undefined, { append: false })
 	},
 
 	completeReview: async (category, score) => {

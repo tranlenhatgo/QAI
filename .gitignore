@@ -4,6 +4,7 @@
 .vscode/
 firestore-mcp/
 autotest-agent/
+graduation-thesis/diagrams/
 
 # Vite cache
 .vite/

@@ -89,32 +89,34 @@ export default function EmbeddedChat() {
 			</div>
 
 			{!collapsed ? (
-				<div className="h-[32rem] min-h-0 bg-slate-900 px-4 py-4">
-					<p className={`mb-3 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-300/30 bg-indigo-500/10 text-indigo-300' : 'border-amber-300/30 bg-amber-500/10 text-amber-300'}`}>
+				<div className="flex h-[40rem] min-h-0 flex-col rounded-b-lg bg-slate-900 px-4 py-4">
+					<p className={`mb-3 shrink-0 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-300/30 bg-indigo-500/10 text-indigo-300' : 'border-amber-300/30 bg-amber-500/10 text-amber-300'}`}>
 						<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Smart coach with full capabilities: analyzes your quiz history, gives personalized recommendations, performs deep reasoning, searches the web, and references your study materials.' : 'Basic coach with limited capabilities: can review your quiz history and give recommendations.'}
 					</p>
-					<ChatTranscript
-						messages={messages}
-						streamingText={streamingText}
-						draft={draft}
-						setDraft={setDraft}
-						onSend={sendChatMessage}
-						onStop={stopStreaming}
-						isConnected={isConnected}
-						isStreaming={isStreaming}
-						chatMode={chatMode}
-						onChatModeChange={setChatMode}
-						canSendWithoutSocket={isWebhookMode}
-						messageListClassName="space-y-3"
-						composerClassName="mt-4"
-						placeholder="Message AI Study Coach..."
-						compact={true}
-						emptyState={(
-							<div className="flex h-full min-h-[16rem] items-center justify-center rounded-md border border-dashed border-white/10 bg-white/5 px-4 text-center text-sm text-slate-400">
-								No messages yet.
-							</div>
-						)}
-					/>
+					<div className="min-h-0 flex-1">
+						<ChatTranscript
+							messages={messages}
+							streamingText={streamingText}
+							draft={draft}
+							setDraft={setDraft}
+							onSend={sendChatMessage}
+							onStop={stopStreaming}
+							isConnected={isConnected}
+							isStreaming={isStreaming}
+							chatMode={chatMode}
+							onChatModeChange={setChatMode}
+							canSendWithoutSocket={isWebhookMode}
+							messageListClassName="space-y-3"
+							composerClassName="mt-3"
+							placeholder="Message AI Study Coach..."
+							compact={true}
+							emptyState={(
+								<div className="flex h-full min-h-[16rem] items-center justify-center rounded-md border border-dashed border-white/10 bg-white/5 px-4 text-center text-sm text-slate-400">
+									No messages yet. Ask me about your studies!
+								</div>
+							)}
+						/>
+					</div>
 				</div>
 			) : null}
 		</section>

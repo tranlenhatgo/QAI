@@ -187,4 +187,15 @@ public class QuizService {
                 .toList();
     }
 
+    @SneakyThrows
+    public void deleteQuizById(@NonNull final String id) {
+        Quiz existingQuiz = firestore.collection("quiz").document(id).get().get().toObject(Quiz.class);
+        if (existingQuiz == null) {
+            return;
+        }
+        existingQuiz.setStatus(Status.DELETED);
+        existingQuiz.setUpdatedAt(Timestamp.now());
+        firestore.collection("quiz").document(id).set(existingQuiz).get();
+    }
+
 }
