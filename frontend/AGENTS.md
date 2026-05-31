@@ -17,6 +17,7 @@
 | Profile | `/profile` | User profile, quiz history, leaderboard |
 | Coach | `/coach` | AI Coach dashboard (tabbed) |
 | Chat | `/chat` | Standalone AI chat page |
+| Payment | `/payment` | Protected mock checkout page for Full subscriptions |
 
 ## Store Architecture (Zustand)
 
@@ -64,6 +65,7 @@ Merged slices in `src/store/useBoundStore.js`:
 | Route | Target | Purpose |
 | --- | --- | --- |
 | `/api/auth/*` | Firebase | Token set/clear, login/register |
+| `/api/subscription/*` | Spring Boot | Current subscription, Lite signup creation, mock checkout |
 | `/api/questions` | AI Coach | Generate questions from topics |
 | `/api/question/*` | Spring Boot / local | Get questions, check/get answer |
 | `/api/quiz/*` | Spring Boot / AI Coach | Quiz CRUD, upload for AI generation |
@@ -114,3 +116,4 @@ Merged slices in `src/store/useBoundStore.js`:
 - Keep API error payload style `{ message, statusCode }` to match current callers.
 - For protected create/profile actions, keep current pattern: set `dest`, open `authDialog`, resume action after login.
 - For coach features, add actions in `useCoach` slice, route through `/api/coach/*` BFF, component in `src/components/Coach/`.
+- For subscription changes, never write `users/{uid}/subscription/current` from the browser. Use `useCoach` subscription actions → `/api/subscription/*` BFF → Spring Boot `/subscription/*` so Firebase Admin owns Firestore writes.

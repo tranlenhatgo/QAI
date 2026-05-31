@@ -10,10 +10,17 @@ import { auth } from '@/helpers/auth/firebase';
 import { onIdTokenChanged } from 'firebase/auth';
 import RequireAuth from '@/components/Auth/RequireAuth';
 import StudyCoachWidget from '@/components/Chat/StudyCoachWidget';
+import SubscriptionRequiredModal from '@/components/SubscriptionRequiredModal';
 const rubik = Rubik({ subsets: ['latin'] })
 
+function isFirstFirebaseSignIn(firebaseUser) {
+	const createdAt = new Date(firebaseUser?.metadata?.creationTime).getTime()
+	const lastSignInAt = new Date(firebaseUser?.metadata?.lastSignInTime).getTime()
+	return Number.isFinite(createdAt) && Number.isFinite(lastSignInAt) && Math.abs(lastSignInAt - createdAt) < 5000
+}
+
 export default function App({ Component, pageProps }) {
-	const { user, setUser, setAuthReady, setChatConfig, hydrateChat, loadUserDocuments } = useBoundStore(state => state);
+	const { user, setUser, setAuthReady, setChatConfig, hydrateChat, loadUserDocuments, loadSubscriptionForUser, createLiteSubscriptionForNewUser, resetSubscription } = useBoundStore(state => state);
 	const studyCoachHiddenPaths = ['/', '/chat', '/play', '/coach'];
 	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	
@@ -30,9 +37,15 @@ export default function App({ Component, pageProps }) {
 						},
 						body: JSON.stringify({ token }),
 					})
+					if (isFirstFirebaseSignIn(firebaseUser)) {
+						await createLiteSubscriptionForNewUser(firebaseUser.uid)
+					} else {
+						await loadSubscriptionForUser(firebaseUser.uid)
+					}
 					loadUserDocuments()
 				} else {
 					await fetch('/api/auth/clear-token', { method: 'POST' })
+					resetSubscription()
 				}
 			} catch (error) {
 				console.error('Failed to sync auth token cookie', error)
@@ -42,7 +55,7 @@ export default function App({ Component, pageProps }) {
 		});
 
 		return () => unsubscribe();
-	}, [setUser, setAuthReady, loadUserDocuments]);
+	}, [setUser, setAuthReady, loadUserDocuments, loadSubscriptionForUser, createLiteSubscriptionForNewUser, resetSubscription]);
 
 	useEffect(() => {
 		setChatConfig({
@@ -68,6 +81,7 @@ export default function App({ Component, pageProps }) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
 			{content}
+			<SubscriptionRequiredModal />
 			<StudyCoachWidget />
 			<PlayForm />
 			<AuthForm />

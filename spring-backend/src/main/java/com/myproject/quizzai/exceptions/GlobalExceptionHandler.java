@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +15,12 @@ import java.util.concurrent.ExecutionException;
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException exception) {
+        HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
+        return error(status, exception.getReason() == null ? status.getReasonPhrase() : exception.getReason());
+    }
 
     @ExceptionHandler(ExecutionException.class)
     public ResponseEntity<Map<String, Object>> handleExecutionException(ExecutionException exception) {

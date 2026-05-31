@@ -40,6 +40,7 @@ export const useAuthStore = (set, get) => ({
          const credential = await signIn(email, password)
          set({ user: credential.user })
          await setAuthCookieFromUser(credential.user)
+         await get().loadSubscriptionForUser?.(credential.user.uid)
          return credential.user
       } finally {
          set({ authloading: false })
@@ -51,6 +52,7 @@ export const useAuthStore = (set, get) => ({
          const credential = await signUp(email, password, displayName)
          set({ user: credential.user })
          await setAuthCookieFromUser(credential.user)
+         await get().createLiteSubscriptionForNewUser?.(credential.user.uid)
          return credential.user
       } finally {
          set({ authloading: false })
@@ -62,6 +64,7 @@ export const useAuthStore = (set, get) => ({
          await signOut(auth)
          await fetch('/api/auth/clear-token', { method: 'POST' })
          set({ user: null })
+         get().resetSubscription?.()
       } finally {
          set({ authloading: false })
       }
@@ -72,8 +75,14 @@ export const useAuthStore = (set, get) => ({
    loginWithGoogle: async () => {
       set({ authloading: true })
       try {
-         const user = await loginWithGoogle()
+         const result = await loginWithGoogle()
+         const user = result?.user || result
          get().setUser(user)
+         if (result?.isNewUser && user?.uid) {
+            await get().createLiteSubscriptionForNewUser?.(user.uid)
+         } else if (user?.uid) {
+            await get().loadSubscriptionForUser?.(user.uid)
+         }
          return user
       } finally {
          set({ authloading: false })

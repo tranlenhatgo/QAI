@@ -78,7 +78,7 @@ export default function CoachDashboard() {
 		activeCoachFeature,
 		setActiveCoachFeature,
 		coachTier,
-		setCoachTier,
+		requestCoachTier,
 	} = useBoundStore(state => state)
 	const selectedFeature = COACH_FEATURES.find(feature => feature.id === activeCoachFeature) || COACH_FEATURES[0]
 
@@ -207,7 +207,7 @@ export default function CoachDashboard() {
 									<button
 										key={tier}
 										type="button"
-										onClick={() => setCoachTier(tier)}
+										onClick={() => requestCoachTier(tier)}
 										aria-pressed={isActive}
 										className={`h-8 rounded-md px-3 text-sm font-semibold capitalize transition-colors ${
 											isActive

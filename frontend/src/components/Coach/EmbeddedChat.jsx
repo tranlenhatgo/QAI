@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FiChevronDown, FiChevronUp, FiMessageSquare, FiTrash2 } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiMessageCircle, FiMessageSquare, FiTrash2, FiZap } from 'react-icons/fi'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import { useBoundStore } from '@/store/useBoundStore'
 
@@ -69,6 +69,38 @@ export default function EmbeddedChat() {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
+					<div className="flex items-center gap-2">
+						<button
+							type="button"
+							onClick={() => setChatMode('simple')}
+							disabled={isStreaming}
+							aria-pressed={chatMode === 'simple'}
+							className={`inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+								chatMode === 'simple'
+									? 'bg-blue-50 text-blue-700'
+									: 'text-slate-700 hover:bg-gray-50'
+							}`}
+							title="Chat mode"
+						>
+							<FiMessageCircle />
+							<span>Chat</span>
+						</button>
+						<button
+							type="button"
+							onClick={() => setChatMode('agentic')}
+							disabled={isStreaming}
+							aria-pressed={chatMode === 'agentic'}
+							className={`inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+								chatMode === 'agentic'
+									? 'bg-blue-50 text-blue-700'
+									: 'text-slate-700 hover:bg-gray-50'
+							}`}
+							title="Agentic mode"
+						>
+							<FiZap />
+							<span>Agentic</span>
+						</button>
+					</div>
 					<button
 						type="button"
 						onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
@@ -104,7 +136,6 @@ export default function EmbeddedChat() {
 							isConnected={isConnected}
 							isStreaming={isStreaming}
 							chatMode={chatMode}
-							onChatModeChange={setChatMode}
 							canSendWithoutSocket={isWebhookMode}
 							messageListClassName="space-y-3"
 							composerClassName="mt-3"

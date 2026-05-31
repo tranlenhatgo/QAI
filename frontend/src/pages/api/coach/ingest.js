@@ -1,4 +1,5 @@
 import withAuth from '@/lib/withAuth'
+import { userHasFullAccess } from '@/lib/coachSubscription'
 
 const COACH_URL = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
 
@@ -15,6 +16,10 @@ async function handler(req, res) {
 	}
 
 	try {
+		if (!(await userHasFullAccess(req))) {
+			return res.status(403).json({ message: 'Full mode requires a subscription', statusCode: 403 })
+		}
+
 		const headers = {
 			'content-type': req.headers['content-type'],
 		}

@@ -94,6 +94,20 @@ Firestore, a document-oriented NoSQL database, stores the primary application da
 | questions | array | Generated questions (optional) |
 | ragChunks | number | Count of RAG chunks stored |
 
+**Document: `users/{uid}/subscription/current`** (Spring Boot-managed)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| plan | string | lite, monthly, yearly, forever |
+| fullAccess | boolean | Whether Full AI mode is allowed |
+| subscriptionStatus | string | none, active, expired |
+| source | string | signup or mock_payment |
+| priceUsd | number | 2, 20, or 100 for mock paid plans |
+| startedAt | timestamp | Start of paid access |
+| expiresAt | timestamp/null | Expiry for monthly/yearly plans |
+| createdAt | timestamp | Original subscription creation |
+| updatedAt | timestamp | Last subscription update |
+
 ### 4.8.2 Supabase Tables (RAG Storage)
 
 **Table: `documents`**
@@ -178,6 +192,16 @@ The AI Coach uses a lightweight SQLite database for session and scheduling data:
 | PATCH | /notification/{id}/read | Mark as read |
 | PATCH | /notification/user/{userId}/read-all | Mark all as read |
 | DELETE | /notification/{id} | Delete notification |
+
+**Subscription Endpoints**:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /subscription/current | Get authenticated user's subscription |
+| POST | /subscription/signup | Create Lite subscription for a new account |
+| POST | /subscription/checkout | Mock checkout for monthly, yearly, or forever Full access |
+
+These endpoints require `Authorization: Bearer <Firebase ID token>`. Spring Boot verifies the token with Firebase Admin and derives the user id server-side before reading or writing Firestore.
 
 ### 4.9.2 AI Coach REST API
 
@@ -291,6 +315,7 @@ The Next.js API routes act as an authenticated proxy:
 | /api/coach/generate-questions | AI Coach /generate/from-topics | Firebase token + API key |
 | /api/coach/upload-material | AI Coach /ingest | Firebase token + API key |
 | /api/coach/delete-material/{id} | AI Coach /ingest/{id} | Firebase token + API key |
+| /api/subscription/* | Spring Boot /subscription/* | Firebase token |
 | /api/quiz/* | Spring Boot /quiz/* | Firebase token |
 | /api/take-quiz/* | Spring Boot /take-quiz/* | Firebase token |
 | /api/review-schedule/* | Spring Boot /review-schedule/* | Firebase token |

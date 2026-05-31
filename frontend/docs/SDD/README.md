@@ -37,6 +37,7 @@ Browser (Next.js :3000)
 | 13 | [SPACED-REPETITION-UI.md](./13-SPACED-REPETITION-UI.md) | Due reviews display, review flow, ReviewQuizModal |
 | 14 | [PROGRESS-TRACKING-UI.md](./14-PROGRESS-TRACKING-UI.md) | Real progress data integration, mastery bars, velocity |
 | 15 | [SCHEDULER-NOTIFICATIONS-UI.md](./15-SCHEDULER-NOTIFICATIONS-UI.md) | Notification banner, badge, and dropdown list |
+| 16 | [SUBSCRIPTION-PAYMENT.md](./[IMPLEMENTED] 16-SUBSCRIPTION-PAYMENT.md) | Mock payment page, subscription BFF routes, Lite/Full gate |
 
 ---
 

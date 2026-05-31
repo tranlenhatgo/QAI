@@ -58,6 +58,7 @@ export default function withAuth(handler) {
         return res.status(401).json({ message: 'Invalid auth token', statusCode: 401 })
       }
       req.userId = userId
+      req.idToken = token
     } catch (error) {
       console.error('[auth] Firebase token verification failed', error)
       return res.status(500).json({ message: 'Auth verification failed. Check FIREBASE_WEB_API_KEY and server network access to Firebase.', statusCode: 500 })
