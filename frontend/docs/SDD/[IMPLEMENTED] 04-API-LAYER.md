@@ -34,11 +34,17 @@ This keeps secrets (API keys, encryption keys) server-side and provides a unifie
 | `/api/take/save-attempt` | POST | Spring Boot | Submit quiz results |
 | `/api/coach/chat` | POST | AI Study Coach | Legacy HTTP chat proxy |
 | `/api/coach/generate-questions` | POST | AI Study Coach | Generate questions (dashboard) |
+| `/api/coach/adaptive-questions` | POST | AI Study Coach | Generate Adaptive Infinity questions, Lite 5 or Full 10 |
 | `/api/coach/solve` | POST | AI Study Coach | Step-by-step problem solving |
 | `/api/coach/progress/[userId]` | GET | AI Study Coach | Fetch progress metrics |
 | `/api/coach/review-completed` | POST | AI Study Coach | Notify review quiz completed |
 | `/api/coach/notifications/[userId]` | GET | Spring Boot | Fetch user notifications |
 | `/api/coach/notifications/[id]/read` | PATCH | Spring Boot | Mark notification as read |
+| `/api/subscription/current` | GET | Spring Boot | Read Lite/Full entitlement |
+| `/api/subscription/signup` | POST | Spring Boot | Create Lite signup record |
+| `/api/subscription/checkout` | POST | Spring Boot | Mock Full checkout |
+| `/api/adaptive-practice/session-state` | GET | Spring Boot | Read category Adaptive Infinity state |
+| `/api/adaptive-practice/answer` | POST | Spring Boot | Persist one Adaptive Infinity answer |
 
 ---
 
@@ -68,6 +74,7 @@ API routes proxying to the AI Study Coach (`STUDY_COACH_API_URL`):
 | Browser WebSocket | `WS /ws` | Streaming AI coaching chat (simple/agentic) |
 | `/api/coach/chat` | `POST /chat/{mode}` | Legacy non-streaming chat compatibility |
 | `/api/coach/generate-questions` | `POST /generate/from-topics` | Dashboard question generation |
+| `/api/coach/adaptive-questions` | `POST /generate/adaptive-questions` | Tier-sized Adaptive Infinity batch generation |
 | `/api/coach/solve` | `POST /solve` | Step-by-step problem solver |
 | `/api/coach/progress/[userId]` | `GET /progress/{user_id}` | Progress and mastery metrics |
 | `/api/coach/review-completed` | `POST /webhook/quiz-completed` | Notify schedule of review completion |
@@ -76,11 +83,18 @@ All include `X-API-Key` header when `COACH_API_KEY` is set.
 
 ---
 
-## Spring Boot Notification Integration
+## Spring Boot User-State Integration
 
-API routes proxying to Spring Boot (`SPRING_BOOT_URL`) for Firestore-backed notifications:
+API routes proxying to Spring Boot (`SPRING_BOOT_URL`) for Firestore-backed user state:
 
 | Frontend Route | Spring Boot Endpoint | Purpose |
 | --------------- | --------------------- | --------- |
 | `/api/coach/notifications/[userId]` | `GET /notification/user/{id}/unread` | Fetch unread notifications |
 | `/api/coach/notifications/[id]/read` | `PATCH /notification/{id}/read` | Mark notification as read |
+| `/api/subscription/current` | `GET /subscription/current` | Resolve subscription entitlement |
+| `/api/subscription/signup` | `POST /subscription/signup` | Create Lite subscription for new accounts |
+| `/api/subscription/checkout` | `POST /subscription/checkout` | Apply mock Full plan |
+| `/api/adaptive-practice/session-state` | `GET /adaptive-practice/session-state` | Read selected-category adaptive journal state |
+| `/api/adaptive-practice/answer` | `POST /adaptive-practice/answer` | Persist adaptive answer outside formal quiz history |
+
+Subscription and adaptive-practice routes forward the Firebase ID token from the server-side BFF. The browser never writes `users/{uid}/subscription/current` or `users/{uid}/adaptive_practice_answers` directly.

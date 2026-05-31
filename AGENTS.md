@@ -41,7 +41,8 @@ Browser → Next.js (Pages Router, :3000)
 - **API error shape**: `{ message, statusCode }` from Spring Boot, consumed by both frontend and coach
 - **Auth**: Firebase client-side (frontend) + FirebaseAdmin server-side (Spring Boot); coach uses `X-API-Key`
 - **Subscription**: New users get Lite at `users/{uid}/subscription/current`; mock payment upgrades go through Spring Boot `/subscription/*` first, then Spring writes Firestore. Missing subscription docs are legacy Full access.
-- **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints (DeepSeek LLM)
+- **Adaptive Infinity Quiz**: Signed-in Lite and Full users can use single-category Infinity Quiz. Adaptive answers are stored separately at `users/{uid}/adaptive_practice_answers`; Lite sends 5 context items and requests 5 questions from LM Studio (`qwen/qwen3.5-9b`), while Full sends 20 context items and requests 10 questions from the Full provider.
+- **AI Question Generation**: Handled by AI Study Coach `/generate/*` endpoints; Lite routes to LM Studio and Full routes to the cloud provider.
 - **Spaced Repetition**: SM-2 algorithm in AI Coach, schedule persisted to Firestore `review_schedule` via Spring Boot
 - **Notifications**: Created by AI Coach scheduler, stored in Firestore `notification` via Spring Boot
 
@@ -76,6 +77,7 @@ Browser → Next.js (Pages Router, :3000)
 - ✅ Tier Selector (Lite/Full toggle on home page)
 - ✅ Chat widget vertical resize + stop streaming
 - ✅ Mock subscription payment page (monthly/yearly/forever) with backend-owned Firestore subscription updates
+- ✅ Adaptive Infinity Quiz (questions.json warmup, Lite/Full AI batches, wrong-question repeats)
 
 ## What's Incomplete
 

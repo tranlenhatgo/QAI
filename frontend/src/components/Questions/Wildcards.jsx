@@ -18,7 +18,7 @@ export default function Wildcards () {
 	}, [])
 
 	function disabled (type) {
-		const finalQuestion = queries.infinitymode ? (questionProgress % 5 === 0 ? 5 : questionProgress % 5) : questionProgress
+		const finalQuestion = queries.infinitymode ? 1 : questionProgress
 		return wildCards[type] < 1 || win !== undefined || currentQuestion !== finalQuestion
 	}
 

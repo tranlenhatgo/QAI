@@ -114,3 +114,43 @@ question (1) ──→ (N) take_question   (via question_id)
 | `read` | boolean | Whether the user has seen this |
 | `created_at` | Timestamp | Creation timestamp |
 | `expires_at` | Timestamp | Optional expiry (auto-cleanup candidate) |
+
+---
+
+## Nested Document: `users/{uid}/subscription/current`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `plan` | string | `lite`, `monthly`, `yearly`, `forever`, or virtual `legacy` response |
+| `fullAccess` | boolean | Enables Full mode when true |
+| `subscriptionStatus` | string | `none`, `active`, `expired`, or virtual `legacy` |
+| `source` | string | `signup`, `mock_payment`, or virtual `missing_subscription_record` |
+| `priceUsd` | number/null | Mock paid plan price |
+| `startedAt` | Timestamp/null | Checkout start |
+| `expiresAt` | Timestamp/null | Monthly/yearly expiry; forever has no expiry |
+| `createdAt` | Timestamp | First doc creation |
+| `updatedAt` | Timestamp | Last update |
+
+Missing subscription documents are interpreted as legacy Full access and are not created by reads.
+
+---
+
+## Nested Collection: `users/{uid}/adaptive_practice_answers`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | 8-char UUID |
+| `category` | string | Lowercase category |
+| `sourceQuestionId` | string/null | Deterministic static question ID |
+| `question` | string | Question text |
+| `answers` | array[string] | Four answer options |
+| `correctAnswer` | string | Correct answer text |
+| `selectedAnswer` | string | User-selected answer |
+| `correct` | boolean | Whether selected answer was correct |
+| `source` | string | `static_json`, `adaptive_ai`, or `repeat` |
+| `repeated` | boolean | Whether this was a repeat attempt |
+| `generatedFromQuestion` | string/null | Source question for AI generation trace |
+| `createdAt` | Timestamp | Creation timestamp |
+| `updatedAt` | Timestamp | Last update |
+
+Adaptive practice records are intentionally separate from `take_quiz`, `take_question`, `review_schedule`, and `notification`.

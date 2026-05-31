@@ -3,6 +3,7 @@
 ## Dev note
 
 - Account: username: `User1`, email: `testuser1@gmail.com`, password: `testuser` (for testing only, no real user data)
+- Account: username: `LiteUser`, email: `testuser2@gmail.com`, password: `testuser` (for testing only, no real user data)
 
 ## Prerequisites
 

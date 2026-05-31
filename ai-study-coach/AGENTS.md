@@ -46,7 +46,7 @@ Scheduler (APScheduler) → hourly: check due reviews → create notifications v
 - `server/scheduler/scheduler.py` — APScheduler: hourly due-review check + daily progress snapshot
 - `server/models/schemas.py` — All Pydantic v2 models (chat, quiz API responses, analysis, agent actions, webhook, notifications)
 - `server/routes/chat.py` — compatibility `POST /chat` and `POST /chat/agentic` endpoints
-- `server/routes/generate.py` — `POST /generate/from-topics` (with optional `document_name` for RAG-based generation), `/generate/from-file`, `/generate/get-question` — AI question generation
+- `server/routes/generate.py` — `POST /generate/from-topics` (with optional `document_name` for RAG-based generation), `/generate/from-file`, `/generate/get-question`, `/generate/adaptive-questions` — AI question generation
 - `server/routes/solve.py` — `POST /solve` — Step-by-step problem solving (structured 3-phase pipeline)
 - `server/routes/progress.py` — `GET /progress/{user_id}` — Progress metrics + due reviews
 - `server/routes/webhook.py` — `POST /webhook/quiz-completed` — Receives quiz completion, updates SR schedule
@@ -122,6 +122,7 @@ Integration tests require LM Studio running with a model loaded.
 | `/ws` | WebSocket | `api_key` query | Streaming chat (session_start, user_message, mode_switch) |
 | `/chat/{mode}` | POST | X-API-Key | Compatibility chat (mode: chat/agentic) |
 | `/generate/from-topics` | POST | X-API-Key | Generate questions from topic list (optional `document_name` + `user_id` for RAG-based generation) |
+| `/generate/adaptive-questions` | POST | X-API-Key | Generate same-category Adaptive Infinity questions: Lite requires count 5, Full requires count 10 |
 | `/generate/from-file` | POST | X-API-Key | Generate questions from uploaded file |
 | `/generate/get-question` | POST | X-API-Key | Generate single question |
 | `/solve` | POST | X-API-Key | Step-by-step problem solving |

@@ -11,7 +11,7 @@ import { useBoundStore } from '@/store/useBoundStore'
 import JoinGameForm from './JoinGameForm'
 
 export default function PlayForm() {
-	const { getQuestions, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user } = useBoundStore(state => state)
+	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest } = useBoundStore(state => state)
 	const [nowQueries, setNowQueries] = useState(queries)
 	const [joinQuery, setJoinQuery] = useState({ ...queries, name: '' })
 	const [dialogOpen, setDialogOpen] = useState(false)
@@ -56,7 +56,14 @@ export default function PlayForm() {
 	function handleInputs(e) {
 		if (e.target.name === 'infinitymode' || e.target.name === 'timemode') {
 			e.target.checked ? playSound('pop-up-on') : playSound('pop-up-off')
-			return setNowQueries({ ...nowQueries, [e.target.name]: e.target.name === 'infinitymode' ? !e.target.checked : e.target.checked })
+			const value = e.target.name === 'infinitymode' ? !e.target.checked : e.target.checked
+			if (e.target.name === 'infinitymode' && value && !user) {
+				e.target.checked = true
+				setDest?.('/play')
+				document.getElementById('authDialog')?.showModal()
+				return setNowQueries({ ...nowQueries, infinitymode: false })
+			}
+			return setNowQueries({ ...nowQueries, [e.target.name]: value })
 		}
 
 		if (e.target.name === 'categories') {
@@ -101,7 +108,10 @@ export default function PlayForm() {
 			router.push({ pathname: '/play', query })
 
 			const cate = nowQueries.categories.map(cat => categoriesJSON.find(c => c.id === cat).name)
-			if (router.pathname === '/play') getQuestions(cate, nowQueries.infinitymode ? 5 : nowQueries.questions)
+			if (router.pathname === '/play') {
+				if (nowQueries.infinitymode) startAdaptiveInfinity(nowQueries.categories[0])
+				else getQuestions(cate, nowQueries.questions)
+			}
 
 			closeDialog()
 		} else if (e.target.name === 'joingame') {

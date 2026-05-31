@@ -30,6 +30,11 @@ export async function resolveCoachTierForRequest(req, requestedTier) {
   return subscription.fullAccess ? 'full' : 'lite'
 }
 
+export async function resolveBestCoachTierForRequest(req) {
+  const subscription = await getSubscriptionForRequest(req)
+  return subscription.fullAccess ? 'full' : 'lite'
+}
+
 export async function userHasFullAccess(req) {
   const subscription = await getSubscriptionForRequest(req)
   return subscription.fullAccess === true

@@ -96,6 +96,28 @@
 | FR-08.3 | Protected features shall require authentication | Must |
 | FR-08.4 | Firestore security rules shall enforce user-scoped data access | Must |
 
+### FR-09: Subscription and Payment Gate
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-09.1 | New users shall start as Lite users by default | Must |
+| FR-09.2 | Full mode shall require a backend-owned subscription entitlement | Must |
+| FR-09.3 | The system shall provide mock monthly, yearly, and forever Full plans | Should |
+| FR-09.4 | Missing subscription documents shall preserve legacy Full access | Should |
+
+### FR-10: Adaptive Infinity Quiz
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-10.1 | Signed-in Lite and Full users shall be able to enable Infinity Quiz | Must |
+| FR-10.2 | Guests shall be prompted to sign in before using Infinity Quiz | Must |
+| FR-10.3 | Infinity Quiz shall operate on exactly one selected category | Must |
+| FR-10.4 | New category sessions shall serve unanswered static `questions.json` questions before AI-generated questions | Must |
+| FR-10.5 | Returning category sessions shall request AI-generated questions immediately | Must |
+| FR-10.6 | AI generation shall use tier-sized context and output: Lite sends 5 context items and requests 5 questions; Full sends 20 context items and requests 10 questions | Must |
+| FR-10.7 | Wrong answers shall repeat in-session after spaced delays | Must |
+| FR-10.8 | Adaptive answers shall be stored separately from formal quiz attempts and spaced-repetition schedules | Must |
+
 ## 3.3 Non-Functional Requirements
 
 ### NFR-01: Performance
@@ -126,6 +148,7 @@
 | NFR-03.3 | Answer handling | Client-side quiz validation with correct answers sent on quiz start; results submitted back to server |
 | NFR-03.4 | Data isolation | Users can only access their own documents, progress, and history |
 | NFR-03.5 | CORS policy | Restricted to known frontend origins |
+| NFR-03.6 | Adaptive data isolation | Adaptive practice session state shall be scoped by Firebase UID and selected category |
 
 ### NFR-04: Availability and Reliability
 
@@ -134,6 +157,7 @@
 | NFR-04.1 | Graceful degradation | If LM Studio is unavailable, Full tier (DeepSeek) serves as fallback |
 | NFR-04.2 | Error recovery | Agentic loop falls back to simple chat on tool failure |
 | NFR-04.3 | Offline capability | PWA caches static assets for offline access |
+| NFR-04.4 | Adaptive tier integrity | Adaptive AI generation shall return provider-unavailable errors instead of silently switching Lite/Full providers |
 
 ### NFR-05: Usability
 
@@ -193,6 +217,19 @@
 5. Upon completion, webhook updates SM-2 schedule.
 6. Next review date is recalculated and stored.
 
+### UC-05: Adaptive Infinity Quiz
+
+**Actor**: Student
+**Precondition**: Student is authenticated and selects one category
+**Main Flow**:
+1. Student opens the play popup and checks "Infinity Quiz".
+2. System starts `/play` with the selected category.
+3. If the student has no static history in that category, system serves static `questions.json` questions first.
+4. When 5 non-repeat questions remain, system requests a tier-sized AI batch through the BFF.
+5. Student answers questions continuously.
+6. Wrong answers are reinserted as exact repeats after spaced delays.
+7. Adaptive answer records are saved under the user's adaptive practice journal.
+
 ## 3.5 System Context Diagram
 
 ```text
@@ -226,3 +263,4 @@
 3. **Network**: Full tier features require internet connectivity.
 4. **Text PDFs only**: Document ingestion does not support scanned/image-only PDFs (no OCR).
 5. **Single category per quiz**: Architectural constraint for accurate per-category analytics.
+6. **Adaptive batch size**: Adaptive Infinity keeps Lite at 5 context items and 5 generated questions for local Qwen reliability, while Full uses 20 context items and 10 generated questions.

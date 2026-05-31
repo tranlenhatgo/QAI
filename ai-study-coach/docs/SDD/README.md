@@ -54,6 +54,7 @@ Next.js Frontend ──WebSocket──→ FastAPI AI Service (Python)
 | 16 | [SCHEDULER.md](./16-SCHEDULER.md) | Background task scheduler (APScheduler) |
 | 17 | [QUIZ-WEBHOOK.md](./17-QUIZ-WEBHOOK.md) | Quiz completion webhook (Spring Boot → Coach) |
 | 18 | [SUBSCRIPTION-ENTITLEMENT.md](./[IMPLEMENTED] 18-SUBSCRIPTION-ENTITLEMENT.md) | Lite/Full subscription enforcement boundary |
+| 19 | [ADAPTIVE-INFINITY-GENERATION.md](./[IMPLEMENTED] 19-ADAPTIVE-INFINITY-GENERATION.md) | Tier-sized same-category Adaptive Infinity generation |
 
 ---
 
@@ -104,7 +105,7 @@ Phase 4: Learning Features
 
 Phase 5: Adaptive Learning
   13 WEB-SEARCH (partial) → 14 SPACED-REPETITION ✓ → 15 PROGRESS-TRACKING ✓
-  16 SCHEDULER ✓ → 17 QUIZ-WEBHOOK ✓
+  16 SCHEDULER ✓ → 17 QUIZ-WEBHOOK ✓ → 18 SUBSCRIPTION-ENTITLEMENT ✓ → 19 ADAPTIVE-INFINITY-GENERATION ✓
 ```
 
 Each phase is independently testable and deployable.

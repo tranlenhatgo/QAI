@@ -51,6 +51,7 @@ Merged slices in `src/store/useBoundStore.js`:
 ## Core Data Flows
 
 - **New game**: `PlayForm.jsx` builds query → `/play` → `queryValidator` → `getQuestions` → AI Coach `/generate/from-topics`
+- **Infinity Quiz**: Signed-in users enable `Infinity Quiz` in `PlayForm.jsx`; `/play` starts the adaptive queue from `questions.json`, persists answers through `/api/adaptive-practice/*`, and fetches tier-sized AI batches through `/api/coach/adaptive-questions`: Lite sends 5 context items and requests 5 questions; Full sends 20 context items and requests 10 questions.
 - **Category selection**: All category pickers (NewGameForm, CreateQuizRoomForm, CreateInfo) use **radio buttons** (single-select). `queryValidator` in `gameConfig.js` enforces max 1 category. `QuizBrowser` has a category dropdown filter for browsing quizzes by category.
 - **Join quiz room**: `takeQuiz` helper → `queries.quizmode=true` → `/play` → fetch from Spring Boot
 - **Quiz completion**: `GameOver.jsx` → `saveAttempt` → Spring Boot `take-quiz/end` → `WebhookService` fires to AI Coach
@@ -66,6 +67,7 @@ Merged slices in `src/store/useBoundStore.js`:
 | --- | --- | --- |
 | `/api/auth/*` | Firebase | Token set/clear, login/register |
 | `/api/subscription/*` | Spring Boot | Current subscription, Lite signup creation, mock checkout |
+| `/api/adaptive-practice/*` | Spring Boot | Adaptive Infinity session state and answer journal |
 | `/api/questions` | AI Coach | Generate questions from topics |
 | `/api/question/*` | Spring Boot / local | Get questions, check/get answer |
 | `/api/quiz/*` | Spring Boot / AI Coach | Quiz CRUD, upload for AI generation |
@@ -73,6 +75,7 @@ Merged slices in `src/store/useBoundStore.js`:
 | `/api/coach/chat` | AI Coach | Legacy HTTP chat proxy; normal chat uses WebSocket `/ws` |
 | `/api/coach/explain-answer` | AI Coach | AI explanation of quiz answers |
 | `/api/coach/generate-questions` | AI Coach | Dashboard question generation (supports document_name + user_id for RAG-based generation) |
+| `/api/coach/adaptive-questions` | AI Coach | Adaptive Infinity batch generation; Lite forwards 5/5, Full forwards 20/10 |
 | `/api/coach/solve` | AI Coach | Step-by-step solver |
 | `/api/coach/progress/[userId]` | AI Coach | Progress metrics |
 | `/api/coach/review-completed` | AI Coach | Notify review quiz done |
@@ -117,3 +120,4 @@ Merged slices in `src/store/useBoundStore.js`:
 - For protected create/profile actions, keep current pattern: set `dest`, open `authDialog`, resume action after login.
 - For coach features, add actions in `useCoach` slice, route through `/api/coach/*` BFF, component in `src/components/Coach/`.
 - For subscription changes, never write `users/{uid}/subscription/current` from the browser. Use `useCoach` subscription actions → `/api/subscription/*` BFF → Spring Boot `/subscription/*` so Firebase Admin owns Firestore writes.
+- For Adaptive Infinity, never write `users/{uid}/adaptive_practice_answers` from the browser. Use `/api/adaptive-practice/*` BFF routes so Spring owns the journal writes. Keep Lite at 5 context items / 5 generated questions and Full at 20 context items / 10 generated questions unless the frontend, BFF, and coach contracts are changed together.

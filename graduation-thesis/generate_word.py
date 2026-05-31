@@ -60,6 +60,7 @@ INSERT_AFTER_HEADING = {
     "4.12 RAG Pipeline Design": "14-ingestion-activity.png",
     "4.13 Spaced Repetition Algorithm": "16-sm2-activity.png",
     "4.15 Question Generation Design": "19-question-generation-flow.png",
+    "4.16 Adaptive Infinity Quiz Design": "20-adaptive-infinity-flow.png",
     "5.2 Project Structure": "18-spring-component.png",
     "5.5 Webhook Integration": "17-quiz-gameplay-sequence.png",
     "5.13 BFF API Routes": "11-auth-sequence.png",
@@ -386,7 +387,7 @@ def create_thesis_document():
     # Save
     output_path = os.path.join(SCRIPT_DIR, "QAI_Graduation_Thesis.docx")
     doc.save(output_path)
-    print(f"\n✅ Word document saved: {output_path}")
+    print(f"\nWord document saved: {output_path}")
     return output_path
 
 

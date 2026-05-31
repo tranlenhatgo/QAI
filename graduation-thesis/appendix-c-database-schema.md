@@ -148,6 +148,29 @@ Missing subscription documents are interpreted by the application as legacy Full
 
 ---
 
+### C.1.10 Collection: `users/{uid}/adaptive_practice_answers`
+
+Spring Boot manages this nested collection through Firebase Admin. Adaptive Infinity writes are separate from formal quiz attempts, review schedules, notifications, and profile score history.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `category` | string | Yes | Lowercase selected category |
+| `sourceQuestionId` | string | No | Deterministic static ID for `questions.json` questions |
+| `question` | string | Yes | Question text |
+| `answers` | array<string> | Yes | Four answer options |
+| `correctAnswer` | string | Yes | Correct answer text |
+| `selectedAnswer` | string | Yes | User-selected answer |
+| `correct` | boolean | Yes | Whether the answer was correct |
+| `source` | string | Yes | `static_json`, `adaptive_ai`, or `repeat` |
+| `repeated` | boolean | Yes | Whether the answer was a repeat attempt |
+| `generatedFromQuestion` | string | No | Source question used by AI generation |
+| `createdAt` | timestamp | Yes | Record creation |
+| `updatedAt` | timestamp | Yes | Last update |
+
+Session state queries filter by user UID and selected category, then return answered static IDs, wrong questions, and recent answers.
+
+---
+
 ## C.2 Supabase Tables (RAG Vector Storage)
 
 ### C.2.1 Table: `documents`
@@ -268,4 +291,5 @@ Note: Firestore is NoSQL and does not enforce foreign keys. Referential integrit
 | review_schedule | 5–15 | ~200 bytes | Stable (one per category) |
 | notification | 20–100 | ~300 bytes | 3–10/week |
 | documents (Firestore) | 5–20 | ~400 bytes | 1–3/week |
+| adaptive_practice_answers | 100–2000 | ~600 bytes | Depends on Infinity Quiz usage |
 | documents (Supabase) | 100–2000 chunks | ~4KB (content + 768×4 embedding) | Per upload |

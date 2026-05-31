@@ -14,17 +14,19 @@ import categories from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
 
 export default function Play() {
-	const { loading, error, getQuestions, setQueries, queries, questions } = useBoundStore(state => state)
+	const { loading, error, getQuestions, startAdaptiveInfinity, setQueries, queries, questions, authReady } = useBoundStore(state => state)
 	const router = useRouter()
 
 	useEffect(() => {
 		if (router.isReady && !queries.quizmode) {
 			const validQuery = queryValidator(router.query)
+			if (validQuery.infinitymode && !authReady) return
 			const cate = validQuery.categories.map(cat => categories.find(c => c.id === cat).name)
 			setQueries(validQuery)
-			getQuestions(cate, validQuery.infinitymode ? 5 : validQuery.questions)
+			if (validQuery.infinitymode) startAdaptiveInfinity(validQuery.categories[0])
+			else getQuestions(cate, validQuery.questions)
 		}
-	}, [router.isReady])
+	}, [router.isReady, authReady])
 
 	useEffect(() => { window.onbeforeunload = () => 'Are you sure you want to leave?' }, [])
 

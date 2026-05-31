@@ -199,3 +199,33 @@ Student              Frontend           Spring Boot        AI Coach
 
 Legend: EF = Easiness Factor, R = Repetitions, I = Interval, Q = Quality
 ```
+
+## A.6 Adaptive Infinity Quiz Flow
+
+```text
+Student        Next.js /play       Spring Boot              AI Coach              Tier Provider
+  |                 |                   |                       |                       |
+  | Enable mode     |                   |                       |                       |
+  |---------------->|                   |                       |                       |
+  |                 | GET session-state |                       |                       |
+  |                 |------------------>| read adaptive journal |                       |
+  |                 |<------------------| category state        |                       |
+  |                 | serve static or due repeat                 |                       |
+  | answer          |                   |                       |                       |
+  |---------------->| POST answer       |                       |                       |
+  |                 |------------------>| write adaptive record |                       |
+  |                 |                   |                       |                       |
+  |                 | returning category or when 5 remain      |                       |
+  |                 | resolve tier in BFF                       |                       |
+  |                 | Lite: context up to 5, count=5           |                       |
+  |                 | Full: context up to 20, count=10         |                       |
+  |                 | POST adaptive     |                       |                       |
+  |                 | questions         |                       |                       |
+  |                 |------------------------------------------->| build same-category prompt |
+  |                 |                   |                       |---------------------->|
+  |                 |                   |                       | Lite: LM Studio qwen  |
+  |                 |                   |                       | Full: Full provider   |
+  |                 |                   |                       |<----------------------|
+  |                 |<-------------------------------------------| 5 Lite or 10 Full questions |
+  |                 | mix AI questions with spaced repeats       |                       |
+```

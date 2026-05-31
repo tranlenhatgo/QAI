@@ -13,6 +13,25 @@ PlayForm.jsx → build query params (single category) → navigate to /play
 
 ---
 
+## Adaptive Infinity Quiz Flow
+
+```text
+PlayForm.jsx -> signed-in user checks Infinity Quiz -> navigate to /play
+  -> /play loads selected category from queries.categories[0]
+  -> attach deterministic sourceQuestionId to questions.json items
+  -> GET /api/adaptive-practice/session-state?category=<category>
+  -> new category: enqueue unanswered static questions first
+  -> returning category: POST /api/coach/adaptive-questions immediately
+  -> when 5 non-repeat questions remain: prefetch AI questions
+  -> on answer: POST /api/adaptive-practice/answer
+  -> wrong answer: schedule exact repeat after 2 intervening questions
+  -> wrong repeat again: reschedule after 4 intervening questions
+```text
+**Actors**: Play page -> Next.js BFF -> Spring Boot -> AI Study Coach -> LM Studio or Full provider
+**Result**: Single-category practice mixes static questions, tier-sized AI batches, and spaced wrong-question repeats without writing formal quiz history. Lite sends 5 context items and requests 5 questions; Full sends 20 context items and requests 10 questions.
+
+---
+
 ## Quiz Room Flow
 
 ```text
