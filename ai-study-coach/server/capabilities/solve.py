@@ -2,6 +2,8 @@
 
 import json
 import logging
+import math
+import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 
@@ -96,6 +98,65 @@ Format:
 FINAL_ANSWER: [answer]
 CONFIDENCE: [high|medium|low]
 EXPLANATION: [brief connection of steps to answer]"""
+
+
+_LAMBERT_EXACT_RE = re.compile(
+    r"(?P<var>[a-zA-Z])\s*=\s*(?:LambertW|W|\\operatorname\{W\})"
+    r"\s*\(\s*e\s*\^\s*(?:\{(?P<braced>-?\d+(?:\.\d+)?)\}|(?P<plain>-?\d+(?:\.\d+)?))\s*\)"
+)
+
+
+def _principal_lambert_w_exp(exponent: float) -> float:
+    """Return the principal real value of W(e^exponent)."""
+    if exponent > 1:
+        value = exponent - math.log(exponent)
+    else:
+        value = math.exp(exponent)
+
+    value = max(value, 1e-300)
+    for _ in range(30):
+        previous = value
+        value -= (value + math.log(value) - exponent) / (1 + (1 / value))
+        value = max(value, 1e-300)
+        if abs(value - previous) <= 1e-12 * max(1.0, abs(value)):
+            break
+
+    return value
+
+
+def _format_approximation(value: float, original: str) -> str:
+    decimals = len(original.split(".", 1)[1]) if "." in original else 3
+    decimals = max(3, min(decimals, 8))
+    return f"{value:.{decimals}f}".rstrip("0").rstrip(".")
+
+
+def _correct_lambert_w_approximations(text: str) -> str:
+    """Correct mismatched numeric approximations for exact W(e^n) answers."""
+    if not text:
+        return text
+
+    corrected_text = text
+    for match in _LAMBERT_EXACT_RE.finditer(text):
+        exponent_text = match.group("braced") or match.group("plain")
+        if exponent_text is None:
+            continue
+
+        exact_value = _principal_lambert_w_exp(float(exponent_text))
+        var = re.escape(match.group("var"))
+        approx_re = re.compile(
+            rf"(?P<prefix>{var}\s*(?:\\approx|\\simeq|≈|~)\s*)"
+            r"(?P<value>[-+]?\d+(?:\.\d+)?)"
+        )
+
+        def replace_approx(approx_match: re.Match) -> str:
+            original_value = approx_match.group("value")
+            if abs(float(original_value) - exact_value) <= 0.001:
+                return approx_match.group(0)
+            return f"{approx_match.group('prefix')}{_format_approximation(exact_value, original_value)}"
+
+        corrected_text = approx_re.sub(replace_approx, corrected_text)
+
+    return corrected_text
 
 
 # ─── StepSolver Capability ───────────────────────────────────────────────────
@@ -399,5 +460,7 @@ class StepSolver:
                     confidence = conf
             else:
                 final_answer = parts.strip()
+
+        final_answer = _correct_lambert_w_approximations(final_answer)
 
         return final_answer, confidence
