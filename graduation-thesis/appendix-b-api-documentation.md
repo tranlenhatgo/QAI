@@ -286,6 +286,46 @@ Apply a mock Full subscription plan.
 
 Allowed plans are `monthly` (`$2`), `yearly` (`$20`), and `forever` (`$100`).
 
+### B.1.7 Adaptive Practice Endpoints
+
+#### GET /adaptive-practice/session-state?category={category}
+
+Return selected-category Adaptive Infinity state for the authenticated user.
+
+**Headers**: `Authorization: Bearer <Firebase ID token>`
+
+**Response** `200 OK`:
+```json
+{
+  "answeredStaticQuestionIds": ["ak:abc123"],
+  "hasStaticHistoryInCategory": true,
+  "wrongQuestions": [],
+  "recentAnswers": []
+}
+```
+
+#### POST /adaptive-practice/answer
+
+Persist one Adaptive Infinity answer outside formal quiz history.
+
+**Headers**: `Authorization: Bearer <Firebase ID token>`
+
+**Request**:
+```json
+{
+  "category": "Sports",
+  "sourceQuestionId": "ak:abc123",
+  "question": "How many players are on a soccer team?",
+  "answers": ["9", "10", "11", "12"],
+  "correctAnswer": "11",
+  "selectedAnswer": "9",
+  "correct": false,
+  "source": "static_json",
+  "repeated": false,
+  "generatedFromQuestion": null
+}
+```
+
 ---
 
 ## B.2 AI Coach REST API — Complete Reference
@@ -371,7 +411,51 @@ Fields `document_name` and `user_id` are optional. When both are provided, the s
 
 ---
 
-### B.2.4 POST /generate/from-file
+### B.2.4 POST /generate/adaptive-questions
+
+Generate same-category Adaptive Infinity questions. Lite requests must use `count: 5`; Full requests must use `count: 10`.
+
+**Headers**:
+- `X-API-Key: <api-key>`
+- `Content-Type: application/json`
+
+**Request**:
+```json
+{
+  "user_id": "firebase-uid",
+  "category": "Sports",
+  "tier": "lite",
+  "count": 5,
+  "history": [],
+  "wrong_questions": [],
+  "recent_questions": [
+    "How many players are on a soccer team?"
+  ]
+}
+```
+
+**Response** `200 OK`:
+```json
+{
+  "questions": [
+    {
+      "question": "In basketball, how many points is a free throw worth?",
+      "answers": ["1", "2", "3", "4"],
+      "correctAnswer": "1",
+      "topic": "sports",
+      "source": "adaptive_ai",
+      "generatedFromQuestion": null
+    }
+  ],
+  "tier": "lite"
+}
+```
+
+Errors: `400` for missing category/tier or a count that does not match the tier; `503` when the selected provider is unavailable; `502` after malformed or duplicate provider output fails retry.
+
+---
+
+### B.2.5 POST /generate/from-file
 
 Generate questions directly from an uploaded file (without RAG indexing).
 
@@ -386,7 +470,7 @@ Generate questions directly from an uploaded file (without RAG indexing).
 
 ---
 
-### B.2.5 POST /webhook/quiz-completed
+### B.2.6 POST /webhook/quiz-completed
 
 Receive quiz completion event from Spring Boot.
 
@@ -456,3 +540,18 @@ tool(name, "calling", arguments)  → Tool execution begins
 tool(name, "result", result)      → Tool completed successfully
 tool(name, "error", error_msg)    → Tool failed
 ```
+
+---
+
+## B.4 Next.js BFF API Routes
+
+| Route | Method | Upstream | Purpose |
+|-------|--------|----------|---------|
+| `/api/subscription/current` | GET | Spring `/subscription/current` | Resolve Lite/Full entitlement |
+| `/api/subscription/signup` | POST | Spring `/subscription/signup` | Create Lite subscription for new accounts |
+| `/api/subscription/checkout` | POST | Spring `/subscription/checkout` | Apply mock Full plan |
+| `/api/adaptive-practice/session-state` | GET | Spring `/adaptive-practice/session-state` | Read selected-category Adaptive Infinity state |
+| `/api/adaptive-practice/answer` | POST | Spring `/adaptive-practice/answer` | Persist adaptive answer journal record |
+| `/api/coach/adaptive-questions` | POST | AI Coach `/generate/adaptive-questions` | Resolve tier and request Lite 5 or Full 10 AI questions |
+
+All routes require the Firebase session token. The subscription and adaptive-practice routes forward the bearer token to Spring Boot. The adaptive AI route injects `X-API-Key`, trims context to 5 items for Lite or 20 items for Full, and forwards `tier:"lite"` or `tier:"full"` based on subscription state.

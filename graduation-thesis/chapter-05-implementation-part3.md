@@ -163,6 +163,16 @@ class DeepSeekProvider(LLMService):
         # Stream and parse identical to LM Studio
 ```
 
+### 5.21.4 Adaptive Infinity Generation Route
+
+`routes/generate.py` exposes `POST /generate/adaptive-questions` for Adaptive Infinity Quiz. The request requires `category`, `tier`, and a tier-valid count: Lite requires `count=5`, while Full requires `count=10`. Lite uses LM Studio with `qwen/qwen3.5-9b`; Full uses the configured Full provider. The route returns `503` if the selected provider is unavailable and does not fall back to the other tier.
+
+The prompt includes only selected-category context:
+- Lite: latest 5 answered, wrong-repeat, and recent question items.
+- Full: latest 20 answered, wrong-repeat, and recent question items.
+
+The response is validated as exactly the tier-required number of multiple-choice questions with 4 answers each, one correct answer, `source="adaptive_ai"`, and a category/topic matching the selected category. Provider output that uses option labels such as `A`, `B`, `C`, `D`, or numeric labels is normalized to the actual answer text before validation.
+
 ## 5.22 Document Ingestion Pipeline
 
 The ingestion route (`routes/ingest.py`) implements the full RAG indexing pipeline:
@@ -477,7 +487,7 @@ async def verify_api_key(request: Request):
 
 ### 5.27.2 Subscription Entitlement Boundary
 
-The AI Coach does not perform Firebase subscription checks directly. Lite/Full entitlement is resolved by the Next.js BFF and Spring Boot before requests are forwarded. Unauthorized Full requests are coerced to Lite, and Full-only document ingestion is blocked at the BFF layer. The FastAPI service therefore treats the incoming `tier` field only as model-routing input for LM Studio (Lite) or DeepSeek (Full).
+The AI Coach does not perform Firebase subscription checks directly. Lite/Full entitlement is resolved by the Next.js BFF and Spring Boot before requests are forwarded. Unauthorized Full requests are coerced to Lite, and Full-only document ingestion is blocked at the BFF layer. Adaptive Infinity generation also receives an already-resolved `tier` value: Lite routes to LM Studio, Full routes to the Full provider, and provider-unavailable errors are returned without silent fallback. The FastAPI service therefore treats the incoming `tier` field only as model-routing input.
 
 ### 5.27.2 CORS Configuration
 

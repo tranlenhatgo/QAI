@@ -25,6 +25,7 @@
 | `ReviewScheduleController` | `/review-schedule` | CRUD spaced repetition schedules |
 | `NotificationController` | `/notification` | Create/read/mark-read notifications |
 | `SubscriptionController` | `/subscription` | Firebase-token-protected Lite/Full subscription reads, signup creation, and mock checkout |
+| `AdaptivePracticeController` | `/adaptive-practice` | Firebase-token-protected Adaptive Infinity session state and answer journal writes |
 
 ## Services
 
@@ -38,6 +39,7 @@
 | `ReviewScheduleService` | `review_schedule` | SM-2 schedule CRUD, due-review queries |
 | `NotificationService` | `notification` | Notification CRUD, unread queries |
 | `SubscriptionService` | `users/{uid}/subscription/current` | Subscription entitlement, mock checkout persistence, expiry enforcement |
+| `AdaptivePracticeService` | `users/{uid}/adaptive_practice_answers` | Adaptive Infinity answer persistence, category session state, wrong pool, and recent answer context |
 | `WebhookService` | — (outbound) | Fires `POST /webhook/quiz-completed` to AI Coach |
 
 ## Core data flows
@@ -63,6 +65,7 @@
 | `notification` | 8-char UUID | user_id, type, title, message, read, created_at |
 | `users/{uid}/documents` | document-UUID | name, status, ragStatus, ragError, ragDocumentId, uploadedAt, questions[], ragChunks (managed by frontend directly via Firebase JS SDK) |
 | `users/{uid}/subscription/current` | `current` | plan, fullAccess, subscriptionStatus, source, priceUsd, startedAt, expiresAt, createdAt, updatedAt |
+| `users/{uid}/adaptive_practice_answers` | 8-char UUID | category, sourceQuestionId, question, answers, correctAnswer, selectedAnswer, correct, source, repeated, generatedFromQuestion, createdAt, updatedAt |
 
 ## Project-specific conventions (important)
 
@@ -75,6 +78,8 @@
 - Score format is always `"correct/total"` string (e.g., "7/10").
 - AI Coach history reads `GET /take-quiz/player/{playerId}` and falls back to `GET /user/quiz-profile?userId=`.
 - Subscription endpoints must verify the Firebase ID token from `Authorization: Bearer <token>` and derive the user id from Firebase Admin. Do not accept a client-provided user id for subscription writes.
+- Adaptive practice endpoints must verify the Firebase ID token from `Authorization: Bearer <token>` and derive the user id from Firebase Admin. Adaptive answers must not create `take_quiz`, `take_question`, review schedule, or notification records.
+- Adaptive Infinity is category-isolated. `GET /adaptive-practice/session-state` must return only selected-category static IDs, wrong questions, and recent answers.
 
 ## Integrations and local setup constraints
 

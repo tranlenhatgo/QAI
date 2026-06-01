@@ -4,55 +4,56 @@ import starIcon from '@/assets/star.svg'
 import Image from 'next/image'
 import checkAnswer from '@/helpers/question/checkAnswer'
 
-export default function QuestionSlider({ changueCurrent, setTime, getAnotherQuestions }) {
-	const { questions, queries, loadingInfinity, setUserAnswer, setAnswer, error, useLivesCard, setWin, wildCards, currentQuestion, setQuestionProgress, win, questionProgress } = useBoundStore(state => state)
+export default function QuestionSlider({ changueCurrent, setTime }) {
+	const { questions, queries, loadingInfinity, adaptiveLoading, adaptiveAiLoading, adaptiveEndReason, answerAdaptiveInfinity, setUserAnswer, setAnswer, error, useLivesCard, setWin, wildCards, currentQuestion, setQuestionProgress, win, questionProgress } = useBoundStore(state => state)
 
 	async function validateAnswer(e) {
+		const questionIndex = queries.infinitymode ? 0 : currentQuestion - 1
+		const activeQuestion = questions[questionIndex]
+		if (!activeQuestion) return
+
 		var correct = null;
 		if (!queries.quizmode) {
-			correct = e.target.textContent === questions[currentQuestion - 1].correctAnswer
+			correct = e.target.textContent === activeQuestion.correctAnswer
 		} else {
-			correct = await checkAnswer(e.target.textContent, questions[currentQuestion - 1].correctAnswer)
+			correct = await checkAnswer(e.target.textContent, activeQuestion.correctAnswer)
 		}
 
 		e.target.parentNode.classList.add(correct ? 'shake-left-right' : 'vibrate')
 		e.target.classList.add(correct ? 'correctAnswer' : 'wrongAnswer')
 
-		document.querySelectorAll(`.answers-${currentQuestion} button`).forEach(answer => {
+		document.querySelectorAll(`.answers-${queries.infinitymode ? 1 : currentQuestion} button`).forEach(answer => {
 			answer.disabled = true
-			if (!correct && answer.textContent === questions[currentQuestion - 1].correctAnswer) {
+			if (!correct && answer.textContent === activeQuestion.correctAnswer) {
 				answer.parentNode.classList.add('shake-left-right')
 				answer.classList.add('correctAnswer')
 			}
 		})
 
 		playSound(correct ? 'correct_answer' : 'wrong_answer', 0.3)
-		if (!queries.infinitymode) setUserAnswer(currentQuestion - 1, correct ? 1 : -1)
-		setAnswer(currentQuestion - 1, e.target.textContent)
 
 		if (queries.infinitymode) {
-			if (correct) {
-				if (questionProgress !== 1 && questionProgress % 5 === 0) getAnotherQuestions()
-			} else {
-				if (wildCards.lives > 0) {
-					if (questionProgress !== 1 && questionProgress % 5 === 0) getAnotherQuestions()
-					useLivesCard()
-				} else return setWin(false)
-			}
-		} else {
-			if (!correct) {
-				if (wildCards.lives > 0) {
-					useLivesCard()
-					if (questionProgress === Number(queries.questions)) return setWin(true)
-				} else return setWin(false)
-			} else if (questionProgress === Number(queries.questions)) return setWin(true)
+			setTimeout(() => {
+				setTime(Number(queries.time))
+				answerAdaptiveInfinity(activeQuestion, e.target.textContent, correct)
+			}, 1000)
+			return
 		}
+
+		setUserAnswer(currentQuestion - 1, correct ? 1 : -1)
+		setAnswer(currentQuestion - 1, e.target.textContent)
+
+		if (!correct) {
+			if (wildCards.lives > 0) {
+				useLivesCard()
+				if (questionProgress === Number(queries.questions)) return setWin(true)
+			} else return setWin(false)
+		} else if (questionProgress === Number(queries.questions)) return setWin(true)
 
 		setTimeout(() => {
 			setQuestionProgress(questionProgress + 1)
 			setTime(Number(queries.time))
-			if (queries.infinitymode && questionProgress !== 1 && questionProgress % 5 === 0) changueCurrent(1)
-			else changueCurrent(currentQuestion + 1)
+			changueCurrent(currentQuestion + 1)
 		}, 1000)
 	}
 
@@ -62,18 +63,26 @@ export default function QuestionSlider({ changueCurrent, setTime, getAnotherQues
 		</div>
 	}
 
-	if (loadingInfinity || !questions) {
-		return <div className='flex h-32 md:h-[6.5rem] items-center justify-center rounded-md bg-blue-500 px-5 mdpx-10: py-6 text-white text-xl font-semibold'>
-			Loading next questions...
+	if (loadingInfinity || adaptiveLoading || (queries.infinitymode && adaptiveAiLoading && questions.length === 0) || !questions) {
+		return <div className='flex h-32 md:h-[6.5rem] items-center justify-center rounded-md bg-blue-500 px-5 md:px-10 py-6 text-white text-xl font-semibold'>
+			{queries.infinitymode ? 'Preparing Infinity Quiz questions...' : 'Loading next questions...'}
 		</div>
 	}
+
+	if (queries.infinitymode && adaptiveEndReason && questions.length === 0) {
+		return <div className='flex h-32 md:h-[6.5rem] items-center justify-center rounded-md bg-red-500 px-5 md:px-10 py-6 text-center text-white text-xl font-semibold'>
+			{adaptiveEndReason}
+		</div>
+	}
+
+	const visibleQuestions = queries.infinitymode ? questions.slice(0, 1) : questions
 
 	return (
 		<main className='relative max-w-2xl min-h-[28rem] md:min-h-[16rem] mx-auto h-1/2'>
 			{
-				questions.map((question, i) => {
+				visibleQuestions.map((question, i) => {
 					return (
-						<div key={question.correctAnswer + i} className={`transition-all duration-500 ${i === 0 ? '' : 'slide-right'} absolute text-center w-full`} id={'question-' + (i + 1)}>
+						<div key={`${question.sourceQuestionId || question.correctAnswer}-${questionProgress}-${i}`} className={`transition-all duration-500 ${i === 0 ? '' : 'slide-right'} absolute text-center w-full`} id={'question-' + (i + 1)}>
 							{
 								question.ia && <div className='absolute -top-6 -right-6 p-2'>
 									<Image src={starIcon} width={50} height={50} alt='Question generated by AI' title='Question generated by AI' />
@@ -88,7 +97,7 @@ export default function QuestionSlider({ changueCurrent, setTime, getAnotherQues
 									<li key={j + answer} className="relative">
 										<button
 											className={`${'answer-' + (j + 1)} peer btn-primary w-full shadow-sm pl-12 py-3 px-5 rounded mb-6 ${answer.length > 24 ? 'text-sm' : ''}`}
-											disabled={!queries.infinitymode && (questionProgress !== i + 1 || currentQuestion !== i + 1 || win !== undefined)}											onClick={validateAnswer}>
+											disabled={win !== undefined || (!queries.infinitymode && (questionProgress !== i + 1 || currentQuestion !== i + 1))}											onClick={validateAnswer}>
 											{answer || '---'}
 										</button >
 

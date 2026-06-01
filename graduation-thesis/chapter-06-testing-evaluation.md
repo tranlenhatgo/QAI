@@ -214,6 +214,7 @@ test('parseScore returns null for invalid', () => {
 | FR-07: Step-by-Step Solver | ✓ Complete | LLM output format verified |
 | FR-08: Authentication | ✓ Complete | Firebase Auth integration |
 | FR-09: Subscription Gate | Complete | Browser + API mock checkout tests |
+| FR-10: Adaptive Infinity Quiz | Complete | Live API + Playwright browser tests |
 
 ### 6.5.2 Non-Functional Requirements Verification
 
@@ -225,6 +226,7 @@ test('parseScore returns null for invalid', () => {
 | NFR-01.4: Generate 5 questions | < 15s | ~8s (Full) | ✓ |
 | NFR-01.5: Ingest 10-page PDF | < 30s | ~12s | ✓ |
 | NFR-01.6: RAG search | < 500ms | ~200ms | ✓ |
+| NFR-01.7: Adaptive Lite batch | 5 questions with local Qwen | ~67-84s in dev | Partial |
 
 ### 6.5.3 AI Quality Assessment
 
@@ -246,11 +248,21 @@ The Full tier (DeepSeek) was observed to produce noticeably higher quality outpu
 
 The subscription flow was verified with both API calls and Playwright browser checks. A locked Lite user remains in Lite when requesting Full, the subscription modal opens, and the `View plans` action navigates to `/payment`. Selecting monthly, yearly, or forever performs a mock checkout through the Next.js BFF and Spring Boot before Firestore is updated. After checkout, Full mode is enabled immediately, while expired monthly/yearly plans are treated as Lite by backend entitlement reads and coach API forwarding.
 
-### 6.5.5 Spaced Repetition Effectiveness
+### 6.5.5 Adaptive Infinity Quiz Live Test
+
+Adaptive Infinity was tested end-to-end on 2026-05-31 with fresh timestamped Firebase Lite and Full users. The local stack used Next.js, Spring Boot, AI Study Coach, Firestore, and LM Studio running `qwen/qwen3.5-9b`.
+
+API checks verified unauthenticated `session-state` returns 401, missing categories return 400, invalid answer payloads return 400, fresh categories return empty state, and `static_json`, `adaptive_ai`, and `repeat` answers are persisted under `users/{uid}/adaptive_practice_answers`. Category isolation was verified by confirming a wrong Sports answer did not appear in Literature state. Side-effect checks confirmed no new `take_quiz`, `review_schedule`, or `notification` records were created by adaptive answers.
+
+AI generation checks verified `/generate/adaptive-questions` rejects missing category, missing tier, and counts that do not match the selected tier. Lite requests forwarded `tier:"lite"` and returned exactly 5 valid same-category questions from LM Studio. Full requests forwarded `tier:"full"` and returned 10 valid same-category questions when the Full provider was configured.
+
+Browser checks verified guest blocking, static-first category startup, no AI request at the beginning of a new category with more than 5 static questions, background prefetch when 5 static questions remained, immediate AI request for a returning category, one mounted active question, Lite 5/5 forwarding, Full 20/10 forwarding, and exact wrong-question repeat after two intervening answers. Correctly answering the repeated question removed it from the active wrong queue.
+
+### 6.5.6 Spaced Repetition Effectiveness
 
 The SM-2 algorithm's effectiveness is well-established in cognitive science literature (see Chapter 2). Our implementation follows the standard algorithm with minor interval adjustments (initial intervals of 1 and 3 days instead of 1 and 6). No controlled user study was conducted within the scope of this project; effectiveness claims are based on the underlying algorithm's published research results.
 
-### 6.5.6 RAG Retrieval Quality
+### 6.5.7 RAG Retrieval Quality
 
 Tested informally with uploaded documents and representative queries during development:
 
@@ -264,7 +276,7 @@ Note: These estimates are based on developer testing with a small sample. A form
 ## 6.6 Known Limitations
 
 1. **Image-only PDFs**: Cannot process scanned documents (design decision — no OCR).
-2. **Local model quality**: Lite tier struggles with complex questions and nuanced distractors.
+2. **Local model quality and latency**: Lite tier struggles with complex questions and nuanced distractors, and local Qwen Adaptive Infinity batches are slower than cloud Full batches on developer hardware.
 3. **Context window**: Very long documents may exceed LM Studio's context window during generation.
 4. **Concurrent WebSocket**: Not load-tested beyond 10 simultaneous sessions.
 5. **Offline AI**: AI features require network (even Lite tier needs LM Studio running locally).

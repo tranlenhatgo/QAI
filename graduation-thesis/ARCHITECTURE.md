@@ -520,3 +520,22 @@ Next.js presents the payment UI and authenticated BFF routes, but subscription w
 - (+) Existing users with no subscription document can retain legacy Full access
 - (+) Payment provider integration can replace mock checkout without changing AI Coach contracts
 - (-) Full entitlement depends on Spring Boot availability
+
+---
+
+### ADR-009: Adaptive Infinity Uses Separate Journal and 5-Question AI Batches
+
+**Status:** Accepted
+**Date:** 2026-05
+
+**Context:**
+Infinity practice needs unlimited single-category questions while preserving formal quiz history and keeping local Qwen generation reliable on developer hardware.
+
+**Decision:**
+Adaptive Infinity keeps its own answer journal at `users/{uid}/adaptive_practice_answers`. New category sessions serve static `questions.json` questions first; returning category sessions request AI immediately. Lite generation sends 5 context items and requests 5 questions from LM Studio with `qwen/qwen3.5-9b`; Full generation sends 20 context items and requests 10 questions from the configured Full provider. Provider failures return errors instead of silently switching tiers.
+
+**Consequences:**
+- (+) Formal quiz scores, SM-2 schedules, and notifications remain unaffected by endless practice
+- (+) Category isolation keeps AI prompts focused and audit-friendly
+- (+) Lite 5-question batches fit the local model while Full can use larger 10-question batches
+- (-) Lite generation latency depends heavily on local hardware and loaded model

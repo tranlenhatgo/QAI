@@ -42,6 +42,7 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 						<input id="cbx" onClick={handleInputs} defaultChecked={!nowQueries.infinitymode} type="checkbox" name="infinitymode" className='w-5 h-5 absolute top-[2px] left-[2px]' />
 						<label htmlFor="cbx" className="cbx" title={nowQueries.infinitymode ? 'Classic mode' : 'Infinity mode'}></label>
 					</div>
+					<div className="mb-2 pl-14 text-sm font-semibold text-slate-700">Infinity Quiz</div>
 
 					<div className='flex items-center'>
 						<input type="range" name="questions" min={defaultQuestions.minQuestions} max={defaultQuestions.maxQuestions} defaultValue={nowQueries.questions} onChange={handleInputs} className={`w-full cursor-pointer ${nowQueries.infinitymode ? 'grayscale cursor-not-allowed' : ''}`} disabled={nowQueries.infinitymode} />

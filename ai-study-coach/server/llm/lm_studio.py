@@ -59,7 +59,12 @@ class LMStudioProvider(LLMService):
                         if data_str.strip() == "[DONE]":
                             break
                         chunk = json.loads(data_str)
-                        delta = chunk["choices"][0].get("delta", {})
+                        if "error" in chunk:
+                            raise RuntimeError(f"LM Studio stream error: {chunk['error']}")
+                        choices = chunk.get("choices") or []
+                        if not choices:
+                            continue
+                        delta = choices[0].get("delta", {})
                         token = delta.get("content", "")
                         if token:
                             yield StreamChunk(type=ChunkType.CONTENT, content=token)

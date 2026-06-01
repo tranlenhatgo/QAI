@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     # LM Studio (local LLM — Lite tier)
     lm_studio_url: str = "http://127.0.0.1:1234"
-    lm_studio_model: str = ""  # e.g. "google/gemma-4-e4b"; empty = auto-detect first chat model
+    lm_studio_model: str = "qwen/qwen3.5-9b"
     embedding_model: str = "text-embedding-nomic-embed-text-v1.5"
 
     # External LLM provider (Full tier)

@@ -18,6 +18,8 @@ This thesis presented QAI, an AI-Assisted Quiz Platform that integrates intellig
 
 7. **Progressive Web Application**: Shipped an installable PWA with service worker caching, responsive design across mobile/tablet/desktop, and real-time streaming AI chat.
 
+8. **Adaptive Infinity Quiz**: Added signed-in, single-category endless practice that starts from static `questions.json` questions, requests tier-sized Lite/Full AI batches, and repeats wrong answers with in-session spacing while keeping adaptive records separate from formal quiz history.
+
 ## 7.2 Contributions to the Field
 
 The work makes the following contributions:
@@ -30,6 +32,8 @@ The work makes the following contributions:
 
 - **Practical Dual-Tier Design**: Provided a reference architecture for educational AI systems that must balance quality, cost, and privacy requirements.
 
+- **Separated Adaptive Practice Journal**: Demonstrated how endless adaptive practice can coexist with formal quiz scoring by storing practice answers in a dedicated user-scoped Firestore subcollection.
+
 ## 7.3 Objectives Fulfillment
 
 | Objective | Status | Evidence |
@@ -39,6 +43,7 @@ The work makes the following contributions:
 | Spaced repetition (SM-2) | ✓ Achieved | Per-category scheduling, webhook-triggered updates |
 | RAG pipeline | ✓ Achieved | PDF/TXT ingestion, pgvector search, context injection |
 | Progress tracking | ✓ Achieved | Mastery, velocity, streaks, weakness analysis |
+| Adaptive endless practice | Achieved | Static warmup, Lite 5-question and Full 10-question AI batches, wrong-repeat queue |
 | Production-ready system | ✓ Achieved | Three services running, authenticated, integrated |
 
 ## 7.4 Limitations
@@ -67,6 +72,7 @@ The work makes the following contributions:
 ### 7.5.2 Medium-Term Enhancements
 
 - **Adaptive Difficulty**: Use learning analytics to automatically adjust question difficulty in generated quizzes.
+- **Adaptive Infinity Optimization**: Cache AI batches and add model-specific prompt tuning to reduce Lite local generation latency.
 - **Multi-Modal RAG**: Support images, diagrams, and tables in uploaded materials.
 - **FSRS Migration**: Evaluate the Free Spaced Repetition Scheduler as a more personalized alternative to SM-2 once sufficient user data accumulates.
 - **LLM Fine-Tuning**: Fine-tune a small model on educational question-answer pairs for improved Lite tier quality.

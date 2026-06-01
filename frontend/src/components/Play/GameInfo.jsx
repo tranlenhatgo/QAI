@@ -11,12 +11,12 @@ export default function GameInfo() {
 	const mode = queries.quizmode
 		? 'Quiz'
 		: queries.timemode && queries.infinitymode
-			? 'Time | Infinity'
+			? 'Time | Infinity Quiz'
 			: !queries.timemode && !queries.infinitymode
 				? 'Classic'
 				: queries.timemode
 					? 'Time'
-					: 'Infinity';
+					: 'Infinity Quiz';
 
 	return (
 		<>

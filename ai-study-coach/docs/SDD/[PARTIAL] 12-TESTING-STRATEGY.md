@@ -245,7 +245,28 @@ async def test_agentic_forces_answer_at_max_iterations():
     assert len(content_events) > 0  # Forced final answer
 ```
 
-### I-4: Lite Orchestrator Workflows
+### I-4: Adaptive Infinity Generation
+
+```text
+Given: /generate/adaptive-questions receives category, tier, count, history, wrong_questions, recent_questions
+When:  tier=lite, count=5, and LM Studio is available
+Then:  qwen/qwen3.5-9b returns exactly 5 same-category MC questions
+       every item has 4 answers, correctAnswer is one answer, source=adaptive_ai
+
+Given: tier=full, count=10, and the Full provider is available
+When:  the request is submitted with 20-item context
+Then:  the Full provider returns exactly 10 same-category MC questions
+
+Given: wrong count for the tier or missing tier/category
+When:  the request is submitted
+Then:  the route returns 400 and does not call an LLM provider
+
+Given: selected provider unavailable
+When:  tier=lite or tier=full request is submitted
+Then:  the route returns 503 and does not fall back to the other tier
+```
+
+### I-5: Lite Orchestrator Workflows
 
 ```python
 async def test_lite_weakness_fetches_from_java_be():
@@ -453,6 +474,11 @@ async def test_mode_switch_preserves_history():
 - [ ] Quiz generation: produces valid Quiz JSON (5 questions)
 - [ ] Quiz: MC has exactly 4 options, 1 correct
 - [ ] Quiz: JSON repair handles malformed LLM output
+- [ ] Adaptive Infinity: `/generate/adaptive-questions` requires Lite `count=5` and Full `count=10`
+- [ ] Adaptive Infinity: Lite uses LM Studio with `qwen/qwen3.5-9b`
+- [ ] Adaptive Infinity: Full uses the configured Full provider and does not fall back
+- [ ] Adaptive Infinity: prompt includes only selected-category context with Lite 5-item context and Full 20-item context
+- [ ] Adaptive Infinity: duplicate or malformed batches retry once, then return 502
 - [ ] Step solver: creates 3-7 step plan
 - [ ] Step solver: executes each step with reasoning
 - [ ] Step solver: produces final answer with confidence

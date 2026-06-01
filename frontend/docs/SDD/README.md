@@ -38,6 +38,7 @@ Browser (Next.js :3000)
 | 14 | [PROGRESS-TRACKING-UI.md](./14-PROGRESS-TRACKING-UI.md) | Real progress data integration, mastery bars, velocity |
 | 15 | [SCHEDULER-NOTIFICATIONS-UI.md](./15-SCHEDULER-NOTIFICATIONS-UI.md) | Notification banner, badge, and dropdown list |
 | 16 | [SUBSCRIPTION-PAYMENT.md](./[IMPLEMENTED] 16-SUBSCRIPTION-PAYMENT.md) | Mock payment page, subscription BFF routes, Lite/Full gate |
+| 17 | [ADAPTIVE-INFINITY-QUIZ.md](./[IMPLEMENTED] 17-ADAPTIVE-INFINITY-QUIZ.md) | Single-category Infinity Quiz queueing, tier-sized AI batches, repeats |
 
 ---
 

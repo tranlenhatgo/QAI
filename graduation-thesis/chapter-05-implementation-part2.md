@@ -157,6 +157,15 @@ Manages the Coach dashboard state with Firestore persistence:
 - `checkoutSubscription(plan)`: Performs mock checkout through `/api/subscription/checkout` and enables Full mode.
 - `requestCoachTier(tier)`: Centralizes Lite/Full switching and opens the subscription modal when Full is locked.
 
+**Adaptive Infinity State**:
+- `adaptiveQueue`: Static and AI-generated non-repeat questions.
+- `adaptiveWrongQueue`: Wrong questions scheduled for exact in-session repeats.
+- `adaptiveHistory`: Current session answer list used by results and AI context.
+- `adaptiveRecentAnswers`: Last 20 answers retained so Full requests can send 20-item context while Lite is trimmed to 5 by the BFF.
+- `startAdaptiveInfinity()`: Loads selected-category session state and queues static or AI questions.
+- `fetchAdaptiveQuestionsBatch()`: Requests a tier-sized AI batch through `/api/coach/adaptive-questions`.
+- `submitAdaptiveAnswer()`: Persists each answer through `/api/adaptive-practice/answer`.
+
 ## 5.13 BFF API Routes
 
 ### 5.13.1 Authentication Middleware
@@ -207,7 +216,19 @@ Subscription routes use the same Firebase session cookie as other protected BFF 
 
 This keeps `users/{uid}/subscription/current` writes under Firebase Admin in Spring Boot while still giving the React UI immediate state updates after checkout.
 
-### 5.13.3 Secret Injection
+### 5.13.3 Adaptive Practice BFF Routes
+
+Adaptive Infinity uses two BFF groups:
+
+| BFF Route | Upstream Target | Purpose |
+|-----------|-----------------|---------|
+| `/api/adaptive-practice/session-state` | `/adaptive-practice/session-state` | Load selected-category static history, wrong questions, and recent answers |
+| `/api/adaptive-practice/answer` | `/adaptive-practice/answer` | Persist one adaptive answer |
+| `/api/coach/adaptive-questions` | `/generate/adaptive-questions` | Generate tier-sized same-category AI questions |
+
+The adaptive-practice routes forward the Firebase ID token to Spring Boot. The coach route resolves the current subscription state first, forwards `tier: "full"` only for Full-entitled users, and otherwise forwards `tier: "lite"`. Lite requests send 5 history/wrong/recent items and request 5 questions. Full requests send 20 history/wrong/recent items and request 10 questions.
+
+### 5.13.4 Secret Injection
 
 The BFF injects server-side secrets when proxying to AI Coach:
 
@@ -258,6 +279,12 @@ Document management interface:
 ### 5.14.4 Payment Page
 
 The protected `/payment` route presents three mock subscription choices for Full mode: 1 month for `$2`, 1 year for `$20`, and forever for `$100`. Selecting a plan calls the subscription BFF route, waits for Spring Boot to persist the Firestore record, then updates the local store to enable Full mode immediately. No real card data or payment provider is used in this prototype.
+
+### 5.14.5 Adaptive Infinity Quiz UI
+
+`PlayForm.jsx` exposes the `Infinity Quiz` checkbox. Guests who click it see the authentication modal and the checkbox remains disabled. Signed-in Lite and Full users can start the mode with one category.
+
+The `/play` page renders only the active Infinity question. For new categories it serves deterministic static `questions.json` questions first. When only 5 non-repeat questions remain, it prefetches an AI batch in the background. Returning categories request AI immediately. Wrong answers are added back as exact repeats after two intervening questions; if wrong again on repeat, the delay increases to four. Results display total answered, correct, wrong, static, AI-generated, and repeated-question counts.
 
 ## 5.15 PWA Implementation
 

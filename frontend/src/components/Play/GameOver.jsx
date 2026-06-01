@@ -28,7 +28,7 @@ const canvasStyles = {
 }
 
 export default function GameOver() {
-	const { queries, questionProgress, win, questions, setDecryptedAnswer, takeId, sendAsk, user, coachTier } = useBoundStore(state => state)
+	const { queries, win, questions, adaptiveHistory, adaptiveStats, adaptiveEndReason, setDecryptedAnswer, takeId, user, coachTier } = useBoundStore(state => state)
 	const [expandedQuestionIndex, setExpandedQuestionIndex] = useState(null);
 	const [explanationIndex, setExplanationIndex] = useState(null);
 	const [explanation, setExplanation] = useState('');
@@ -36,7 +36,8 @@ export default function GameOver() {
 	const refAnimationInstance = useRef(null)
 
 	const showCorrectAnswer = async (questionIndex) => {
-		const question = questions[questionIndex]; // Get the specific question
+		const resultQuestions = queries.infinitymode ? adaptiveHistory : questions
+		const question = resultQuestions[questionIndex]; // Get the specific question
 		if (queries.quizmode) {
 			const correctAnswer = await getCorrectAnswer(question.correctAnswer);
 
@@ -51,7 +52,8 @@ export default function GameOver() {
 	};
 
 	function handleAskAI(questionIndex) {
-		const question = questions[questionIndex]
+		const resultQuestions = queries.infinitymode ? adaptiveHistory : questions
+		const question = resultQuestions[questionIndex]
 		setExplanationIndex(questionIndex)
 		setExplanation('')
 		setIsExplaining(true)
@@ -150,10 +152,15 @@ export default function GameOver() {
 	}
 
 	function finalText() {
-		if (queries.infinitymode) return `You answered well ${questionProgress - 1} questions!`
+		if (queries.infinitymode) {
+			if (adaptiveEndReason) return `${adaptiveEndReason}\nAnswered ${adaptiveStats.total} questions.`
+			return `Answered ${adaptiveStats.total} questions: ${adaptiveStats.correct} correct, ${adaptiveStats.wrong} wrong.`
+		}
 		if (win === true) return 'Congratulations! \nQuiz completed successfully.'
 		return 'Better luck next time! \nYou can try again.'
 	}
+
+	const resultQuestions = queries.infinitymode ? adaptiveHistory : questions
 
 	return (
 		<>
@@ -177,6 +184,13 @@ export default function GameOver() {
 						{finalImage()}
 						<h2 className="text-2xl font-bold">{finalTitle()}</h2>
 						<p className="text-center mb-3 whitespace-pre-line">{finalText()}</p>
+						{queries.infinitymode && (
+							<div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold text-slate-700">
+								<span className="rounded bg-slate-100 px-3 py-2">Static {adaptiveStats.static}</span>
+								<span className="rounded bg-slate-100 px-3 py-2">AI {adaptiveStats.ai}</span>
+								<span className="rounded bg-slate-100 px-3 py-2">Repeat {adaptiveStats.repeated}</span>
+							</div>
+						)}
 						{!user && queries.quizmode && (
 							<p className="text-sm text-gray-500 bg-yellow-50 p-3 rounded-md border border-yellow-200">
 								💡 Sign in to save your quiz results and track progress!
@@ -199,7 +213,7 @@ export default function GameOver() {
 					{/* List of Questions */}
 					<div className="flex-1 flex flex-col w-full md:w-1/3 max-h-[60vh]">
 						<ul className="flex-1 w-full overflow-y-auto bg-gray-100 p-4 rounded-md">
-							{questions.map((question, index) => (
+							{resultQuestions.map((question, index) => (
 								<li
 									key={question.id || index}
 									className="flex flex-col gap-4 p-4 mb-4 rounded-md shadow-md bg-white"
@@ -297,7 +311,7 @@ export default function GameOver() {
 							</button>
 						</div>
 						<div className="mb-4 rounded-lg bg-blue-50 p-3">
-							<p className="text-sm font-semibold text-blue-800">{questions[explanationIndex]?.question}</p>
+							<p className="text-sm font-semibold text-blue-800">{resultQuestions[explanationIndex]?.question}</p>
 						</div>
 						{isExplaining ? (
 							<div className="flex items-center gap-3 py-6 justify-center">

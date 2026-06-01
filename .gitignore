@@ -5,6 +5,7 @@
 firestore-mcp/
 autotest-agent/
 graduation-thesis/diagrams/
+.codex-live-test-logs/
 
 # Vite cache
 .vite/

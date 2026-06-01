@@ -32,7 +32,7 @@
 
 - **Time** — Countdown timer per question
 
-- **Infinite** — Endless mode, track personal record
+- **Infinite** — Signed-in Adaptive Infinity Quiz with one selected category, static warmup questions, tier-sized AI batches, and wrong-question repeats
 
 ### Embedded AI Coach
 
@@ -103,7 +103,7 @@
 
 - **Lose**: Red X icon + score
 
-- **Infinity mode**: Trophy icon
+- **Infinity mode**: Trophy icon, adaptive stats for total answered, correct, wrong, static, AI, and repeated questions
 
 - Question review: expand to see all answers (color-coded)
 
@@ -177,7 +177,7 @@
 | Keyboard shortcuts | `useEffect` keydown listeners | Play |
 | Wildcard system | Skip, 50/50, Lives with counters | Play |
 | Lives system | Lose on timeout, visual feedback | Play |
-| Infinity mode | Endless progression, 5-question chunks | Play |
+| Infinity Quiz | Signed-in single-category adaptive progression, static warmup, Lite 5-question or Full 10-question AI chunks, wrong-repeat cadence | Play |
 | Score display | `"correct/total"` format | GameOver |
 | Badge counters | Floating white badges on wildcards | Play |
 

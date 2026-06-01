@@ -88,6 +88,45 @@ GET /user/quiz-profile?userId=abc123
 
 ---
 
+## Subscription Entitlement
+
+```
+GET /subscription/current
+  -> SubscriptionController verifies Firebase bearer token
+  -> FirebaseAuth derives uid
+  -> SubscriptionService reads users/{uid}/subscription/current
+  -> missing doc returns virtual legacy Full access
+  -> expired monthly/yearly doc is downgraded to fullAccess=false
+```
+
+```
+POST /subscription/checkout { plan }
+  -> controller verifies token and validates plan
+  -> service writes users/{uid}/subscription/current
+  -> response returns active Full subscription
+```
+
+---
+
+## Adaptive Infinity Practice
+
+```
+GET /adaptive-practice/session-state?category=sports
+  -> AdaptivePracticeController verifies Firebase bearer token
+  -> AdaptivePracticeService normalizes category to lowercase
+  -> reads only users/{uid}/adaptive_practice_answers for that category
+  -> returns answeredStaticQuestionIds, wrongQuestions, recentAnswers
+```
+
+```
+POST /adaptive-practice/answer
+  -> validates category, question, answers, correctAnswer, selectedAnswer, correct, source
+  -> writes users/{uid}/adaptive_practice_answers/{id}
+  -> does not create take_quiz, take_question, review_schedule, or notification records
+```
+
+---
+
 ## AI Question Generation
 
 > **Moved to AI Study Coach** — Spring Boot no longer participates in question generation.

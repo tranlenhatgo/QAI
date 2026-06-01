@@ -216,7 +216,7 @@ app.security.cors.allowed-methods=GET,POST,PUT,PATCH,DELETE,OPTIONS
 app.security.cors.allowed-headers=*
 ```
 
-**Note**: Controller paths have no `/api/` prefix. Actual endpoint paths are: `/quiz`, `/question`, `/take-quiz`, `/review-schedule`, `/notification`. The Next.js BFF routes proxy under `/api/*` (e.g., `/api/quiz` → Spring Boot `/quiz`).
+**Note**: Controller paths have no `/api/` prefix. Actual endpoint paths include `/quiz`, `/question`, `/take-quiz`, `/review-schedule`, `/notification`, `/subscription`, and `/adaptive-practice`. The Next.js BFF routes proxy under `/api/*` (e.g., `/api/quiz` -> Spring Boot `/quiz`).
 
 ## 5.8 Error Handling
 
@@ -234,7 +234,13 @@ Subscription ownership is implemented in Spring Boot so the browser cannot grant
 
 Each endpoint requires `Authorization: Bearer <Firebase ID token>`. The controller verifies the token using the `FirebaseAuth` bean and passes the verified UID to `SubscriptionService`. The service persists the document at `users/{uid}/subscription/current`, preserves missing documents as legacy Full access, and downgrades expired monthly/yearly records by setting `subscriptionStatus = "expired"` and `fullAccess = false`.
 
-## 5.10 Build and Deployment
+## 5.10 Adaptive Practice Journal
+
+`AdaptivePracticeController` exposes `GET /adaptive-practice/session-state` and `POST /adaptive-practice/answer`. Both endpoints verify the Firebase ID token with Firebase Admin and derive the UID server-side.
+
+`AdaptivePracticeService` stores records at `users/{uid}/adaptive_practice_answers/{id}`. Session-state reads normalize the requested category to lowercase, return answered static question IDs, return selected-category wrong questions, and include recent answers for AI context. The service deliberately does not call `TakeQuizService`, `TakeQuestionService`, `ReviewScheduleService`, or `NotificationService`, keeping Adaptive Infinity separate from formal scoring and SM-2 scheduling.
+
+## 5.11 Build and Deployment
 
 The project builds as a fat JAR via Maven:
 

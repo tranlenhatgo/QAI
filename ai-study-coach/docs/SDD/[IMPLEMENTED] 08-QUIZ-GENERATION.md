@@ -6,6 +6,8 @@ Generate quizzes based on study materials (RAG) or specified topics. Supports mu
 
 **Design constraint**: The frontend enforces single-category selection for quiz generation. All generated questions belong to one category, ensuring accurate AI tracking (spaced repetition, progress, weakness analysis).
 
+Adaptive Infinity uses a separate endpoint, `/generate/adaptive-questions`, documented in `19-ADAPTIVE-INFINITY-GENERATION.md`. That route generates same-category multiple-choice batches by tier: Lite uses the latest 5 selected-category context items and returns 5 questions via LM Studio (`qwen/qwen3.5-9b`), while Full uses the latest 20 selected-category context items and returns 10 questions via the configured Full provider.
+
 ---
 
 ## Interface Contract

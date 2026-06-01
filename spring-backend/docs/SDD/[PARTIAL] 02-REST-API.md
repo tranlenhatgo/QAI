@@ -36,6 +36,21 @@
 |--------|----------|-------------|
 | GET | `/user/quiz-profile?userId=` | Aggregated profile (created quizzes + attempts) |
 
+### Subscription (`/subscription`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/subscription/current` | Firebase-token entitlement read; missing doc returns legacy Full access |
+| POST | `/subscription/signup` | Create Lite subscription doc for a new authenticated user |
+| POST | `/subscription/checkout` | Apply mock monthly/yearly/forever Full plan |
+
+### Adaptive Practice (`/adaptive-practice`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/adaptive-practice/session-state?category=` | Return selected-category static IDs, wrong questions, and recent adaptive answers |
+| POST | `/adaptive-practice/answer` | Persist one Adaptive Infinity answer under the authenticated user |
+
 ---
 
 ## Request/Response DTOs

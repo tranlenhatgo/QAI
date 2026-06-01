@@ -37,6 +37,13 @@
 6. Verify against Acceptance Criteria in the spec
 ```
 
+## Adaptive Infinity Contract
+
+- `19-ADAPTIVE-INFINITY-GENERATION.md` is the source of truth for `/generate/adaptive-questions`.
+- The endpoint generates tier-sized same-category batches: Lite count 5, Full count 10.
+- Lite uses LM Studio with `qwen/qwen3.5-9b`; Full uses the configured Full provider. Do not silently fall back between tiers.
+- Prompts must use only selected-category context. Lite receives at most 5 answered/wrong/recent items; Full receives at most 20 answered/wrong/recent items.
+
 ---
 
 ## File Size Rule

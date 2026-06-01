@@ -62,13 +62,14 @@ The frontend serves dual roles as a **UI layer** and **Backend-for-Frontend (BFF
 - Proxy requests to Spring Boot with authentication token forwarding.
 - Proxy requests to AI Coach with API key injection (secrets stay server-side).
 - Token verification via Firebase Admin SDK on each request.
+- Resolve subscription tier and forward Adaptive Infinity requests with only the allowed Lite or Full model tier.
 
 ### 4.2.3 AI Study Coach
 
 The Python service handles all AI/ML workloads:
 
 - **WebSocket chat**: Streaming conversation with agentic tool-calling loop.
-- **Question generation**: From topics, from uploaded files, from RAG-indexed materials.
+- **Question generation**: From topics, uploaded files, RAG-indexed materials, and Adaptive Infinity tier-sized batches.
 - **Document ingestion**: Text extraction → chunking → embedding → Supabase storage.
 - **Spaced repetition engine**: SM-2 algorithm execution triggered by quiz webhooks.
 - **Progress analysis**: Computes mastery metrics, velocity, streaks from quiz history.
@@ -81,8 +82,8 @@ The Python service handles all AI/ML workloads:
 Standard HTTP REST is used for CRUD operations and request-response workflows:
 
 ```text
-Frontend BFF  ──HTTP/JSON──►  Spring Boot   (quiz CRUD, user ops)
-Frontend BFF  ──HTTP/JSON──►  AI Coach      (generate, ingest)
+Frontend BFF  ──HTTP/JSON──►  Spring Boot   (quiz CRUD, user ops, adaptive journal)
+Frontend BFF  ──HTTP/JSON──►  AI Coach      (generate, ingest, adaptive batches)
 Spring Boot   ──HTTP/JSON──►  AI Coach      (webhook: quiz completed)
 AI Coach      ──HTTP/JSON──►  Spring Boot   (fetch quiz history)
 AI Coach      ──HTTP/JSON──►  LM Studio     (embedding generation)
@@ -174,6 +175,7 @@ Secrets are managed at the BFF layer:
 - Supabase RAG documents filtered by `kb_id = user_id` in all queries.
 - Quiz history API filters by authenticated user's ID.
 - Review schedules scoped to `user_id` field.
+- Adaptive practice answers are stored under `users/{uid}/adaptive_practice_answers` and filtered by selected category.
 
 ## 4.6 Deployment Architecture
 

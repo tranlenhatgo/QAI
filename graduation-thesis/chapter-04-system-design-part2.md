@@ -108,6 +108,26 @@ Firestore, a document-oriented NoSQL database, stores the primary application da
 | createdAt | timestamp | Original subscription creation |
 | updatedAt | timestamp | Last subscription update |
 
+**Collection: `users/{uid}/adaptive_practice_answers`** (Spring Boot-managed)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | 8-character document ID |
+| category | string | Lowercase selected category |
+| sourceQuestionId | string/null | Deterministic static question ID |
+| question | string | Question text |
+| answers | array[string] | Four answer options |
+| correctAnswer | string | Correct answer text |
+| selectedAnswer | string | User-selected answer |
+| correct | boolean | Whether the answer was correct |
+| source | string | static_json, adaptive_ai, or repeat |
+| repeated | boolean | Whether this record is a repeated wrong question |
+| generatedFromQuestion | string/null | AI source trace |
+| createdAt | timestamp | Record creation |
+| updatedAt | timestamp | Last update |
+
+Adaptive practice documents are not part of formal quiz scoring, profile history, review schedules, or notifications.
+
 ### 4.8.2 Supabase Tables (RAG Storage)
 
 **Table: `documents`**
@@ -203,6 +223,15 @@ The AI Coach uses a lightweight SQLite database for session and scheduling data:
 
 These endpoints require `Authorization: Bearer <Firebase ID token>`. Spring Boot verifies the token with Firebase Admin and derives the user id server-side before reading or writing Firestore.
 
+**Adaptive Practice Endpoints**:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /adaptive-practice/session-state?category= | Get selected-category static IDs, wrong questions, and recent adaptive answers |
+| POST | /adaptive-practice/answer | Persist one Adaptive Infinity answer record |
+
+These endpoints also require `Authorization: Bearer <Firebase ID token>` and derive the UID server-side.
+
 ### 4.9.2 AI Coach REST API
 
 | Method | Path | Description |
@@ -211,6 +240,7 @@ These endpoints require `Authorization: Bearer <Firebase ID token>`. Spring Boot
 | DELETE | /ingest/{document_id} | Delete document chunks |
 | POST | /generate/from-topics | Generate questions from topic |
 | POST | /generate/from-file | Generate questions from uploaded file |
+| POST | /generate/adaptive-questions | Generate same-category Adaptive Infinity questions: Lite 5, Full 10 |
 | POST | /webhook/quiz-completed | Process quiz completion event |
 | GET | /health | Health check |
 
@@ -313,9 +343,11 @@ The Next.js API routes act as an authenticated proxy:
 | Route | Upstream | Auth |
 |-------|----------|------|
 | /api/coach/generate-questions | AI Coach /generate/from-topics | Firebase token + API key |
+| /api/coach/adaptive-questions | AI Coach /generate/adaptive-questions | Firebase token + API key |
 | /api/coach/upload-material | AI Coach /ingest | Firebase token + API key |
 | /api/coach/delete-material/{id} | AI Coach /ingest/{id} | Firebase token + API key |
 | /api/subscription/* | Spring Boot /subscription/* | Firebase token |
+| /api/adaptive-practice/* | Spring Boot /adaptive-practice/* | Firebase token |
 | /api/quiz/* | Spring Boot /quiz/* | Firebase token |
 | /api/take-quiz/* | Spring Boot /take-quiz/* | Firebase token |
 | /api/review-schedule/* | Spring Boot /review-schedule/* | Firebase token |

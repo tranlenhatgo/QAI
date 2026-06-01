@@ -30,6 +30,7 @@ AI Study Coach (:8000)  ──REST──→ Spring Boot (:8080)
 | 08 | [BUILD-TOOLING.md](./08-BUILD-TOOLING.md) | Maven build, Lombok processing, logging, tests |
 | 09 | [QUIZ-WEBHOOK-SENDER.md](./09-QUIZ-WEBHOOK-SENDER.md) | Send quiz completion webhook to AI Coach |
 | 10 | [SUBSCRIPTION-PAYMENT.md](./[IMPLEMENTED] 10-SUBSCRIPTION-PAYMENT.md) | Firebase-token subscription entitlement and mock checkout |
+| 11 | [ADAPTIVE-PRACTICE.md](./[IMPLEMENTED] 11-ADAPTIVE-PRACTICE.md) | Adaptive Infinity answer journal and category session state |
 
 ---
 
