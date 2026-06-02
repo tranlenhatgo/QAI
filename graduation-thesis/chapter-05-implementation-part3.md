@@ -1,4 +1,4 @@
-# Chapter 5: Implementation — Part 3: AI Study Coach (FastAPI)
+# Chapter 5: Implementation - Part 3: AI Study Coach (FastAPI)
 
 ## 5.18 Technology Stack
 
@@ -6,14 +6,14 @@
 |-----------|-----------|---------|
 | Framework | FastAPI | 0.100+ |
 | Runtime | Python | 3.12+ |
-| ASGI Server | Uvicorn | — |
-| LLM Client | httpx (async) | — |
-| Embeddings | nomic-embed-text-v1.5 via LM Studio | — |
-| Vector DB Client | Supabase Python SDK | — |
+| ASGI Server | Uvicorn | - |
+| LLM Client | httpx (async) | - |
+| Embeddings | nomic-embed-text-v1.5 via LM Studio | - |
+| Vector DB Client | Supabase Python SDK | - |
 | PDF Extraction | PyMuPDF (fitz) | 1.24+ |
-| Configuration | pydantic-settings | — |
-| Scheduling | APScheduler | — |
-| Database | SQLite + aiosqlite | — |
+| Configuration | pydantic-settings | - |
+| Scheduling | APScheduler | - |
+| Database | SQLite + aiosqlite | - |
 
 ## 5.19 Project Structure
 
@@ -32,7 +32,7 @@ ai-study-coach/server/
 │   ├── base.py                # Base capability interface
 │   ├── chat.py                # SimpleChatCapability
 │   ├── agentic.py             # AgenticCapability (full tool loop)
-│   ├── lite_orchestrator.py   # LiteOrchestrator (intent → workflow)
+│   ├── lite_orchestrator.py   # LiteOrchestrator (intent -> workflow)
 │   ├── quiz.py                # Quiz generation capability
 │   └── solve.py               # Step-by-step solver
 ├── llm/
@@ -382,7 +382,7 @@ scheduler.add_job(compute_daily_snapshot, 'cron', hour=settings.progress_snapsho
 
 The `check_due_reviews` task:
 1. Queries all review schedules from Spring Boot API.
-2. Filters for `next_review ≤ now`.
+2. Filters for `next_review <= now`.
 3. Creates notification via Spring Boot notification endpoint.
 
 ## 5.26 Tool Implementations
@@ -487,7 +487,7 @@ async def verify_api_key(request: Request):
 
 ### 5.27.2 Subscription Entitlement Boundary
 
-The AI Coach does not perform Firebase subscription checks directly. Lite/Full entitlement is resolved by the Next.js BFF and Spring Boot before requests are forwarded. Unauthorized Full requests are coerced to Lite, and Full-only document ingestion is blocked at the BFF layer. Adaptive Infinity generation also receives an already-resolved `tier` value: Lite routes to LM Studio, Full routes to the Full provider, and provider-unavailable errors are returned without silent fallback. The FastAPI service therefore treats the incoming `tier` field only as model-routing input.
+The AI Coach does not perform Firebase subscription checks. The Next.js BFF and Spring Boot resolve Lite/Full entitlement before forwarding requests. The BFF coerces unauthorized Full requests to Lite and blocks Full-only document ingestion. Adaptive Infinity generation also receives a resolved `tier` value: Lite routes to LM Studio, Full routes to the Full provider, and provider-unavailable errors return without silent fallback. The FastAPI service treats the incoming `tier` field only as model-routing input.
 
 ### 5.27.2 CORS Configuration
 

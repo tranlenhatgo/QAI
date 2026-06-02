@@ -10,7 +10,7 @@
 - [ ] Read application.properties
 - [ ] Read exception handlers
 - [ ] Read utility classes
-- [ ] Trace quiz completion → webhook flow
+- [ ] Trace quiz completion -> webhook flow
 - [ ] Verify answer encryption claim
 - [ ] Verify CORS configuration
 

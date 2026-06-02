@@ -1,4 +1,4 @@
-# Chapter 4: System Design — Part 2: Data Models and API Contracts
+# Chapter 4: System Design - Part 2: Data Models and API Contracts
 
 ## 4.8 Database Design
 
@@ -59,7 +59,7 @@ Firestore, a document-oriented NoSQL database, stores the primary application da
 | id | string (auto) | Document ID |
 | user_id | string | User this schedule belongs to |
 | category | string | Category being reviewed |
-| easiness | double | SM-2 easiness factor (≥1.3, default 2.5) |
+| easiness | double | SM-2 easiness factor (>=1.3, default 2.5) |
 | interval_days | double | Days until next review |
 | repetitions | int | Consecutive successful recalls |
 | next_review | timestamp | When review is due |
@@ -261,7 +261,7 @@ Response (200):
 }
 ```
 
-Error (400 — image-only PDF):
+Error (400 - image-only PDF):
 ```json
 {
   "detail": "PDF contains no extractable text (image-only). Please use a text-based PDF."
@@ -363,4 +363,4 @@ public enum Category {
 }
 ```
 
-While the `Quiz` model stores categories as a `List<Category>`, the spaced repetition system uses only the first category (`quiz.getCategories().get(0)`) for per-category analytics. This effectively treats each quiz as having a primary category for scheduling purposes.
+The `Quiz` model stores categories as a `List<Category>`, but the spaced repetition system uses only the first category (`quiz.getCategories().get(0)`) for per-category analytics. Scheduling therefore treats each quiz as having one primary category.

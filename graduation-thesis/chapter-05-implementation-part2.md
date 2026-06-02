@@ -1,4 +1,4 @@
-# Chapter 5: Implementation — Part 2: Next.js Frontend
+# Chapter 5: Implementation - Part 2: Next.js Frontend
 
 ## 5.10 Technology Stack
 
@@ -8,11 +8,11 @@
 | UI Library | React | 18+ |
 | State Management | Zustand | 5+ |
 | Styling | Tailwind CSS | 3+ |
-| Authentication | Firebase Auth (Client SDK) | — |
-| Database (Client) | Firebase Firestore (Client SDK) | — |
-| PWA | next-pwa / Custom Service Worker | — |
-| HTTP Client | Fetch API | — |
-| WebSocket | Native WebSocket API | — |
+| Authentication | Firebase Auth (Client SDK) | - |
+| Database (Client) | Firebase Firestore (Client SDK) | - |
+| PWA | next-pwa / Custom Service Worker | - |
+| HTTP Client | Fetch API | - |
+| WebSocket | Native WebSocket API | - |
 
 ## 5.11 Project Structure
 
@@ -92,9 +92,9 @@ The chat store manages the most complex client-side logic:
 
 **State**:
 - `conversations[]`: Array of conversation objects with messages.
-- `activeConversationId`: Currently active conversation.
+- `activeConversationId`: Active conversation.
 - `chatConfig`: tier, mode, transport, server URL.
-- `isStreaming`: Whether AI is currently generating.
+- `isStreaming`: Whether the AI is generating.
 - `settings`: User preferences (chat position, theme).
 
 **WebSocket Management**:
@@ -105,7 +105,7 @@ The chat store manages the most complex client-side logic:
 - Stop support: sends `stop` message to cancel generation.
 - Persistence: conversations saved to localStorage for offline access.
 
-**Key implementation detail** — the WebSocket `onmessage` handler:
+**Key implementation detail** - the WebSocket `onmessage` handler:
 ```javascript
 socket.onmessage = (event) => {
     const msg = JSON.parse(event.data)
@@ -140,13 +140,13 @@ socket.onmessage = (event) => {
 Manages the Coach dashboard state with Firestore persistence:
 
 **Document Management**:
-- `uploadStudyMaterial(file)`: Upload → extract → embed → persist metadata to Firestore.
+- `uploadStudyMaterial(file)`: Upload -> extract -> embed -> persist metadata to Firestore.
 - `removeDocument(docId)`: Delete from Firestore + delete RAG chunks from Supabase.
 - `loadUserDocuments()`: Fetch from Firestore on auth, called in `_app.js`.
 
 **Progress Computation**:
 - `computeOverview()`: Aggregates quiz history into mastery metrics.
-- `getDueReviews()`: Filters review schedules where `next_review ≤ now`.
+- `getDueReviews()`: Filters review schedules where `next_review <= now`.
 
 **Question Generation**:
 - `generateQuestions(topic, count, documentName)`: Calls BFF route, optional RAG context.
@@ -262,8 +262,8 @@ Displays:
 
 Form-driven question generation:
 - Topic input (free text).
-- Count selector (1–20).
-- Document picker dropdown (Full tier only — disabled with opacity in Lite).
+- Count selector (1-20).
+- Document picker dropdown (Full tier only - disabled with opacity in Lite).
 - Generated questions rendered as interactive cards with reveal-answer toggle.
 
 ### 5.14.3 Materials Tab
@@ -278,13 +278,13 @@ Document management interface:
 
 ### 5.14.4 Payment Page
 
-The protected `/payment` route presents three mock subscription choices for Full mode: 1 month for `$2`, 1 year for `$20`, and forever for `$100`. Selecting a plan calls the subscription BFF route, waits for Spring Boot to persist the Firestore record, then updates the local store to enable Full mode immediately. No real card data or payment provider is used in this prototype.
+The protected `/payment` route presents three mock subscription choices for Full mode: 1 month for `$2`, 1 year for `$20`, and forever for `$100`. Selecting a plan calls the subscription BFF route, waits for Spring Boot to persist the Firestore record, then updates the local store to enable Full mode. The prototype does not collect card data or use a payment provider.
 
 ### 5.14.5 Adaptive Infinity Quiz UI
 
 `PlayForm.jsx` exposes the `Infinity Quiz` checkbox. Guests who click it see the authentication modal and the checkbox remains disabled. Signed-in Lite and Full users can start the mode with one category.
 
-The `/play` page renders only the active Infinity question. For new categories it serves deterministic static `questions.json` questions first. When only 5 non-repeat questions remain, it prefetches an AI batch in the background. Returning categories request AI immediately. Wrong answers are added back as exact repeats after two intervening questions; if wrong again on repeat, the delay increases to four. Results display total answered, correct, wrong, static, AI-generated, and repeated-question counts.
+The `/play` page renders one active Infinity question. New categories serve deterministic static `questions.json` questions first. When 5 non-repeat questions remain, the page prefetches an AI batch in the background. Returning categories request AI questions at startup. Wrong answers return as exact repeats after two intervening questions; if the student misses the repeat, the delay increases to four. Results display total answered, correct, wrong, static, AI-generated, and repeated-question counts.
 
 ## 5.15 PWA Implementation
 
@@ -318,7 +318,7 @@ The custom service worker (`public/sw.js`) implements:
 A floating widget accessible from any page:
 
 - **Position**: Bottom-right corner, draggable.
-- **States**: Collapsed (icon button) → Expanded (chat window).
+- **States**: Collapsed (icon button) -> Expanded (chat window).
 - **Routing**: Hidden on `/chat` page to avoid duplication.
 - **Connection**: Shares WebSocket state with full chat page via Zustand store.
 
@@ -335,7 +335,7 @@ const DEFAULT_HIDDEN_PATHS = ['/chat']
 
 Tailwind CSS utility classes provide responsive behavior:
 - **Mobile** (<768px): Single-column layout, collapsible navigation, full-width cards.
-- **Tablet** (768–1024px): Two-column grid where appropriate.
+- **Tablet** (768-1024px): Two-column grid where appropriate.
 - **Desktop** (>1024px): Full sidebar navigation, multi-column dashboards.
 
 The Coach Dashboard uses a tab-based layout on mobile and a sidebar-with-content layout on desktop, managed via Tailwind breakpoint classes (`md:`, `lg:`).

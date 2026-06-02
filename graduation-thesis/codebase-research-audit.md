@@ -3,57 +3,57 @@
 ## Files and Modules Inspected
 
 ### Spring Boot Backend
-- `QuizController.java` — Quiz CRUD endpoints
-- `QuestionController.java` — Question management endpoints
-- `TakeQuizController.java` — Quiz attempt endpoints (start/end)
-- `NotificationController.java` — Notification CRUD
-- `ReviewScheduleController.java` — Spaced repetition schedule CRUD
-- `QuizService.java` — Quiz business logic, Firestore access
-- `TakeQuizService.java` — Quiz attempt logic, webhook trigger
-- `TakeQuestionService.java` — Answer saving, score computation
-- `WebhookService.java` — AI Coach webhook client
-- `ReviewScheduleService.java` — Schedule upsert/query logic
-- `NotificationService.java` — Notification operations
+- `QuizController.java` - Quiz CRUD endpoints
+- `QuestionController.java` - Question management endpoints
+- `TakeQuizController.java` - Quiz attempt endpoints (start/end)
+- `NotificationController.java` - Notification CRUD
+- `ReviewScheduleController.java` - Spaced repetition schedule CRUD
+- `QuizService.java` - Quiz business logic, Firestore access
+- `TakeQuizService.java` - Quiz attempt logic, webhook trigger
+- `TakeQuestionService.java` - Answer saving, score computation
+- `WebhookService.java` - AI Coach webhook client
+- `ReviewScheduleService.java` - Schedule upsert/query logic
+- `NotificationService.java` - Notification operations
 - All models: Quiz, Question, TakeQuiz, TakeQuestion, ReviewSchedule, User, Category enum
 - All DTOs: QuestionResponseDto, TakeQuizStartResponseDto, TakeQuestionSaveRequestDto, etc.
 - Config: FirebaseConfiguration, SecurityConfig, SecurityCorsProperties, AppConfig
-- `application.properties` — CORS, webhook config
+- `application.properties` - CORS, webhook config
 
 ### AI Study Coach (FastAPI)
-- `main.py` — FastAPI app, lifespan, API key middleware, route registration
-- `config.py` — pydantic-settings configuration
-- `router.py` — Tier/Mode routing, capability resolution
-- `capabilities/agentic.py` — Full agentic loop (MAX_TOOL_ITERATIONS=10, MAX_TOOL_CALLS_PER_TURN=3)
-- `capabilities/lite_orchestrator.py` — Intent classification + code-driven workflows
-- `capabilities/chat.py` — Simple streaming chat
-- `llm/base.py` — Abstract interface, Message, ToolCall, StreamChunk types
-- `tools/__init__.py` — BaseTool abstract class
-- `tools/registry.py` — ToolRegistry factory (create_full_registry, create_lite_registry)
-- `tools/quiz_history.py` — QuizHistoryTool implementation
-- `tools/recommend.py` — RecommendTool implementation
-- `tools/reason.py` — ReasonTool (chain-of-thought via Full tier LLM)
-- `tools/web_search.py` — WebSearchTool (DuckDuckGo, NOT Google CSE)
-- `tools/rag.py` — RAGTool (Supabase pgvector search)
-- `agent/tools.py` — Tool DEFINITIONS in OpenAI format (9 tools for LLM function-calling)
-- `routes/ingest.py` — Document ingestion (CHUNK_SIZE=2000, CHUNK_OVERLAP=200)
-- `routes/generate.py` — Question generation from topics/files
-- `routes/webhook.py` — Quiz completion webhook + SM-2 trigger
-- `services/embeddings.py` — LM Studio embedding generation
-- `services/supabase_client.py` — Supabase pgvector client
-- `learning/spaced_repetition.py` — SM-2 implementation (interval: 1, 3, ×EF; fail=0.5 days)
-- `learning/progress.py` — ProgressTracker, mastery computation
-- `scheduler/scheduler.py` — APScheduler (review check + daily progress)
-- `ws/endpoint.py` — WebSocket handler (session lifecycle)
-- `ws/__init__.py` — Protocol message builders
+- `main.py` - FastAPI app, lifespan, API key middleware, route registration
+- `config.py` - pydantic-settings configuration
+- `router.py` - Tier/Mode routing, capability resolution
+- `capabilities/agentic.py` - Full agentic loop (MAX_TOOL_ITERATIONS=10, MAX_TOOL_CALLS_PER_TURN=3)
+- `capabilities/lite_orchestrator.py` - Intent classification + code-driven workflows
+- `capabilities/chat.py` - Simple streaming chat
+- `llm/base.py` - Abstract interface, Message, ToolCall, StreamChunk types
+- `tools/__init__.py` - BaseTool abstract class
+- `tools/registry.py` - ToolRegistry factory (create_full_registry, create_lite_registry)
+- `tools/quiz_history.py` - QuizHistoryTool implementation
+- `tools/recommend.py` - RecommendTool implementation
+- `tools/reason.py` - ReasonTool (chain-of-thought via Full tier LLM)
+- `tools/web_search.py` - WebSearchTool (DuckDuckGo, NOT Google CSE)
+- `tools/rag.py` - RAGTool (Supabase pgvector search)
+- `agent/tools.py` - Tool DEFINITIONS in OpenAI format (9 tools for LLM function-calling)
+- `routes/ingest.py` - Document ingestion (CHUNK_SIZE=2000, CHUNK_OVERLAP=200)
+- `routes/generate.py` - Question generation from topics/files
+- `routes/webhook.py` - Quiz completion webhook + SM-2 trigger
+- `services/embeddings.py` - LM Studio embedding generation
+- `services/supabase_client.py` - Supabase pgvector client
+- `learning/spaced_repetition.py` - SM-2 implementation (interval: 1, 3, xEF; fail=0.5 days)
+- `learning/progress.py` - ProgressTracker, mastery computation
+- `scheduler/scheduler.py` - APScheduler (review check + daily progress)
+- `ws/endpoint.py` - WebSocket handler (session lifecycle)
+- `ws/__init__.py` - Protocol message builders
 
 ### Frontend (Next.js)
-- `pages/_app.js` — Auth listener, loadUserDocuments, StudyCoachWidget
-- `store/useBoundStore.js` — Merged Zustand store (7 slices)
-- `store/useChat.js` — WebSocket chat state
-- `store/useCoach.js` — Coach dashboard + Firestore documents
-- `pages/api/coach/generate-questions.js` — BFF route with auth + API key
-- `lib/withAuth.js` — Firebase token verification middleware
-- `public/manifest.json` — PWA manifest
+- `pages/_app.js` - Auth listener, loadUserDocuments, StudyCoachWidget
+- `store/useBoundStore.js` - Merged Zustand store (7 slices)
+- `store/useChat.js` - WebSocket chat state
+- `store/useCoach.js` - Coach dashboard + Firestore documents
+- `pages/api/coach/generate-questions.js` - BFF route with auth + API key
+- `lib/withAuth.js` - Firebase token verification middleware
+- `public/manifest.json` - PWA manifest
 
 ---
 
@@ -77,7 +77,7 @@
 | API paths start with `/api/` | **UNSUPPORTED** | No context-path in application.properties. Controllers use `quiz`, `take-quiz`, `question`, `notification`, `review-schedule` without `/api/` prefix. Frontend BFF routes at `/api/coach/*` are Next.js routes (correct), but Spring Boot endpoints are at root. |
 | Quiz has exactly one category | **PARTIALLY SUPPORTED** | Model has `List<Category> categories`, but `getQuizCategory()` in TakeQuizService takes `.get(0)` only. Multiple categories possible in data but only first used for analytics. |
 | Category enum includes LANGUAGE, HEALTH, MUSIC, etc. | **UNSUPPORTED** | Actual enum: SCIENCE, HISTORY, GEOGRAPHY, LITERATURE, TECHNOLOGY, SPORTS, ENTERTAINMENT, MATH, ART, SPACE, GENERAL_CULTURE (11 values). Thesis listed 15 wrong values. |
-| Answer encryption at rest | **UNSUPPORTED** | QuestionResponseDto returns `correctAnswer` directly. No encryption logic found anywhere. |
+| Answer encryption at rest | **UNSUPPORTED** | QuestionResponseDto returns `correctAnswer` in plaintext. No encryption logic found anywhere. |
 | Chunk size 500 chars / 50 overlap | **UNSUPPORTED** | Actual: CHUNK_SIZE=2000 chars, CHUNK_OVERLAP=200 chars (routes/ingest.py lines 22-23) |
 | Web search uses Google Custom Search API | **UNSUPPORTED** | Actual: WebSearchTool uses DuckDuckGo via `ddgs` package (tools/web_search.py) |
 | 9 tools available | **PARTIALLY SUPPORTED** | agent/tools.py defines 9 tool definitions for LLM. ToolRegistry (registry.py) has 5 tool implementations (quiz_history, recommend, reason, web_search, rag). The 4 "action" tools (navigate, start_quiz, etc.) are defined but executed by tool_executor.py differently. |
@@ -100,7 +100,7 @@
 |-------|--------|-------|
 | nomic-embed-text-v1.5 for embeddings | SUPPORTED | config.py: `embedding_model = "text-embedding-nomic-embed-text-v1.5"` |
 | Supabase pgvector storage | SUPPORTED | supabase_client.py with `match_documents` RPC |
-| Chunk with smart boundary detection | SUPPORTED | ingest.py tries paragraph → sentence → word boundaries |
+| Chunk with smart boundary detection | SUPPORTED | ingest.py tries paragraph -> sentence -> word boundaries |
 | Text quality validation (>70% printable) | SUPPORTED | `_is_meaningful_text()` in ingest.py |
 | Null byte removal | SUPPORTED | `text.replace("\x00", "")` in `_extract_text()` |
 | PyMuPDF for PDF extraction | SUPPORTED | `import fitz` in ingest.py |
@@ -148,7 +148,7 @@
 
 ---
 
-## Critical Issues Found
+## Issues Found
 
 1. **Category enum mismatch**: Thesis lists wrong categories. Must use actual: SCIENCE, HISTORY, GEOGRAPHY, LITERATURE, TECHNOLOGY, SPORTS, ENTERTAINMENT, MATH, ART, SPACE, GENERAL_CULTURE.
 
@@ -170,6 +170,6 @@
 
 ## Final Verdict
 
-**PARTIALLY SUPPORTED** — The thesis correctly describes the high-level architecture, communication patterns, and overall system design. However, it contains multiple factual errors in specific implementation details (chunk sizes, SM-2 parameters, category values, API paths, tool implementations). These errors suggest some sections were written from documentation/memory rather than from actual code inspection.
+**PARTIALLY SUPPORTED** - The thesis correctly describes the high-level architecture, communication patterns, and overall system design. However, it contains multiple factual errors in specific implementation details (chunk sizes, SM-2 parameters, category values, API paths, tool implementations). These errors suggest some sections were written from documentation/memory rather than from actual code inspection.
 
 **Required fixes**: All factual claims must be corrected to match actual implementation.

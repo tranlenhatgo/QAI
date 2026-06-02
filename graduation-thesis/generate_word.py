@@ -366,7 +366,7 @@ def create_thesis_document():
     
     subtitle = doc.add_paragraph()
     subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = subtitle.add_run('QAI — AI-Enhanced Quiz and Learning Platform')
+    run = subtitle.add_run('QAI - AI-Enhanced Quiz and Learning Platform')
     run.bold = True
     run.font.size = Pt(16)
     

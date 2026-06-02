@@ -1,6 +1,6 @@
 # Appendix B: API Documentation
 
-## B.1 Spring Boot REST API — Complete Endpoint Reference
+## B.1 Spring Boot REST API - Complete Endpoint Reference
 
 ### B.1.1 Quiz Endpoints
 
@@ -47,7 +47,7 @@ Create a new quiz.
 #### GET /quiz/category/{category}
 Get quizzes by category.
 
-**Path Parameters**: `category` — One of: SCIENCE, HISTORY, GEOGRAPHY, LITERATURE, TECHNOLOGY, SPORTS, ENTERTAINMENT, MATH, ART, SPACE, GENERAL_CULTURE
+**Path Parameters**: `category` - One of: SCIENCE, HISTORY, GEOGRAPHY, LITERATURE, TECHNOLOGY, SPORTS, ENTERTAINMENT, MATH, ART, SPACE, GENERAL_CULTURE
 
 #### PUT /quiz/update/{id}
 Update a quiz by ID.
@@ -215,7 +215,6 @@ Create or update a review schedule (upsert by user_id + category).
   "last_score": "0.8"
 }
 ```
-```
 
 ---
 
@@ -328,7 +327,7 @@ Persist one Adaptive Infinity answer outside formal quiz history.
 
 ---
 
-## B.2 AI Coach REST API — Complete Reference
+## B.2 AI Coach REST API - Complete Reference
 
 ### B.2.1 POST /ingest
 
@@ -340,7 +339,7 @@ Upload and index a document for RAG search.
 
 **Form Fields**:
 - `file`: Binary file (PDF, TXT, or MD, max 10MB)
-- `kb_id`: Knowledge base identifier (typically user UID)
+- `kb_id`: Knowledge base identifier; in QAI this is the user UID
 
 **Success Response** `200 OK`:
 ```json
@@ -457,7 +456,7 @@ Errors: `400` for missing category/tier or a count that does not match the tier;
 
 ### B.2.5 POST /generate/from-file
 
-Generate questions directly from an uploaded file (without RAG indexing).
+Generate questions from an uploaded file without RAG indexing.
 
 **Headers**: `X-API-Key: <api-key>`  
 **Content-Type**: `multipart/form-data`
@@ -511,18 +510,18 @@ Receive quiz completion event from Spring Boot.
 
 **URL**: `ws://<host>:8000/ws/coach`
 
-No authentication on WebSocket itself — user identity is passed in `session_start` message.
+The WebSocket connection does not authenticate by itself. The client passes user identity in the `session_start` message.
 
-### B.3.2 Client → Server Messages
+### B.3.2 Client to Server Messages
 
 | Type | Fields | Description |
 |------|--------|-------------|
 | `session_start` | tier, mode, user_id, kb_id, conversation_id | Initialize session |
 | `user_message` | content | Send chat message |
-| `stop` | — | Cancel current generation |
+| `stop` | - | Cancel current generation |
 | `mode_switch` | mode | Switch between chat/agentic |
 
-### B.3.3 Server → Client Messages
+### B.3.3 Server to Client Messages
 
 | Type | Fields | Description |
 |------|--------|-------------|
@@ -530,15 +529,15 @@ No authentication on WebSocket itself — user identity is passed in `session_st
 | `content` | content | Text chunk (one or more tokens) |
 | `stage` | stage, status | Processing stage (thinking start/end) |
 | `tool` | tool, status, arguments?, result? | Tool invocation lifecycle |
-| `done` | — | Generation complete |
+| `done` | - | Generation complete |
 | `error` | code, message | Error occurred |
 
 ### B.3.4 Tool Event Lifecycle
 
 ```
-tool(name, "calling", arguments)  → Tool execution begins
-tool(name, "result", result)      → Tool completed successfully
-tool(name, "error", error_msg)    → Tool failed
+tool(name, "calling", arguments)  -> Tool execution begins
+tool(name, "result", result)      -> Tool completed successfully
+tool(name, "error", error_msg)    -> Tool failed
 ```
 
 ---

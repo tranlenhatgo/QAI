@@ -1,4 +1,4 @@
-# Chapter 5: Implementation — Part 1: Spring Boot Backend
+# Chapter 5: Implementation - Part 1: Spring Boot Backend
 
 ## 5.1 Technology Stack
 
@@ -7,11 +7,11 @@
 | Runtime | Java | 21 (LTS) |
 | Framework | Spring Boot | 3.4 |
 | Build Tool | Maven | 3.9+ |
-| Database | Google Cloud Firestore | — |
-| Authentication | Firebase Auth (Admin SDK) | — |
-| HTTP Client | RestTemplate | — |
-| Code Generation | Lombok | — |
-| Deployment | Embedded Tomcat | — |
+| Database | Google Cloud Firestore | - |
+| Authentication | Firebase Auth (Admin SDK) | - |
+| HTTP Client | RestTemplate | - |
+| Code Generation | Lombok | - |
+| Deployment | Embedded Tomcat | - |
 
 ## 5.2 Project Structure
 
@@ -91,7 +91,7 @@ All services inject the `Firestore` bean and use the collection API for data acc
 
 ## 5.4 Data Access Pattern
 
-Since Firestore is schemaless and accessed via its native Java SDK (not JPA), the service layer directly manages persistence:
+Firestore is schemaless and the project uses its native Java SDK instead of JPA, so the service layer manages persistence:
 
 ```java
 @Service
@@ -131,11 +131,11 @@ public class ReviewScheduleService {
 }
 ```
 
-This pattern — query by composite key, upsert with builder — is consistent across all services.
+This pattern - query by composite key, upsert with builder - is consistent across all services.
 
 ## 5.5 Webhook Integration
 
-When a quiz is completed, `TakeQuizService` triggers the webhook to notify the AI Coach:
+After quiz completion, `TakeQuizService` triggers the webhook to notify the AI Coach:
 
 ```java
 @Service
@@ -184,7 +184,7 @@ During quiz gameplay, the `StartQuiz` endpoint returns all questions with their 
 - The `TakeQuestionSaveRequestDto` includes a `check_answer` field indicating correctness.
 - The `TakeQuestionService.getScore()` method recomputes the final score server-side by counting `CORRECT` entries.
 
-The `CheckAnswer` enum mapping uses numeric codes: `"1"` or `"2"` → CORRECT, `"-1"` → INCORRECT, other → NOT_ANSWERED.
+The `CheckAnswer` enum mapping uses numeric codes: `"1"` or `"2"` -> CORRECT, `"-1"` -> INCORRECT, other -> NOT_ANSWERED.
 
 ## 5.7 CORS Configuration
 
@@ -230,7 +230,7 @@ A global exception handler converts exceptions to consistent error responses:
 
 ## 5.9 Subscription Entitlement
 
-Subscription ownership is implemented in Spring Boot so the browser cannot grant Full access by writing directly to Firestore. `SubscriptionController` exposes `GET /subscription/current`, `POST /subscription/signup`, and `POST /subscription/checkout`.
+Spring Boot owns subscription writes so the browser cannot grant Full access through Firestore. `SubscriptionController` exposes `GET /subscription/current`, `POST /subscription/signup`, and `POST /subscription/checkout`.
 
 Each endpoint requires `Authorization: Bearer <Firebase ID token>`. The controller verifies the token using the `FirebaseAuth` bean and passes the verified UID to `SubscriptionService`. The service persists the document at `users/{uid}/subscription/current`, preserves missing documents as legacy Full access, and downgrades expired monthly/yearly records by setting `subscriptionStatus = "expired"` and `fullAccess = false`.
 

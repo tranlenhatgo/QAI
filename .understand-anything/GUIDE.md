@@ -36,13 +36,13 @@ Open the URL printed in the terminal (includes a `?token=` parameter).
 
 | Metric | Value |
 |--------|-------|
-| Total nodes | 696 |
-| Total edges | 1030 |
-| Files | 225 |
-| Functions | 315 |
-| Classes | 66 |
-| Documents | 78 |
-| Config files | 12 |
+| Total nodes | 1020 |
+| Total edges | 1122 |
+| Files | 269 |
+| Functions | 450 |
+| Classes | 175 |
+| Documents | 91 |
+| Config files | 35 |
 | Layers | 12 |
 | Tour steps | 10 |
 
@@ -50,14 +50,10 @@ Open the URL printed in the terminal (includes a `?token=` parameter).
 
 | Type | Count | Meaning |
 |------|-------|---------|
-| `contains` | 393 | File → function/class it defines |
-| `exports` | 260 | File → function/class it exports publicly |
-| `calls` | 178 | Function/file → function/file it calls |
-| `imports` | 171 | File → file it imports from |
-| `depends_on` | 15 | Cross-service runtime dependency (HTTP) |
-| `configures` | 7 | Config → code it configures |
-| `documents` | 3 | Documentation → code it describes |
-| `tested_by` | 2 | Production → test that covers it |
+| `contains` | 647 | File → function/class it defines |
+| `calls` | 262 | Function/file → function/file it calls |
+| `imports` | 209 | File → file it imports from |
+| `depends_on` | 3 | Cross-service runtime dependency (HTTP) |
 | `triggers` | 1 | Webhook trigger between services |
 
 ---
@@ -70,9 +66,9 @@ The project is organized into 12 layers:
 
 | Layer | Files | Description |
 |-------|-------|-------------|
-| **Frontend Pages** | 32 | Next.js pages and API routes (`/pages/**`) |
-| **Frontend Components** | 54 | React UI components (`/components/**`) |
-| **Frontend State & Helpers** | 29 | Zustand stores, auth helpers, utilities |
+| **Frontend Pages** | 44 | Next.js pages and API routes (`/pages/**`) |
+| **Frontend Components** | 57 | React UI components (`/components/**`) |
+| **Frontend State & Helpers** | 30 | Zustand stores, auth helpers, utilities |
 
 Key entry: `frontend/src/pages/_app.js` — Firebase auth listener, global dialogs, coach widget mount.
 
@@ -80,9 +76,9 @@ Key entry: `frontend/src/pages/_app.js` — Firebase auth listener, global dialo
 
 | Layer | Files | Description |
 |-------|-------|-------------|
-| **Spring Boot API** | 7 | REST controllers (Quiz, Question, TakeQuiz, ReviewSchedule, Notification, User) |
-| **Spring Boot Services** | 18 | Business logic (QuizService, WebhookService, TakeQuizService) |
-| **Spring Boot Data** | 30 | Models, DTOs, config, Firestore access |
+| **Spring Boot API** | 9 | REST controllers (Quiz, Question, TakeQuiz, ReviewSchedule, Notification, User, Subscription, AdaptivePractice) |
+| **Spring Boot Services** | 20 | Business logic (QuizService, WebhookService, TakeQuizService, SubscriptionService, AdaptivePracticeService) |
+| **Spring Boot Data** | 38 | Models, DTOs, config, Firestore access |
 
 Key entry: `QuizaiSpringApplication.java` — Spring Boot main class.
 
@@ -90,7 +86,7 @@ Key entry: `QuizaiSpringApplication.java` — Spring Boot main class.
 
 | Layer | Files | Description |
 |-------|-------|-------------|
-| **AI Coach API** | 12 | FastAPI routes, WebSocket handler, HTTP endpoints |
+| **AI Coach API** | 14 | FastAPI routes, WebSocket handler, HTTP endpoints |
 | **AI Coach Agent** | 33 | Agentic loop, capabilities, LLM client, tools |
 | **AI Coach Learning** | 6 | SM-2 spaced repetition, progress tracking, scheduler |
 
@@ -100,9 +96,9 @@ Key entry: `ai-study-coach/server/main.py` — FastAPI app with CORS, routes, ba
 
 | Layer | Files | Description |
 |-------|-------|-------------|
-| **Documentation** | 78 | READMEs, SDDs, guides, agent rules |
-| **Configuration** | 12 | package.json, pom.xml, requirements.txt, .properties |
-| **Testing** | 4 | Unit tests for AI Coach (pytest) |
+| **Documentation** | 96 | READMEs, SDDs, guides, agent rules, thesis material |
+| **Configuration** | 35 | package.json, pom.xml, requirements.txt, .properties, generated graph metadata |
+| **Testing** | 13 | Unit tests, manual test specs, and E2E documentation |
 
 ---
 
@@ -265,7 +261,7 @@ This runs incrementally — only files changed since the last commit are re-anal
 
 ### What to Commit
 
-Commit `.understand-anything/knowledge-graph.json` and `.understand-anything/meta.json` so team members can view the graph without re-running analysis.
+Commit `.understand-anything/knowledge-graph.json`, `.understand-anything/meta.json`, and `.understand-anything/fingerprints.json` so team members can view the graph without re-running analysis and future incremental updates have a structural baseline.
 
 Add to `.gitignore`:
 ```

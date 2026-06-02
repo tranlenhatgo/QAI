@@ -2,17 +2,17 @@
 
 ## Academic Publications
 
-[1] H. Ebbinghaus, "Über das Gedächtnis: Untersuchungen zur experimentellen Psychologie" (Memory: A Contribution to Experimental Psychology), Leipzig: Duncker & Humblot, 1885.
+[1] H. Ebbinghaus, "Ueber das Gedaechtnis: Untersuchungen zur experimentellen Psychologie" (Memory: A Contribution to Experimental Psychology), Leipzig: Duncker & Humblot, 1885.
 
 [2] P. Wozniak, "SuperMemo algorithm SM-2," SuperMemo World, 1987. Available: https://super-memory.com/english/ol/sm2.htm
 
-[3] N. Cepeda, H. Pashler, E. Vul, J. Wixted, and D. Rohrer, "Distributed practice in verbal recall tasks: A review and quantitative synthesis," Psychological Bulletin, vol. 132, no. 3, pp. 354–380, 2006.
+[3] N. Cepeda, H. Pashler, E. Vul, J. Wixted, and D. Rohrer, "Distributed practice in verbal recall tasks: A review and quantitative synthesis," Psychological Bulletin, vol. 132, no. 3, pp. 354-380, 2006.
 
-[4] J. Carbonell, "AI in CAI: An Artificial Intelligence Approach to Computer-Assisted Instruction," IEEE Transactions on Man-Machine Systems, vol. 11, no. 4, pp. 190–202, 1970.
+[4] J. Carbonell, "AI in CAI: An Artificial Intelligence Approach to Computer-Assisted Instruction," IEEE Transactions on Man-Machine Systems, vol. 11, no. 4, pp. 190-202, 1970.
 
-[5] W. Clancey, "GUIDON," Journal of Computer-Based Instruction, vol. 10, no. 1, pp. 8–14, 1982.
+[5] W. Clancey, "GUIDON," Journal of Computer-Based Instruction, vol. 10, no. 1, pp. 8-14, 1982.
 
-[6] H. Nwana, "Intelligent tutoring systems: An overview," Artificial Intelligence Review, vol. 4, no. 4, pp. 251–277, 1990.
+[6] H. Nwana, "Intelligent tutoring systems: An overview," Artificial Intelligence Review, vol. 4, no. 4, pp. 251-277, 1990.
 
 [7] P. Lewis, E. Perez, A. Piktus, et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks," in Advances in Neural Information Processing Systems (NeurIPS), 2020.
 
@@ -30,11 +30,11 @@
 
 [13] FastAPI Documentation. Available: https://fastapi.tiangolo.com/
 
-[14] Firebase Documentation — Firestore. Available: https://firebase.google.com/docs/firestore
+[14] Firebase Documentation - Firestore. Available: https://firebase.google.com/docs/firestore
 
-[15] Firebase Documentation — Authentication. Available: https://firebase.google.com/docs/auth
+[15] Firebase Documentation - Authentication. Available: https://firebase.google.com/docs/auth
 
-[16] Supabase Documentation — Vector Embeddings (pgvector). Available: https://supabase.com/docs/guides/ai/vector-columns
+[16] Supabase Documentation - Vector Embeddings (pgvector). Available: https://supabase.com/docs/guides/ai/vector-columns
 
 [17] LM Studio Documentation. Available: https://lmstudio.ai/docs
 
@@ -44,7 +44,7 @@
 
 [20] PyMuPDF (fitz) Documentation. Available: https://pymupdf.readthedocs.io/
 
-[21] nomic-embed-text-v1.5 — Model Card. Available: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5
+[21] nomic-embed-text-v1.5 - Model Card. Available: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5
 
 [22] Tailwind CSS Documentation. Available: https://tailwindcss.com/docs
 
@@ -56,6 +56,6 @@
 
 ## Standards
 
-[26] "OWASP Top 10 — 2021," OWASP Foundation. Available: https://owasp.org/Top10/
+[26] "OWASP Top 10 - 2021," OWASP Foundation. Available: https://owasp.org/Top10/
 
 [27] "The Twelve-Factor App," Heroku. Available: https://12factor.net/

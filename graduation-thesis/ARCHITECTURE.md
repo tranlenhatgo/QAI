@@ -1,4 +1,4 @@
-# QAI — Architecture Documentation
+# QAI - Architecture Documentation
 
 ## Table of Contents
 - [1. C4 Model Diagrams](#1-c4-model-diagrams)
@@ -63,7 +63,7 @@ graph TB
     coach -->|"OpenAI-compatible"| lmstudio
 ```
 
-### 1.3 Component Diagram (Level 3) — Spring Boot
+### 1.3 Component Diagram (Level 3) - Spring Boot
 
 ```mermaid
 graph TB
@@ -82,7 +82,7 @@ graph TB
     services -->|"POST webhook"| coach["AI Coach"]
 ```
 
-### 1.4 Component Diagram (Level 3) — AI Study Coach
+### 1.4 Component Diagram (Level 3) - AI Study Coach
 
 ```mermaid
 graph TB
@@ -112,7 +112,7 @@ graph TB
 
 ## 2. Sequence Diagrams
 
-### 2.1 Quiz Creation → Play → Scoring → Review Schedule
+### 2.1 Quiz Creation -> Play -> Scoring -> Review Schedule
 
 ```mermaid
 sequenceDiagram
@@ -157,7 +157,7 @@ sequenceDiagram
     S->>FS: Upsert review schedule
 ```
 
-### 2.2 User Login → Token Sync → Authenticated Requests
+### 2.2 User Login -> Token Sync -> Authenticated Requests
 
 ```mermaid
 sequenceDiagram
@@ -193,7 +193,7 @@ sequenceDiagram
     F-->>U: Redirect to login
 ```
 
-### 2.3 AI Coach Chat → Tool Call → Response
+### 2.3 AI Coach Chat -> Tool Call -> Response
 
 ```mermaid
 sequenceDiagram
@@ -284,27 +284,27 @@ sequenceDiagram
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `NEXT_PUBLIC_REST_API_URL` | Yes | — | Spring Boot base URL (`http://localhost:8080`) |
+| `NEXT_PUBLIC_REST_API_URL` | Yes | - | Spring Boot base URL (`http://localhost:8080`) |
 | `NEXT_PUBLIC_STUDY_COACH_API_URL` | No | `http://localhost:8000` | AI Coach WebSocket/REST URL |
 | `NEXT_PUBLIC_STUDY_COACH_TIER` | No | `lite` | AI Coach tier (`lite` or `full`) |
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes | — | Firebase Web API key |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes | — | Firebase auth domain |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | — | Firebase project ID |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Yes | — | Firebase storage bucket |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Yes | — | FCM sender ID |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | Yes | — | Firebase app ID |
-| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | No | — | Google Analytics measurement ID |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes | - | Firebase Web API key |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes | - | Firebase auth domain |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | - | Firebase project ID |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Yes | - | Firebase storage bucket |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Yes | - | FCM sender ID |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Yes | - | Firebase app ID |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | No | - | Google Analytics measurement ID |
 
 ### 3.2 Spring Boot
 
 | Variable / Property | Required | Default | Description |
 |---------------------|----------|---------|-------------|
-| `spring.application.name` | — | `QuizzAIOnline` | Application name |
+| `spring.application.name` | - | `QuizzAIOnline` | Application name |
 | `app.security.cors.allowed-origin-patterns` | No | `*` | CORS allowed origins |
 | `coach.webhook.url` | No | `http://localhost:8000/webhook/quiz-completed` | AI Coach webhook endpoint |
-| `coach.webhook.api-key` | No | — | API key for webhook auth (`${COACH_API_KEY}`) |
+| `coach.webhook.api-key` | No | - | API key for webhook auth (`${COACH_API_KEY}`) |
 | `coach.webhook.enabled` | No | `true` | Enable/disable webhook calls |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Yes | — | Path to Firebase service account JSON |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Yes | - | Path to Firebase service account JSON |
 
 ### 3.3 AI Study Coach (Python)
 
@@ -316,14 +316,14 @@ All prefixed with `COACH_` (loaded by pydantic-settings).
 | `COACH_LM_STUDIO_URL` | No | `http://127.0.0.1:1234` | LM Studio local server URL |
 | `COACH_EMBEDDING_MODEL` | No | `text-embedding-nomic-embed-text-v1.5` | Embedding model name |
 | `COACH_EXTERNAL_LLM_PROVIDER` | No | `deepseek` | Full tier LLM provider |
-| `COACH_EXTERNAL_LLM_API_KEY` | Yes* | — | DeepSeek/OpenAI API key (*required for Full tier) |
-| `COACH_EXTERNAL_LLM_MODEL` | No | — | Model name (e.g., `deepseek-v4-flash`) |
+| `COACH_EXTERNAL_LLM_API_KEY` | Yes* | - | DeepSeek/OpenAI API key (*required for Full tier) |
+| `COACH_EXTERNAL_LLM_MODEL` | No | - | Model name (e.g., `deepseek-v4-flash`) |
 | `COACH_LLM_TIMEOUT_SECONDS` | No | `300` | LLM request timeout |
-| `COACH_SUPABASE_URL` | No | — | Supabase project URL (for RAG) |
-| `COACH_SUPABASE_KEY` | No | — | Supabase anon/service key |
-| `COACH_SEARCH_API_KEY` | No | — | Web search API key |
+| `COACH_SUPABASE_URL` | No | - | Supabase project URL (for RAG) |
+| `COACH_SUPABASE_KEY` | No | - | Supabase anon/service key |
+| `COACH_SEARCH_API_KEY` | No | - | Web search API key |
 | `COACH_DATABASE_URL` | No | `sqlite+aiosqlite:///./study_coach.db` | Local database URL |
-| `COACH_API_KEY` | No | — | API key for endpoint protection |
+| `COACH_API_KEY` | No | - | API key for endpoint protection |
 | `COACH_CORS_ORIGINS` | No | `http://localhost:3000,http://localhost:8080` | Allowed CORS origins |
 | `COACH_SCHEDULER_ENABLED` | No | `true` | Enable APScheduler jobs |
 | `COACH_REVIEW_CHECK_INTERVAL_HOURS` | No | `1` | How often to check due reviews |
@@ -345,9 +345,9 @@ Need a quiz platform with AI coaching. Frontend requires reactive UI, backend re
 
 **Decision:**  
 Split into 3 services:
-1. **Frontend** (Next.js) — SSR pages, BFF API routes, Firebase Auth client SDK
-2. **Spring Boot** (Java) — Core business logic, Firestore CRUD, webhook orchestration
-3. **AI Coach** (FastAPI) — LLM integration, agentic tool loops, learning algorithms
+1. **Frontend** (Next.js) - SSR pages, BFF API routes, Firebase Auth client SDK
+2. **Spring Boot** (Java) - Core business logic, Firestore CRUD, webhook orchestration
+3. **AI Coach** (FastAPI) - LLM integration, agentic tool loops, learning algorithms
 
 **Consequences:**  
 - (+) Each service uses optimal language/framework for its role
@@ -380,7 +380,7 @@ Use LLM only for:
 **Consequences:**  
 - (+) Testable (pure functions with predictable outputs)
 - (+) Fast (no API calls for scheduling decisions)
-- (+) Reliable (no hallucination in critical scheduling)
+- (+) Deterministic scheduling decisions
 - (+) Cost-effective (LLM tokens only for conversations)
 - (-) Less flexible (can't adapt SM-2 parameters via conversation)
 - (-) Fixed heuristics may not suit all learners
@@ -417,11 +417,11 @@ Use WebSocket for AI Coach communication:
 **Date:** 2024-01
 
 **Context:**  
-Frontend needs to call Spring Boot but should not expose backend URLs or pass tokens directly from browser.
+The frontend needs to call Spring Boot without exposing backend URLs or browser-managed tokens.
 
 **Decision:**  
 Use Next.js API routes (`/pages/api/**`) as a Backend-For-Frontend (BFF):
-- Browser → Next.js API route → Spring Boot
+- Browser -> Next.js API route -> Spring Boot
 - Auth tokens stored in HTTP-only cookies (set via `/api/auth/set-token`)
 - API routes attach tokens to Spring Boot requests when needed
 
@@ -444,8 +444,8 @@ Want to support both offline/free usage (local LLM) and high-quality cloud infer
 
 **Decision:**  
 Two tiers routed by `tier` parameter:
-- **Lite** — LM Studio (local): rule-based intent classification → code-driven tool calls → local LLM for response
-- **Full** — DeepSeek API (cloud): native function-calling, streaming, multi-round agentic loop
+- **Lite** - LM Studio (local): rule-based intent classification -> code-driven tool calls -> local LLM for response
+- **Full** - DeepSeek API (cloud): native function-calling, streaming, multi-round agentic loop
 
 Both use the same `LLMService` interface (OpenAI-compatible API).
 
@@ -467,7 +467,7 @@ Both use the same `LLMService` interface (OpenAI-compatible API).
 AI Coach needs to read/write review schedules and notifications, which live in Firestore.
 
 **Decision:**  
-AI Coach accesses Firestore **indirectly** through Spring Boot REST API, not directly via Firestore SDK.
+AI Coach accesses Firestore through the Spring Boot REST API instead of the Firestore SDK.
 
 **Consequences:**  
 - (+) Single source of truth for data access logic
@@ -485,7 +485,7 @@ AI Coach accesses Firestore **indirectly** through Spring Boot REST API, not dir
 **Date:** 2024-04
 
 **Context:**  
-AI Coach decides "start quiz X" or "navigate to dashboard" but can't directly control the browser.
+AI Coach can decide "start quiz X" or "navigate to dashboard," but the frontend controls browser actions.
 
 **Decision:**  
 Tool executor returns `AgentAction` objects streamed to the frontend via WebSocket. Frontend's `onAction` handler executes them:
@@ -500,7 +500,7 @@ The frontend maps actions to router pushes, API calls, or UI state changes.
 - (+) Frontend can confirm/deny actions before executing
 - (+) Actions are auditable (logged as events)
 - (-) Frontend must implement handler for every action type
-- (-) Actions may fail silently if frontend handler is incomplete
+- (-) Incomplete frontend handlers can drop actions
 
 ---
 
@@ -532,7 +532,7 @@ Next.js presents the payment UI and authenticated BFF routes, but subscription w
 Infinity practice needs unlimited single-category questions while preserving formal quiz history and keeping local Qwen generation reliable on developer hardware.
 
 **Decision:**
-Adaptive Infinity keeps its own answer journal at `users/{uid}/adaptive_practice_answers`. New category sessions serve static `questions.json` questions first; returning category sessions request AI immediately. Lite generation sends 5 context items and requests 5 questions from LM Studio with `qwen/qwen3.5-9b`; Full generation sends 20 context items and requests 10 questions from the configured Full provider. Provider failures return errors instead of silently switching tiers.
+Adaptive Infinity keeps its own answer journal at `users/{uid}/adaptive_practice_answers`. New category sessions serve static `questions.json` questions first; returning category sessions request AI at startup. Lite generation sends 5 context items and requests 5 questions from LM Studio with `qwen/qwen3.5-9b`; Full generation sends 20 context items and requests 10 questions from the configured Full provider. Provider failures return errors instead of switching tiers.
 
 **Consequences:**
 - (+) Formal quiz scores, SM-2 schedules, and notifications remain unaffected by endless practice

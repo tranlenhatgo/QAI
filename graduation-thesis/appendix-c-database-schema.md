@@ -64,7 +64,7 @@ review_schedule/
     ├── id: string (auto-generated)
     ├── user_id: string (user UID)
     ├── category: string (e.g., "SCIENCE")
-    ├── easiness: number (SM-2 easiness factor, ≥1.3)
+    ├── easiness: number (SM-2 easiness factor, >=1.3)
     ├── interval_days: number (days until next review)
     ├── repetitions: number (consecutive successful reviews)
     ├── next_review: timestamp (when review is due)
@@ -73,7 +73,7 @@ review_schedule/
     └── updated_at: timestamp
 ```
 
-**Composite Key**: (user_id, category) — enforced by upsert logic in service layer.
+**Composite Key**: (user_id, category) - enforced by upsert logic in service layer.
 
 ### C.1.6 Collection: `notifications`
 
@@ -130,7 +130,7 @@ users/
 
 ### C.1.9 Document: `users/{uid}/subscription/current`
 
-Spring Boot manages this nested document through Firebase Admin. The frontend never writes subscription entitlement directly.
+Spring Boot manages this nested document through Firebase Admin. The frontend does not write subscription entitlement.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -198,7 +198,7 @@ CREATE INDEX idx_documents_kb_id ON documents(kb_id);
 | Column | Type | Description |
 |--------|------|-------------|
 | id | UUID | Auto-generated primary key |
-| content | TEXT | Chunk text (≤500 characters) |
+| content | TEXT | Chunk text (<=500 characters) |
 | metadata | JSONB | `{"document_id": "...", "chunk_index": 0, "filename": "..."}` |
 | embedding | VECTOR(768) | nomic-embed-text-v1.5 embedding |
 | kb_id | TEXT | Knowledge base ID (= user UID for isolation) |
@@ -242,31 +242,31 @@ The function uses cosine distance (`<=>` operator) for similarity ranking and su
 
 ```text
 ┌──────────┐          ┌───────────────┐
-│  users   │──1:N────►│     quiz      │  (host_id → users.id)
+│  users   │──1:N────►│     quiz      │  (host_id -> users.id)
 └──────────┘          └───────┬───────┘
      │                        │
      │                        │ 1:N
      │                        ▼
      │                ┌───────────────┐
-     │                │   question    │  (quiz_id → quiz.id)
+     │                │   question    │  (quiz_id -> quiz.id)
      │                └───────────────┘
      │
      │ 1:N            ┌───────────────┐
-     ├───────────────►│   take_quiz   │  (player_id → users.id)
+     ├───────────────►│   take_quiz   │  (player_id -> users.id)
      │                └───────┬───────┘
      │                        │
      │                        │ 1:N
      │                        ▼
      │                ┌───────────────┐
-     │                │ take_question │  (take_id → take_quiz.id)
+     │                │ take_question │  (take_id -> take_quiz.id)
      │                └───────────────┘
      │
      │ 1:N            ┌───────────────┐
-     ├───────────────►│review_schedule│  (user_id → users.id)
+     ├───────────────►│review_schedule│  (user_id -> users.id)
      │                └───────────────┘
      │
      │ 1:N            ┌───────────────┐
-     ├───────────────►│ notification  │  (user_id → users.id)
+     ├───────────────►│ notification  │  (user_id -> users.id)
      │                └───────────────┘
      │
      │ subcollection  ┌───────────────┐         ┌──────────────┐
@@ -284,12 +284,12 @@ Note: Firestore is NoSQL and does not enforce foreign keys. Referential integrit
 
 | Collection | Documents per User | Document Size | Growth Rate |
 |------------|-------------------|---------------|-------------|
-| quiz | 10–50 | ~500 bytes | 2–5/week |
-| question | 50–250 | ~300 bytes | 10–25/week |
-| take_quiz | 50–500 | ~200 bytes | 5–20/week |
-| take_question | 250–2500 | ~150 bytes | 25–100/week |
-| review_schedule | 5–15 | ~200 bytes | Stable (one per category) |
-| notification | 20–100 | ~300 bytes | 3–10/week |
-| documents (Firestore) | 5–20 | ~400 bytes | 1–3/week |
-| adaptive_practice_answers | 100–2000 | ~600 bytes | Depends on Infinity Quiz usage |
-| documents (Supabase) | 100–2000 chunks | ~4KB (content + 768×4 embedding) | Per upload |
+| quiz | 10-50 | ~500 bytes | 2-5/week |
+| question | 50-250 | ~300 bytes | 10-25/week |
+| take_quiz | 50-500 | ~200 bytes | 5-20/week |
+| take_question | 250-2500 | ~150 bytes | 25-100/week |
+| review_schedule | 5-15 | ~200 bytes | Stable (one per category) |
+| notification | 20-100 | ~300 bytes | 3-10/week |
+| documents (Firestore) | 5-20 | ~400 bytes | 1-3/week |
+| adaptive_practice_answers | 100-2000 | ~600 bytes | Depends on Infinity Quiz usage |
+| documents (Supabase) | 100-2000 chunks | ~4KB (content + 768x4 embedding) | Per upload |

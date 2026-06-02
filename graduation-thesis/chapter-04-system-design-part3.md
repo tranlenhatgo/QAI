@@ -1,4 +1,4 @@
-# Chapter 4: System Design — Part 3: AI Coach and Learning Algorithms
+# Chapter 4: System Design - Part 3: AI Coach and Learning Algorithms
 
 ## 4.11 AI Coach Architecture
 
@@ -12,7 +12,7 @@ The AI Study Coach follows a layered design separating protocol handling, routin
                      │
 ┌────────────────────▼────────────────────────┐
 │              Router (router.py)              │
-│  resolve_capability(tier, mode) → Capability│
+│  resolve_capability(tier, mode) -> Capability│
 └────────────────────┬────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────┐
@@ -50,7 +50,7 @@ async def run(
 - `on_event`: Callback to emit WebSocket events (content chunks, tool status, stages).
 - `cancelled`: Check if user sent a stop signal.
 
-This design allows the WebSocket handler to remain stateless — it simply pipes events to the client.
+This design keeps the WebSocket handler stateless; it pipes events to the client.
 
 ### 4.11.2 Agentic Loop (Full Tier)
 
@@ -66,7 +66,7 @@ The Full-tier agentic capability implements a bounded reasoning loop:
 FOR iteration IN 1..10:
     1. Send messages + tool_definitions to LLM
     2. Collect response (content + tool_calls)
-    3. IF no tool_calls → stream content as final answer → RETURN
+    3. IF no tool_calls -> stream content as final answer -> RETURN
     4. FOR EACH tool_call (max 3 per turn):
        a. Emit tool_event("calling")
        b. Execute tool with timeout
@@ -75,7 +75,7 @@ FOR iteration IN 1..10:
     5. Loop back to step 1 (LLM sees tool results)
 ```
 
-This bounded approach prevents infinite loops while allowing multi-step reasoning. In practice, most interactions complete in 1–2 iterations.
+These bounds prevent infinite loops while allowing multi-step reasoning. Most interactions complete in 1-2 iterations.
 
 ### 4.11.3 LiteOrchestrator (Lite Tier)
 
@@ -86,8 +86,8 @@ For local models that lack reliable function-calling, the LiteOrchestrator uses 
    - Returns: intent enum + confidence score + extracted parameters.
 
 2. **Workflow Execution** (per-intent logic):
-   - `WEAKNESS_ANALYSIS`: Fetch quiz history → compute stats → prompt LLM with data.
-   - `QUIZ_RECOMMEND`: Analyze weak categories → suggest next quiz.
+   - `WEAKNESS_ANALYSIS`: Fetch quiz history -> compute stats -> prompt LLM with data.
+   - `QUIZ_RECOMMEND`: Analyze weak categories -> suggest next quiz.
    - `EXPLAIN_TOPIC`: Direct LLM pass-through with topic context.
    - `QUIZ_REQUEST`: Generate questions via code path.
    - `SOLVE_PROBLEM`: Step-by-step prompting with structured output.
@@ -97,7 +97,7 @@ For local models that lack reliable function-calling, the LiteOrchestrator uses 
    - LLM receives pre-gathered context + user question.
    - Streams response without tool-calling overhead.
 
-This approach enables "agentic-like" behavior on smaller models (4B–9B parameters) that cannot reliably follow function-calling schemas.
+This approach gives smaller models (4B-9B parameters) agent-like behavior even when they cannot follow function-calling schemas.
 
 ### 4.11.4 Tool Definitions
 
@@ -110,7 +110,7 @@ Tools are defined in OpenAI function-calling format for compatibility with both 
 | `reason` | Deep multi-step reasoning via Full tier LLM | problem, context | Full only |
 | `web_search` | Search the web via DuckDuckGo | query | Full only |
 | `rag` | Search user's uploaded materials | query, top_k | Full only |
-| `navigate_to_page` | Navigate user to a platform page | page (enum) | Full only (action) |
+| `navigate_to_page` | Send the user to a platform page | page (enum) | Full only (action) |
 | `start_quiz` | Start a specific quiz for the user | quiz_id | Full only (action) |
 | `generate_questions` | Generate practice questions | topics | Full only (action) |
 | `search_study_materials` | Semantic search in uploaded documents | query | Full only (action) |
@@ -131,7 +131,7 @@ Tools are defined in OpenAI function-calling format for compatibility with both 
               │     Quality Validation       │
               │  >50 chars AND >70% printable│
               └────────────┬────────────────┘
-                           │ (fail → HTTP 400)
+                           │ (fail -> HTTP 400)
               ┌────────────▼────────────────┐
               │      Null Byte Removal       │
               │  text.replace("\x00", "")    │
@@ -181,7 +181,7 @@ Tools are defined in OpenAI function-calling format for compatibility with both 
 
 ### 4.12.3 Design Decisions
 
-- **Chunk size ~2000 characters with 200-char overlap**: Balances context completeness against embedding quality. Smart boundary detection prefers splitting at paragraphs, then sentences, then word boundaries.
+- **Chunk size ~2000 characters with 200-char overlap**: Balances context coverage against embedding quality. Boundary detection splits at paragraphs first, then sentences, then word boundaries.
 - **768-dimensional embeddings**: nomic-embed-text-v1.5 offers strong multilingual performance at reasonable dimensionality.
 - **User-scoped knowledge bases**: Each user's documents are isolated via `kb_id`, preventing cross-user information leakage.
 - **No OCR**: Image-only PDFs are rejected with a clear error message. This simplifies the pipeline and avoids Tesseract dependency issues across platforms.
@@ -190,16 +190,16 @@ Tools are defined in OpenAI function-calling format for compatibility with both 
 
 ### 4.13.1 SM-2 Implementation
 
-The system implements SM-2 at the **category level** — each (user, category) pair maintains an independent schedule:
+The system implements SM-2 at the **category level** - each (user, category) pair maintains an independent schedule:
 
 ```text
-Input: quality (0–5 scale derived from quiz score)
+Input: quality (0-5 scale derived from quiz score)
 State: easiness (EF), interval_days, repetitions
 
 IF quality >= 3 (pass):
     IF repetitions == 0: interval = 1 day
     ELIF repetitions == 1: interval = 3 days
-    ELSE: interval = interval × EF
+    ELSE: interval = interval x EF
     repetitions += 1
 ELSE (fail):
     repetitions = 0
@@ -207,7 +207,7 @@ ELSE (fail):
     easiness unchanged
 
 // Update easiness factor (only on pass)
-EF = EF + (0.1 - (5 - quality) × (0.08 + (5 - quality) × 0.02))
+EF = EF + (0.1 - (5 - quality) x (0.08 + (5 - quality) x 0.02))
 EF = max(EF, 1.3)  // Never below 1.3
 
 next_review = now + interval days
@@ -215,16 +215,16 @@ next_review = now + interval days
 
 ### 4.13.2 Quality Score Mapping
 
-Quiz scores are mapped to the SM-2 quality scale (0–5):
+Quiz scores are mapped to the SM-2 quality scale (0-5):
 
 | Score Range | Quality | Interpretation |
 |-------------|---------|----------------|
-| 90–100% | 5 | Perfect recall |
-| 80–89% | 4 | Correct with hesitation |
-| 60–79% | 3 | Correct with difficulty |
-| 40–59% | 2 | Incorrect, easy to recall |
-| 20–39% | 1 | Incorrect, vaguely remembered |
-| 0–19% | 0 | Complete blackout |
+| 90-100% | 5 | Perfect recall |
+| 80-89% | 4 | Correct with hesitation |
+| 60-79% | 3 | Correct with difficulty |
+| 40-59% | 2 | Incorrect, easy to recall |
+| 20-39% | 1 | Incorrect, vaguely remembered |
+| 0-19% | 0 | Complete blackout |
 
 ### 4.13.3 Webhook-Triggered Processing
 
@@ -242,11 +242,11 @@ POST /webhook/quiz-completed
 }
 
 Processing:
-1. Parse score → compute quality (4/5 = 80% → quality 4)
+1. Parse score -> compute quality (4/5 = 80% -> quality 4)
 2. Fetch existing ReviewSchedule for (user_id, SCIENCE)
 3. Apply SM-2 algorithm
 4. PUT updated schedule to Spring Boot API
-5. If next_review < now + 24h → create notification
+5. If next_review < now + 24h -> create notification
 ```
 
 ## 4.14 Progress Tracking Algorithms
@@ -256,7 +256,7 @@ Processing:
 Category mastery uses a **recency-weighted average**:
 
 ```python
-mastery = Σ(score_i × weight_i) / Σ(weight_i)
+mastery = Σ(score_i x weight_i) / Σ(weight_i)
 
 where weight_i = 0.9^(days_since_attempt_i)
 ```
@@ -277,7 +277,7 @@ where:
 
 Direction classification:
 - velocity > 0.05: "accelerating"
-- -0.05 ≤ velocity ≤ 0.05: "steady"
+- -0.05 <= velocity <= 0.05: "steady"
 - velocity < -0.05: "decelerating"
 
 ### 4.14.3 Study Streak
@@ -301,7 +301,7 @@ for day in reverse_chronological_days:
 User provides: topic, count, difficulty
 System:
   1. Build prompt with structured output requirements (JSON array)
-  2. If document_name provided: RAG search → append context
+  2. If document_name provided: RAG search -> append context
   3. Send to LLM (Lite or Full based on tier)
   4. Parse JSON response
   5. Validate: exactly 4 answers, correct_answer in answers
@@ -371,7 +371,7 @@ Adaptive answers are saved to `users/{uid}/adaptive_practice_answers` and intent
 Notifications are generated by two triggers:
 
 1. **Scheduler** (hourly review check):
-   - Query all `ReviewSchedule` where `next_review ≤ now`.
+   - Query all `ReviewSchedule` where `next_review <= now`.
    - For each due schedule, create a `REVIEW_DUE` notification.
    - Avoid duplicates: skip if unread notification already exists.
 
