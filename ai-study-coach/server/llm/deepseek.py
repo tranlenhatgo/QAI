@@ -48,6 +48,7 @@ class DeepSeekProvider(LLMService):
             "temperature": temperature,
             "max_tokens": max_tokens,
             "stream": True,
+            "stream_options": {"include_usage": True},
         }
 
         if tools:
@@ -60,6 +61,8 @@ class DeepSeekProvider(LLMService):
         }
 
         tool_calls_buffer: list[dict] = []
+        usage: dict[str, int] = {}
+        finish_reason = ""
 
         try:
             async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
@@ -75,7 +78,17 @@ class DeepSeekProvider(LLMService):
                             break
 
                         chunk = json.loads(data_str)
-                        delta = chunk["choices"][0].get("delta", {})
+                        chunk_usage = self._format_usage(chunk.get("usage"))
+                        if chunk_usage:
+                            usage = chunk_usage
+
+                        choices = chunk.get("choices") or []
+                        if not choices:
+                            continue
+
+                        choice = choices[0]
+                        finish_reason = choice.get("finish_reason") or finish_reason
+                        delta = choice.get("delta", {})
 
                         # Content token
                         token = delta.get("content", "")
@@ -119,8 +132,10 @@ class DeepSeekProvider(LLMService):
 
             yield StreamChunk(
                 type=ChunkType.FINISH,
-                finish_reason="tool_calls" if tool_calls_buffer else "stop",
+                finish_reason="tool_calls" if tool_calls_buffer else finish_reason or "stop",
+                usage=usage,
             )
+            self._log_cache_usage(usage)
 
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 429:
@@ -157,6 +172,33 @@ class DeepSeekProvider(LLMService):
                 "parameters": tool.parameters,
             },
         }
+
+    def _format_usage(self, usage: dict | None) -> dict[str, int]:
+        if not isinstance(usage, dict):
+            return {}
+        return {
+            key: value
+            for key, value in usage.items()
+            if isinstance(key, str) and isinstance(value, int)
+        }
+
+    def _log_cache_usage(self, usage: dict[str, int]) -> None:
+        cache_hit = usage.get("prompt_cache_hit_tokens")
+        cache_miss = usage.get("prompt_cache_miss_tokens")
+        if cache_hit is None and cache_miss is None:
+            return
+
+        hit_tokens = cache_hit or 0
+        miss_tokens = cache_miss or 0
+        total_cached_prompt = hit_tokens + miss_tokens
+        hit_rate = hit_tokens / total_cached_prompt if total_cached_prompt else 0
+
+        logger.info(
+            "DeepSeek prompt cache usage: hit=%s miss=%s hit_rate=%.1f%%",
+            hit_tokens,
+            miss_tokens,
+            hit_rate * 100,
+        )
 
     async def is_available(self) -> bool:
         return bool(self.api_key)

@@ -54,6 +54,44 @@ class ExternalLLMClient:
             headers["Authorization"] = f"Bearer {self.api_key}"
         return headers
 
+    def _uses_deepseek(self) -> bool:
+        return self.provider == "deepseek"
+
+    def _apply_stream_usage_options(self, payload: dict) -> dict:
+        if self._uses_deepseek() and payload.get("stream") is True:
+            payload["stream_options"] = {"include_usage": True}
+        return payload
+
+    def _format_usage(self, usage: dict | None) -> dict[str, int]:
+        if not isinstance(usage, dict):
+            return {}
+        return {
+            key: value
+            for key, value in usage.items()
+            if isinstance(key, str) and isinstance(value, int)
+        }
+
+    def _log_cache_usage(self, usage: dict[str, int]) -> None:
+        if not self._uses_deepseek():
+            return
+
+        cache_hit = usage.get("prompt_cache_hit_tokens")
+        cache_miss = usage.get("prompt_cache_miss_tokens")
+        if cache_hit is None and cache_miss is None:
+            return
+
+        hit_tokens = cache_hit or 0
+        miss_tokens = cache_miss or 0
+        total_cached_prompt = hit_tokens + miss_tokens
+        hit_rate = hit_tokens / total_cached_prompt if total_cached_prompt else 0
+
+        logger.info(
+            "DeepSeek prompt cache usage: hit=%s miss=%s hit_rate=%.1f%%",
+            hit_tokens,
+            miss_tokens,
+            hit_rate * 100,
+        )
+
     async def chat(
         self,
         messages: list[dict],
@@ -75,6 +113,7 @@ class ExternalLLMClient:
             )
             resp.raise_for_status()
             data = resp.json()
+            self._log_cache_usage(self._format_usage(data.get("usage")))
             return data["choices"][0]["message"]["content"]
 
     async def chat_with_tools(
@@ -103,6 +142,7 @@ class ExternalLLMClient:
             resp.raise_for_status()
             data = resp.json()
 
+        self._log_cache_usage(self._format_usage(data.get("usage")))
         message = data["choices"][0]["message"]
         content = message.get("content")
 
@@ -138,6 +178,8 @@ class ExternalLLMClient:
             "temperature": temperature,
             "stream": True,
         }
+        payload = self._apply_stream_usage_options(payload)
+        usage: dict[str, int] = {}
 
         async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
             async with client.stream(
@@ -153,10 +195,20 @@ class ExternalLLMClient:
                         if data_str.strip() == "[DONE]":
                             break
                         chunk = json.loads(data_str)
-                        delta = chunk["choices"][0].get("delta", {})
+                        chunk_usage = self._format_usage(chunk.get("usage"))
+                        if chunk_usage:
+                            usage = chunk_usage
+
+                        choices = chunk.get("choices") or []
+                        if not choices:
+                            continue
+
+                        delta = choices[0].get("delta", {})
                         token = delta.get("content", "")
                         if token:
                             yield token
+
+        self._log_cache_usage(usage)
 
     async def chat_stream_with_tools(
         self,
