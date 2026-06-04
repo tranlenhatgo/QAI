@@ -6,6 +6,19 @@
 autotest-agent/
 firestore-mcp/
 
+# Local project documentation and agent context
+/.understand-anything/
+/AGENTS.md
+/CLAUDE.md
+/GUIDE.md
+/ai-study-coach/AGENTS.md
+/ai-study-coach/docs/
+/frontend/AGENTS.md
+/frontend/docs/
+/graduation-thesis/
+/spring-backend/AGENTS.md
+/spring-backend/docs/
+
 # Editors and OS files
 .vscode/
 .idea/
