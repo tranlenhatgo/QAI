@@ -1,25 +1,48 @@
+# Local tooling and agent state
 .codegraph/
 .cursor/
 .playwright-mcp/
-.vscode/
-firestore-mcp/
-autotest-agent/
-graduation-thesis/diagrams/
 .codex-live-test-logs/
+autotest-agent/
+firestore-mcp/
 
-# Vite cache
+# Editors and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# Environment files, credentials, and logs
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.log
+*.pem
+*.key
+*.p12
+*.pfx
+**/serviceAccountKey.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+~$*
+
+# Shared Python local artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Shared local caches
 .vite/
-
-# Understand-Anything build artifacts
 .understand-anything/intermediate/
 .understand-anything/tmp/
 
-# Expo
-frontend/.expo/
-
-# Python local artifacts
-__pycache__/
-*.py[cod]
-.pytest_cache/
-firestore-mcp/.venv/
-firestore-mcp/venv/
+# Generated thesis artifacts
+graduation-thesis/diagrams/

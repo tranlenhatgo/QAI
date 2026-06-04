@@ -1,27 +1,35 @@
-# Virtual environment
+# Virtual environments
 venv/
 .venv/
 
-# Environment variables
+# Environment files
 .env
+.env.*
+!.env.example
+!.env.*.example
 
-# Python
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 dist/
 build/
 
-# IDE
+# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Misc
+# Logs
 *.log
