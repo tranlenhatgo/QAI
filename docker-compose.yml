@@ -18,6 +18,8 @@ services:
       - "8000:8000"
     depends_on:
       - spring-backend
+    env_file:
+    - ./ai-study-coach/.env
     environment:
       # Inside Docker, reach the backend via service DNS name.
       COACH_QUIZ_API_URL: http://spring-backend:8080
