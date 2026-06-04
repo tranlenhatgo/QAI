@@ -58,6 +58,17 @@ def _parse_score(score: str) -> tuple[int, int]:
         return 0, 0
 
 
+def _to_aware_utc(timestamp: datetime) -> datetime:
+    """Treat naive timestamps as UTC and convert aware timestamps to UTC."""
+    if timestamp.tzinfo is None or timestamp.tzinfo.utcoffset(timestamp) is None:
+        return timestamp.replace(tzinfo=timezone.utc)
+    return timestamp.astimezone(timezone.utc)
+
+
+def _parse_updated_at(value: str) -> datetime:
+    return _to_aware_utc(datetime.fromisoformat(value.replace("Z", "+00:00")))
+
+
 class ProgressTracker:
     """Computes learning progress metrics from quiz history."""
 
@@ -92,7 +103,7 @@ class ProgressTracker:
 
             accuracy = correct / total
             try:
-                timestamp = datetime.fromisoformat(attempt.updatedAt.replace("Z", "+00:00"))
+                timestamp = _parse_updated_at(attempt.updatedAt)
             except (ValueError, AttributeError):
                 timestamp = datetime.now(timezone.utc)
 
@@ -143,7 +154,7 @@ class ProgressTracker:
         dates = set()
         for attempt in quiz_history:
             try:
-                dt = datetime.fromisoformat(attempt.updatedAt.replace("Z", "+00:00"))
+                dt = _parse_updated_at(attempt.updatedAt)
                 dates.add(dt.date())
             except (ValueError, AttributeError):
                 pass
@@ -182,11 +193,14 @@ class ProgressTracker:
 
         now = datetime.now(timezone.utc)
         decay_factor = 0.85
+        normalized_attempts = [
+            (score, _to_aware_utc(timestamp)) for score, timestamp in attempts
+        ]
 
         weighted_sum = 0.0
         weight_total = 0.0
 
-        for score, timestamp in attempts:
+        for score, timestamp in normalized_attempts:
             days_ago = max((now - timestamp).total_seconds() / 86400, 0)
             weight = decay_factor ** (days_ago / 7)
             weighted_sum += score * weight
@@ -195,28 +209,34 @@ class ProgressTracker:
         mastery = weighted_sum / weight_total if weight_total > 0 else 0.0
 
         # Compute trend from last 4 attempts
-        trend = self._compute_trend(attempts[-4:]) if len(attempts) >= 2 else "stable"
+        trend = (
+            self._compute_trend(normalized_attempts[-4:])
+            if len(normalized_attempts) >= 2
+            else "stable"
+        )
 
         # Compute streak (consecutive passing attempts >= 60%)
         streak = 0
-        for score, _ in reversed(attempts):
+        for score, _ in reversed(normalized_attempts):
             if score >= 0.6:
                 streak += 1
             else:
                 break
 
         # Total correct (count attempts with >= 50% as "correct" for stats)
-        total_correct = sum(1 for s, _ in attempts if s >= 0.5)
+        total_correct = sum(1 for s, _ in normalized_attempts if s >= 0.5)
 
         return CategoryMastery(
             category=category,
             mastery_level=round(mastery, 3),
-            total_attempts=len(attempts),
+            total_attempts=len(normalized_attempts),
             total_correct=total_correct,
-            total_questions=len(attempts),
-            accuracy=round(sum(s for s, _ in attempts) / len(attempts), 3),
+            total_questions=len(normalized_attempts),
+            accuracy=round(
+                sum(s for s, _ in normalized_attempts) / len(normalized_attempts), 3
+            ),
             trend=trend,
-            last_attempt=attempts[-1][1],
+            last_attempt=normalized_attempts[-1][1],
             streak=streak,
         )
 
@@ -245,6 +265,7 @@ class ProgressTracker:
         if len(attempts) < 3:
             return LearningVelocity(category="", velocity=0.0, direction="steady")
 
+        attempts = [(score, _to_aware_utc(timestamp)) for score, timestamp in attempts]
         mid = len(attempts) // 2
         older = attempts[:mid]
         recent = attempts[mid:]
@@ -279,7 +300,7 @@ class ProgressTracker:
         dates = set()
         for h in quiz_history:
             try:
-                dt = datetime.fromisoformat(h.updatedAt.replace("Z", "+00:00"))
+                dt = _parse_updated_at(h.updatedAt)
                 dates.add(dt.date())
             except (ValueError, AttributeError):
                 continue

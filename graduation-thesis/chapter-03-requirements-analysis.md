@@ -30,7 +30,7 @@
 | FR-02.1 | System shall generate multiple-choice questions from a given topic | Must |
 | FR-02.2 | System shall generate questions from uploaded files (PDF, TXT, MD) | Must |
 | FR-02.3 | Generated questions shall conform to the 4-option multiple-choice format | Must |
-| FR-02.4 | Users shall specify the number of questions to generate (1–20) | Should |
+| FR-02.4 | Users shall specify the number of questions to generate (1-20) | Should |
 | FR-02.5 | System shall support both local (Lite) and cloud (Full) generation tiers | Should |
 | FR-02.6 | System shall generate questions from RAG-indexed documents | Should |
 
@@ -259,7 +259,7 @@
 ## 3.6 Constraints
 
 1. **Budget**: Zero recurring API cost for Lite tier; minimal cost for Full tier (DeepSeek pricing).
-2. **Hardware**: Local LLM requires GPU with ≥8GB VRAM (LM Studio).
+2. **Hardware**: Local LLM requires GPU with >=8GB VRAM (LM Studio).
 3. **Network**: Full tier features require internet connectivity.
 4. **Text PDFs only**: Document ingestion does not support scanned/image-only PDFs (no OCR).
 5. **Single category per quiz**: Architectural constraint for accurate per-category analytics.

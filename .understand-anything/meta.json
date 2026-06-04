@@ -1,6 +1,13 @@
 {
-  "gitCommitHash": "38ccd24360fe157f63051818865c86874e82505c",
-  "analyzedAt": "2026-05-27T14:24:35.191Z",
-  "nodesCount": 696,
-  "edgesCount": 898
+  "gitCommitHash": "364bf1183721637d15957f42277ed92cae8a98c9",
+  "analyzedAt": "2026-05-31T14:17:04.313Z",
+  "lastAnalyzedAt": "2026-05-31T14:17:04.313Z",
+  "version": "1.0.0",
+  "analyzedFiles": 373,
+  "nodesCount": 1020,
+  "edgesCount": 1122,
+  "validation": {
+    "valid": true,
+    "issues": 0
+  }
 }

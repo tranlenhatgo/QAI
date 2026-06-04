@@ -178,7 +178,7 @@ python -m pytest tests/ -v
 
 ## 6.4 Frontend Testing Considerations
 
-The frontend relies primarily on:
+The frontend uses:
 - **Type checking** via JSDoc annotations (no TypeScript, but IDE support).
 - **Manual testing** of UI flows and WebSocket interactions.
 - **Browser DevTools** for WebSocket frame inspection and state debugging.
@@ -205,14 +205,14 @@ test('parseScore returns null for invalid', () => {
 
 | Requirement | Status | Verification Method |
 |-------------|--------|---------------------|
-| FR-01: Quiz Management | ✓ Complete | API + UI testing |
-| FR-02: AI Question Generation | ✓ Complete | Generated questions validated |
-| FR-03: AI Study Coach | ✓ Complete | WebSocket streaming verified |
-| FR-04: Spaced Repetition | ✓ Complete | SM-2 unit tests + manual |
-| FR-05: Progress Tracking | ✓ Complete | Metrics computation verified |
-| FR-06: Document Management | ✓ Complete | Upload → index → search flow |
-| FR-07: Step-by-Step Solver | ✓ Complete | LLM output format verified |
-| FR-08: Authentication | ✓ Complete | Firebase Auth integration |
+| FR-01: Quiz Management | Complete | API + UI testing |
+| FR-02: AI Question Generation | Complete | Generated questions validated |
+| FR-03: AI Study Coach | Complete | WebSocket streaming verified |
+| FR-04: Spaced Repetition | Complete | SM-2 unit tests + manual |
+| FR-05: Progress Tracking | Complete | Metrics computation verified |
+| FR-06: Document Management | Complete | Upload -> index -> search flow |
+| FR-07: Step-by-Step Solver | Complete | LLM output format verified |
+| FR-08: Authentication | Complete | Firebase Auth integration |
 | FR-09: Subscription Gate | Complete | Browser + API mock checkout tests |
 | FR-10: Adaptive Infinity Quiz | Complete | Live API + Playwright browser tests |
 
@@ -220,12 +220,12 @@ test('parseScore returns null for invalid', () => {
 
 | Requirement | Target | Measured | Status |
 |-------------|--------|----------|--------|
-| NFR-01.1: Page load | < 3s | ~1.5s (dev) | ✓ |
-| NFR-01.2: First token (Lite) | < 2s | ~1.2s | ✓ |
-| NFR-01.3: First token (Full) | < 4s | ~2.5s | ✓ |
-| NFR-01.4: Generate 5 questions | < 15s | ~8s (Full) | ✓ |
-| NFR-01.5: Ingest 10-page PDF | < 30s | ~12s | ✓ |
-| NFR-01.6: RAG search | < 500ms | ~200ms | ✓ |
+| NFR-01.1: Page load | < 3s | ~1.5s (dev) | Met |
+| NFR-01.2: First token (Lite) | < 2s | ~1.2s | Met |
+| NFR-01.3: First token (Full) | < 4s | ~2.5s | Met |
+| NFR-01.4: Generate 5 questions | < 15s | ~8s (Full) | Met |
+| NFR-01.5: Ingest 10-page PDF | < 30s | ~12s | Met |
+| NFR-01.6: RAG search | < 500ms | ~200ms | Met |
 | NFR-01.7: Adaptive Lite batch | 5 questions with local Qwen | ~67-84s in dev | Partial |
 
 ### 6.5.3 AI Quality Assessment
@@ -235,7 +235,7 @@ Question generation quality was assessed through manual review of a sample of 50
 | Metric | Estimated Score | Method |
 |--------|----------------|--------|
 | Grammatical correctness | ~95% | Manual review |
-| Factual accuracy | ~85–90% | Cross-reference with source |
+| Factual accuracy | ~85-90% | Cross-reference with source |
 | Distractor plausibility | ~80% | Subjective assessment |
 | Appropriate difficulty | ~75% | Expert judgment |
 | Format compliance (4 options) | 100% | Automated check |
@@ -246,7 +246,7 @@ The Full tier (DeepSeek) was observed to produce noticeably higher quality outpu
 
 ### 6.5.4 Subscription and Payment Flow
 
-The subscription flow was verified with both API calls and Playwright browser checks. A locked Lite user remains in Lite when requesting Full, the subscription modal opens, and the `View plans` action navigates to `/payment`. Selecting monthly, yearly, or forever performs a mock checkout through the Next.js BFF and Spring Boot before Firestore is updated. After checkout, Full mode is enabled immediately, while expired monthly/yearly plans are treated as Lite by backend entitlement reads and coach API forwarding.
+API calls and Playwright browser checks verified the subscription flow. A locked Lite user remains in Lite when requesting Full, the subscription modal opens, and the `View plans` action routes to `/payment`. Selecting monthly, yearly, or forever performs a mock checkout through the Next.js BFF and Spring Boot before Firestore updates. After checkout, Full mode becomes available, while backend entitlement reads and coach API forwarding treat expired monthly/yearly plans as Lite.
 
 ### 6.5.5 Adaptive Infinity Quiz Live Test
 
@@ -268,14 +268,14 @@ Tested informally with uploaded documents and representative queries during deve
 
 | Metric | Estimated Score | Method |
 |--------|----------------|--------|
-| Relevant chunk in top 5 results | ~80–85% | Manual inspection |
+| Relevant chunk in top 5 results | ~80-85% | Manual inspection |
 | Precision of returned results | ~70% | Manual inspection |
 
 Note: These estimates are based on developer testing with a small sample. A formal evaluation with labeled relevance judgments was not conducted. Performance is adequate for educational contexts where approximate retrieval suffices.
 
 ## 6.6 Known Limitations
 
-1. **Image-only PDFs**: Cannot process scanned documents (design decision — no OCR).
+1. **Image-only PDFs**: Cannot process scanned documents (design decision - no OCR).
 2. **Local model quality and latency**: Lite tier struggles with complex questions and nuanced distractors, and local Qwen Adaptive Infinity batches are slower than cloud Full batches on developer hardware.
 3. **Context window**: Very long documents may exceed LM Studio's context window during generation.
 4. **Concurrent WebSocket**: Not load-tested beyond 10 simultaneous sessions.

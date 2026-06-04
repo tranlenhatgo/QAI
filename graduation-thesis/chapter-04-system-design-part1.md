@@ -1,4 +1,4 @@
-# Chapter 4: System Design — Part 1: Architecture
+# Chapter 4: System Design - Part 1: Architecture
 
 ## 4.1 Architectural Overview
 
@@ -70,7 +70,7 @@ The Python service handles all AI/ML workloads:
 
 - **WebSocket chat**: Streaming conversation with agentic tool-calling loop.
 - **Question generation**: From topics, uploaded files, RAG-indexed materials, and Adaptive Infinity tier-sized batches.
-- **Document ingestion**: Text extraction → chunking → embedding → Supabase storage.
+- **Document ingestion**: Text extraction -> chunking -> embedding -> Supabase storage.
 - **Spaced repetition engine**: SM-2 algorithm execution triggered by quiz webhooks.
 - **Progress analysis**: Computes mastery metrics, velocity, streaks from quiz history.
 - **Scheduler**: Background tasks for review checks and progress snapshots.
@@ -95,13 +95,13 @@ AI Coach      ──HTTP/JSON──►  Supabase      (vector storage/search)
 
 Used exclusively for the AI chat interface, enabling token-by-token streaming:
 
-**Client → Server Messages**:
+**Client -> Server Messages**:
 - `session_start`: Initialize session with tier, mode, user_id, kb_id.
 - `user_message`: Send a chat message.
 - `stop`: Cancel current generation.
 - `mode_switch`: Change between chat and agentic modes.
 
-**Server → Client Messages**:
+**Server -> Client Messages**:
 - `session_ack`: Confirm session with available tools list.
 - `content`: Single token or text chunk.
 - `stage`: Processing stage updates (thinking start/end).
@@ -115,9 +115,9 @@ The webhook pattern decouples quiz completion from AI processing:
 
 ```text
 Student completes quiz
-    → Spring Boot records score
-    → Spring Boot POSTs to /webhook/quiz-completed
-    → AI Coach processes:
+    -> Spring Boot records score
+    -> Spring Boot POSTs to /webhook/quiz-completed
+    -> AI Coach processes:
         1. Updates SM-2 schedule for category
         2. Stores per-question results
         3. Generates notification if review due
@@ -127,12 +127,12 @@ This design ensures quiz completion is never blocked by AI processing failures.
 
 ## 4.4 Tier and Mode System
 
-The AI Coach supports a 2×2 matrix of capabilities:
+The AI Coach supports a 2x2 matrix of capabilities:
 
 | | Chat Mode | Agentic Mode |
 |---|---|---|
-| **Lite Tier** (LM Studio) | Simple streaming chat | LiteOrchestrator (rule-based intent → code-driven workflows) |
-| **Full Tier** (DeepSeek) | Simple streaming chat | Full agentic loop (LLM decides tools, 3 rounds × 9 tools) |
+| **Lite Tier** (LM Studio) | Simple streaming chat | LiteOrchestrator (rule-based intent -> code-driven workflows) |
+| **Full Tier** (DeepSeek) | Simple streaming chat | Full agentic loop (LLM decides tools, 3 rounds x 9 tools) |
 
 The **routing logic** in `server/router.py` resolves the correct capability:
 
@@ -164,8 +164,8 @@ def resolve_capability(tier, mode, user_id, kb_id):
 ### 4.5.2 API Key Protection
 
 Secrets are managed at the BFF layer:
-- `COACH_API_KEY`: Shared between BFF → AI Coach (never exposed to client).
-- `COACH_WEBHOOK_API_KEY`: Shared between Spring Boot → AI Coach.
+- `COACH_API_KEY`: Shared between BFF -> AI Coach (never exposed to client).
+- `COACH_WEBHOOK_API_KEY`: Shared between Spring Boot -> AI Coach.
 - Firebase service account: Used by BFF and Spring Boot for Admin SDK.
 - Supabase key: Used only by AI Coach for vector operations.
 
@@ -183,10 +183,10 @@ Secrets are managed at the BFF layer:
 ┌──────────────────────────────────────────────────┐
 │                Development Environment            │
 ├──────────────────────────────────────────────────┤
-│  LM Studio (GPU)     → localhost:1234            │
-│  Spring Boot (JVM)   → localhost:8080            │
-│  Next.js (Node.js)   → localhost:3000            │
-│  AI Coach (uvicorn)  → localhost:8000            │
+│  LM Studio (GPU)     -> localhost:1234            │
+│  Spring Boot (JVM)   -> localhost:8080            │
+│  Next.js (Node.js)   -> localhost:3000            │
+│  AI Coach (uvicorn)  -> localhost:8000            │
 ├──────────────────────────────────────────────────┤
 │  External Services (Cloud):                      │
 │  • Firebase Auth + Firestore (quizzai-bc49d)     │
@@ -202,10 +202,10 @@ Each service implements distinct error handling:
 
 | Service | Strategy |
 |---------|----------|
-| Spring Boot | Global exception handler → standardized error DTOs |
-| Next.js BFF | Try-catch per route → JSON error responses with HTTP codes |
+| Spring Boot | Global exception handler -> standardized error DTOs |
+| Next.js BFF | Try-catch per route -> JSON error responses with HTTP codes |
 | AI Coach WS | Structured `error` messages via WebSocket with error codes |
 | AI Coach REST | FastAPI HTTPException with detail messages |
-| Agentic Loop | Tool failure → append error to conversation → LLM adapts |
+| Agentic Loop | Tool failure -> append error to conversation -> LLM adapts |
 
 The agentic loop specifically handles tool failures gracefully: if a tool times out or errors, the result is appended as a tool response with the error message, allowing the LLM to acknowledge the failure and try an alternative approach.

@@ -2,29 +2,29 @@
 
 ## 2.1 Intelligent Tutoring Systems
 
-Intelligent Tutoring Systems (ITS) have been studied since the 1970s, with early systems like SCHOLAR (Carbonell, 1970) and GUIDON (Clancey, 1982) demonstrating the potential of adaptive instruction. Modern ITS typically consist of four components: a domain model, a student model, a tutoring model, and a user interface (Nwana, 1990).
+Researchers have studied Intelligent Tutoring Systems (ITS) since the 1970s. Early systems such as SCHOLAR (Carbonell, 1970) and GUIDON (Clancey, 1982) showed how software could adapt instruction to a learner. Nwana (1990) describes four common ITS components: a domain model, a student model, a tutoring model, and a user interface.
 
-Recent advances in natural language processing have enabled a new generation of ITS that interact through conversational interfaces rather than rigid menu-driven systems. Systems like Khan Academy's Khanmigo (2023) and Duolingo's AI features demonstrate the commercial viability of LLM-powered educational assistants.
+Large Language Models (LLMs) allow tutoring systems to use conversation instead of rigid menu flows. Khan Academy's Khanmigo (2023) and Duolingo's AI features show that educational products can use LLM-powered assistants in deployed learning environments.
 
-However, most existing systems treat the AI as a passive responder — answering questions when asked. The **agentic paradigm**, where the AI proactively decides to use tools (search databases, generate content, analyze data), represents an emerging frontier that QAI explores.
+Many systems still use AI as a passive responder that answers only when prompted. QAI explores an **agentic paradigm** in which the coach can select tools, search data, generate content, and analyze performance during a learning session.
 
 ## 2.2 Spaced Repetition and the Forgetting Curve
 
-Hermann Ebbinghaus's seminal research (1885) established that memory retention decays exponentially without reinforcement. The spacing effect — the finding that distributed practice leads to better long-term retention than massed practice — has been replicated extensively (Cepeda et al., 2006).
+Hermann Ebbinghaus (1885) showed that memory retention declines without reinforcement. Later studies replicated the spacing effect: distributed practice improves long-term retention compared with massed practice (Cepeda et al., 2006).
 
 ### 2.2.1 The SM-2 Algorithm
 
-The SuperMemo 2 (SM-2) algorithm, developed by Piotr Wozniak (1987), operationalizes spaced repetition through three key variables:
+Piotr Wozniak's SuperMemo 2 (SM-2) algorithm (1987) implements spaced repetition with three variables:
 
-- **Easiness Factor (EF)**: A floating-point value (minimum 1.3) representing how easy an item is for the learner. Starts at 2.5.
-- **Interval**: The number of days until the next review. Follows the progression: 1 → 6 → `interval × EF`.
+- **Easiness Factor (EF)**: A floating-point value, minimum 1.3, that represents how easy an item is for the learner. It starts at 2.5.
+- **Interval**: The number of days until the next review. Follows the progression: 1 -> 6 -> `interval x EF`.
 - **Repetitions**: A counter tracking consecutive successful recalls.
 
-The algorithm adjusts the easiness factor based on response quality (0–5 scale):
-- Quality ≥ 3: Item considered recalled. Interval increases.
+The algorithm adjusts the easiness factor based on response quality (0-5 scale):
+- Quality >= 3: Item considered recalled. Interval increases.
 - Quality < 3: Item forgotten. Reset repetitions to 0, interval to 1 day.
 
-SM-2 remains widely used due to its simplicity, effectiveness, and low computational cost. QAI implements SM-2 at the category level — tracking mastery per subject area rather than per individual flashcard — to align with the quiz-based assessment model.
+SM-2 remains common because it needs little computation and has a clear update rule. QAI applies SM-2 at the category level, tracking mastery per subject area instead of per flashcard, which fits quiz-based assessment.
 
 ### 2.2.2 Alternatives Considered
 
@@ -36,11 +36,11 @@ SM-2 remains widely used due to its simplicity, effectiveness, and low computati
 
 ### 2.3.1 Question Generation
 
-LLMs have demonstrated strong capabilities in generating educational questions. Research by Elkins et al. (2023) shows that GPT-4 can produce multiple-choice questions of comparable quality to human-authored items when given appropriate context.
+LLMs can generate educational questions from source context. Elkins et al. (2023) report that GPT-4 can produce multiple-choice questions comparable to human-authored items when prompts include enough context.
 
 Key challenges in LLM-based question generation include:
 - **Factual accuracy**: LLMs may generate plausible but incorrect answers (hallucination).
-- **Difficulty calibration**: Controlling question difficulty reliably.
+- **Difficulty calibration**: Controlling question difficulty.
 - **Distractor quality**: Generating plausible wrong answers that test genuine understanding.
 - **Format compliance**: Ensuring structured output (JSON) from free-text generation.
 
@@ -48,18 +48,18 @@ QAI addresses these through structured prompting with JSON output schemas, valid
 
 ### 2.3.2 Agentic AI Systems
 
-The concept of LLM agents — systems where the language model selects and executes tools to accomplish tasks — emerged prominently in 2023 with frameworks like LangChain, AutoGPT, and OpenAI's function calling. The ReAct pattern (Yao et al., 2022) combines reasoning and acting in an interleaved loop.
+LLM agents let a language model select and execute tools to complete a task. Frameworks such as LangChain, AutoGPT, and OpenAI function calling made this pattern common in 2023. The ReAct pattern (Yao et al., 2022) combines reasoning and acting in an interleaved loop.
 
-QAI implements a bounded agentic loop: the LLM can invoke up to 9 tools over a maximum of 3 rounds before generating a final response. This bounded approach prevents runaway execution while enabling meaningful multi-step reasoning (e.g., search materials → analyze → generate quiz).
+QAI bounds the agentic loop: the LLM can invoke up to 9 tools across 3 rounds before producing a final response. This limit prevents runaway execution while still allowing multi-step workflows such as search materials, analyze, and generate quiz.
 
 ### 2.3.3 Local vs. Cloud LLM Inference
 
 The dual-tier approach in QAI reflects a practical consideration in educational deployments:
 
-- **Local inference** (LM Studio): No data leaves the device, zero cost, lower latency for simple tasks, but limited model quality (4B–9B parameters).
+- **Local inference** (LM Studio): No data leaves the device, zero cost, lower latency for simple tasks, but limited model quality (4B-9B parameters).
 - **Cloud inference** (DeepSeek API): Higher quality responses, function calling support, but requires internet and incurs API costs.
 
-This dual-tier design allows the system to function in environments with varying connectivity and privacy requirements.
+This dual-tier design supports deployments with different connectivity, cost, and privacy constraints.
 
 ## 2.4 Retrieval-Augmented Generation (RAG)
 
@@ -69,7 +69,7 @@ RAG, introduced by Lewis et al. (2020), combines the generative capabilities of 
 2. **Chunking**: Splitting text into manageable segments with overlap.
 3. **Embedding**: Converting chunks into dense vector representations.
 4. **Storage**: Indexing vectors in a database supporting similarity search.
-5. **Retrieval**: Given a query, finding the most relevant chunks via cosine similarity.
+5. **Retrieval**: Finding the most relevant chunks for a query through cosine similarity.
 6. **Generation**: Providing retrieved chunks as context for LLM generation.
 
 ### 2.4.1 Vector Databases
@@ -80,7 +80,7 @@ Several vector storage solutions exist:
 - **pgvector**: PostgreSQL extension. Leverages existing database infrastructure.
 - **Supabase**: Managed PostgreSQL with pgvector. Combines relational data with vector search.
 
-QAI uses **Supabase with pgvector** for its combination of managed hosting, SQL familiarity, and integrated REST API — avoiding the need for a separate vector database service.
+QAI uses **Supabase with pgvector** because it provides managed hosting, SQL access, and a REST API without adding a separate vector database service.
 
 ### 2.4.2 Embedding Models
 
@@ -93,9 +93,9 @@ QAI uses **nomic-embed-text-v1.5** via LM Studio for local embedding generation,
 
 ## 2.5 WebSocket Communication Patterns
 
-Traditional HTTP request-response patterns are inadequate for AI coaching where responses are generated token-by-token over several seconds. WebSocket provides full-duplex communication enabling:
+AI coaching produces responses token by token over several seconds, which makes ordinary HTTP request-response flows a poor fit. WebSocket provides full-duplex communication for:
 
-- **Token streaming**: Each generated token is sent immediately, creating a "typing" effect.
+- **Token streaming**: The server sends generated tokens as they arrive, creating a "typing" effect.
 - **Tool execution notifications**: Real-time feedback when the AI is searching, analyzing, or generating.
 - **Session persistence**: Maintaining conversation context across multiple exchanges.
 - **Bidirectional control**: Client can send stop signals to cancel generation mid-stream.
@@ -105,11 +105,11 @@ QAI implements a WebSocket protocol with structured JSON messages for session ma
 ## 2.6 Progressive Web Applications
 
 PWAs combine web accessibility with native-like capabilities:
-- **Offline support**: Service workers cache critical assets.
+- **Offline support**: Service workers cache core assets.
 - **Installability**: Web app manifest enables home screen installation.
 - **Push notifications**: Web Push API for engagement (planned).
 
-The PWA approach was chosen over native mobile development for:
+QAI uses a PWA instead of native mobile apps for:
 - Single codebase serving all platforms.
 - Immediate deployment without app store review.
 - URL-based sharing of quizzes and rooms.
@@ -118,22 +118,22 @@ The PWA approach was chosen over native mobile development for:
 
 | System | AI Chat | Spaced Repetition | RAG | Question Gen | Agentic Tools |
 |--------|---------|-------------------|-----|--------------|---------------|
-| Anki | ✗ | ✓ (SM-2) | ✗ | ✗ | ✗ |
-| Quizlet | ✗ | Partial | ✗ | ✓ (basic) | ✗ |
-| Khan Academy (Khanmigo) | ✓ | ✗ | ✗ | ✗ | ✗ |
-| Duolingo | ✗ | ✓ (custom) | ✗ | ✓ | ✗ |
-| DeepTutor | ✓ | ✗ | ✓ | ✗ | Partial |
-| **QAI (this work)** | **✓** | **✓ (SM-2)** | **✓** | **✓** | **✓** |
+| Anki | No | Yes (SM-2) | No | No | No |
+| Quizlet | No | Partial | No | Yes (basic) | No |
+| Khan Academy (Khanmigo) | Yes | No | No | No | No |
+| Duolingo | No | Yes (custom) | No | Yes | No |
+| DeepTutor | Yes | No | Yes | No | Partial |
+| **QAI (this work)** | **Yes** | **Yes (SM-2)** | **Yes** | **Yes** | **Yes** |
 
-QAI is distinguished by its integration of all five capabilities within a single platform, particularly the combination of agentic tool-use with spaced repetition and RAG-powered question generation.
+QAI combines all five capabilities in one platform, with agentic tool use connected to spaced repetition and RAG-powered question generation.
 
 ## 2.8 Summary
 
-This chapter established the theoretical and practical foundations for QAI:
+This chapter identified the foundations for QAI:
 - Intelligent tutoring systems provide the pedagogical framework.
-- SM-2 spaced repetition offers scientifically-validated retention scheduling.
+- SM-2 spaced repetition provides research-backed retention scheduling.
 - LLMs enable natural conversation, question generation, and agentic behavior.
 - RAG allows personalization through user-uploaded materials.
 - WebSocket and PWA technologies enable real-time, installable experiences.
 
-The following chapter translates these foundations into concrete system requirements.
+Chapter 3 translates these foundations into system requirements.
