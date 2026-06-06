@@ -4,7 +4,7 @@ import playSound from '@/helpers/playSound'
 import HomeHeader from './HomeHeader'
 import { useBoundStore } from '@/store/useBoundStore'
 import { useRouter } from 'next/router'
-import { FiZap } from 'react-icons/fi'
+import { FiLock, FiZap } from 'react-icons/fi'
 
 export default function MainHome() {
 	const { setDest, user } = useBoundStore(state => state)
@@ -32,7 +32,12 @@ export default function MainHome() {
 	}
 	function handleCoach() {
 		playSound('pop')
-		router.push('/coach')
+		if (user) {
+			router.push('/coach')
+		} else {
+			setDest('coach')
+			document.getElementById('authDialog')?.showModal()
+		}
 	}
 
 	return (
@@ -51,18 +56,28 @@ export default function MainHome() {
 					Play an infinite number of possible questions!
 				</p>
 			</article>
-			<button onClick={handleCoach} id='coach' className='btn-primary uppercase px-4 py-3 text-md w-full max-w-md !bg-emerald-500 before:!bg-emerald-700 ring-4 ring-white/80 shadow-[0_0_0_6px_rgba(16,185,129,0.28)] hover:!bg-emerald-400' >
-				<span className='inline-flex items-center justify-center gap-2'>
-					<FiZap className='text-lg' />
-					AI Coach
-				</span>
-			</button>
 			<div className='sticky bottom-4 z-30 flex flex-col gap-4 mt-auto w-full max-w-md'>
+				<button onClick={handleCoach} id='coach' className='btn-primary uppercase px-6 py-4 text-lg w-full !bg-emerald-500 before:!bg-emerald-700 ring-4 ring-white/80 shadow-[0_0_0_6px_rgba(16,185,129,0.28)] hover:!bg-emerald-400' >
+					{!user ? (
+						<span className='absolute -right-3 -top-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white shadow-lg' title='Sign in required'>
+							<FiLock className='text-lg' />
+						</span>
+					) : null}
+					<span className='relative z-10 inline-flex items-center justify-center gap-2'>
+						<FiZap className='text-lg' />
+						AI Coach
+					</span>
+				</button>
 				<button onClick={handlePlay} id='play' href="play" className='btn-primary uppercase px-6 py-4 text-lg w-full' >
 					Play
 				</button>
 				<button onClick={handleCreate} id='create' href="create" className='btn-primary uppercase px-6 py-4 text-lg w-full' >
-					Create
+					{!user ? (
+						<span className='absolute -right-3 -top-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white shadow-lg' title='Sign in required'>
+							<FiLock className='text-lg' />
+						</span>
+					) : null}
+					<span className='relative z-10'>Create</span>
 				</button>
 			</div>
 			<PageFooter />

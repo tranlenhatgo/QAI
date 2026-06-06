@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { BiArrowBack } from 'react-icons/bi'
 import { FiChevronRight, FiMessageSquare, FiPlus, FiSettings, FiTrash2, FiUser } from 'react-icons/fi'
 import { useBoundStore } from '@/store/useBoundStore'
+import { getAvatarSrc } from '@/components/Profile/AvatarPicker'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import PageFooter from '@/components/PageFooter'
 
@@ -54,10 +55,12 @@ export default function ChatPage() {
 		newConversation,
 		selectConversation,
 		deleteConversation,
+		clearAllConversations,
 		setSidebarSection,
 		setSetting,
 		setChatMode,
 		sendChatMessage,
+		stopStreaming,
 		setDraft,
 		chatConfig,
 		user,
@@ -79,7 +82,7 @@ export default function ChatPage() {
 		setChatConfig({
 			userId: user?.uid ?? 'anonymous',
 			serverUrl: chatConfig.serverUrl,
-			transport: 'webhook',
+			transport: 'websocket',
 			hiddenPaths: ['/chat'],
 		})
 		setChatSessionActive(true)
@@ -155,14 +158,24 @@ export default function ChatPage() {
 							title="History"
 							icon={<FiMessageSquare className="text-blue-500" />}
 							action={
-								<button
-									type="button"
-									onClick={() => newConversation('New chat')}
-									className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100"
-								>
-									<FiPlus />
-									New
-								</button>
+								<div className="flex items-center gap-2">
+									<button
+										type="button"
+										onClick={() => { if (window.confirm('Delete all chat history?')) clearAllConversations() }}
+										className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100"
+									>
+										<FiTrash2 />
+										Clear
+									</button>
+									<button
+										type="button"
+										onClick={() => newConversation('New chat')}
+										className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100"
+									>
+										<FiPlus />
+										New
+									</button>
+								</div>
 							}
 						>
 							<div className="space-y-2">
@@ -197,7 +210,7 @@ export default function ChatPage() {
 						{/* Account */}
 						<SidebarSection title="Account" icon={<FiUser className="text-blue-500" />}>
 							<div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
-								<img src={user?.photoURL || '/default-avatar.jpg'} alt="Profile" className="h-12 w-12 rounded-full border-2 border-blue-200 object-cover" />
+								<img src={user?.photoURL || getAvatarSrc(user?.uid)} alt="Profile" className="h-12 w-12 rounded-full border-2 border-blue-200 object-cover" />
 								<div className="min-w-0">
 									<p className="truncate text-sm font-semibold text-slate-800">{displayName}</p>
 									<p className="truncate text-xs text-slate-500">{displayEmail}</p>
@@ -262,6 +275,7 @@ export default function ChatPage() {
 										draft={draft}
 										setDraft={setDraft}
 										onSend={sendChatMessage}
+										onStop={stopStreaming}
 										isConnected={isConnected}
 										isStreaming={isStreaming}
 										chatMode={chatMode}

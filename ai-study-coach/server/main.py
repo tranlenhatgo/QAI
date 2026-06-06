@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from server.config import settings
-from server.routes import chat, health, generate, solve
+from server.routes import chat, health, generate, solve, progress, webhook, explain, ingest
 from server.ws.endpoint import ws_handler
 
 # Logging
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Paths that don't require API key authentication
 PUBLIC_PATHS = {"/", "/health", "/docs", "/redoc", "/openapi.json"}
-PUBLIC_PREFIXES = ("/static/",)
+PUBLIC_PREFIXES = ("/static/", "/webhook/", "/progress/")
 
 
 @asynccontextmanager
@@ -49,7 +49,16 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning("   ⚠️ API key not set — endpoints are OPEN (set COACH_API_KEY to secure)")
 
+    # Start background scheduler
+    from server.scheduler.scheduler import CoachScheduler
+    scheduler = CoachScheduler()
+    scheduler.start()
+    app.state.scheduler = scheduler
+
     yield
+
+    # Shutdown scheduler
+    scheduler.shutdown()
     logger.info(f"👋 {settings.app_name} shutting down")
 
 
@@ -117,11 +126,20 @@ app.include_router(chat.router, tags=["Chat"])
 app.include_router(health.router, tags=["Health"])
 app.include_router(generate.router, tags=["Generation"])
 app.include_router(solve.router, tags=["Solve"])
+app.include_router(progress.router, tags=["Progress"])
+app.include_router(webhook.router, tags=["Webhook"])
+app.include_router(explain.router, tags=["Explain"])
+app.include_router(ingest.router, tags=["Ingest"])
 
 
 # WebSocket endpoint
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    await ws_handler(websocket)
+
+
+@app.websocket("/ws/chat")
+async def websocket_chat_endpoint(websocket: WebSocket):
     await ws_handler(websocket)
 
 
@@ -136,4 +154,3 @@ async def root():
         "version": "0.1.0",
         "docs": "/docs",
     }
-

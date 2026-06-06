@@ -20,9 +20,13 @@ export default function StudyMaterials() {
 		uploadStudyMaterial,
 		removeDocument,
 		setActiveCoachFeature,
+		coachTier,
 	} = useBoundStore(state => state)
 
+	const isLite = coachTier === 'lite'
+
 	async function handleFiles(files) {
+		if (isLite) return
 		const file = files?.[0]
 		if (!file) return
 		if (!user) {
@@ -47,22 +51,28 @@ export default function StudyMaterials() {
 				<span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-slate-600">{documents.length} files</span>
 			</div>
 
+			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Advanced AI extracts key concepts, generates high-quality questions, and indexes documents for AI-powered search in chat.' : 'Lightweight local model generates questions from your documents. Switch to Full mode to enable AI search (RAG) in chat.'}
+			</p>
+
 			<div
 				onDragOver={event => {
+					if (isLite) return
 					event.preventDefault()
 					setDragActive(true)
 				}}
 				onDragLeave={() => setDragActive(false)}
 				onDrop={event => {
+					if (isLite) return
 					event.preventDefault()
 					setDragActive(false)
 					handleFiles(event.dataTransfer.files)
 				}}
-				className={`flex min-h-40 flex-col items-center justify-center rounded-md border border-dashed px-4 text-center transition-colors ${dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
+				className={`flex min-h-40 flex-col items-center justify-center rounded-md border border-dashed px-4 text-center transition-colors ${isLite ? 'pointer-events-none border-gray-200 bg-gray-100 opacity-50' : dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}
 			>
-				<FiUploadCloud className="text-3xl text-blue-600" />
-				<p className="mt-2 text-sm font-semibold text-slate-800">{isUploading ? 'Uploading...' : 'Drop file or browse'}</p>
-				<p className="mt-1 text-xs text-slate-500">PDF, TXT, MD</p>
+				<FiUploadCloud className={`text-3xl ${isLite ? 'text-gray-400' : 'text-blue-600'}`} />
+				<p className="mt-2 text-sm font-semibold text-slate-800">{isLite ? 'Upload disabled in Lite mode' : isUploading ? 'Uploading...' : 'Drop file or browse'}</p>
+				<p className="mt-1 text-xs text-slate-500">{isLite ? 'Switch to Full mode to upload & index documents' : 'PDF, TXT, MD'}</p>
 				<input
 					ref={inputRef}
 					type="file"
@@ -73,7 +83,7 @@ export default function StudyMaterials() {
 				<button
 					type="button"
 					onClick={() => inputRef.current?.click()}
-					disabled={isUploading}
+					disabled={isUploading || isLite}
 					className="mt-3 inline-flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					<FiUploadCloud />
@@ -97,6 +107,12 @@ export default function StudyMaterials() {
 						</div>
 						<div className="flex flex-shrink-0 items-center gap-2">
 							<span className={`rounded-md border px-2 py-1 text-xs font-semibold ${statusClassName(document.status)}`}>{document.status}</span>
+							{document.ragStatus === 'indexed' && (
+								<span className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700" title="Indexed for AI search">🔍 RAG</span>
+							)}
+							{document.ragStatus === 'failed' && (
+								<span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700" title={document.ragError || 'Not indexed for AI search'}>⚠️ {document.ragError || 'Not indexed'}</span>
+							)}
 							<button
 								type="button"
 								onClick={() => removeDocument(document.id)}

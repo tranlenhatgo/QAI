@@ -157,6 +157,51 @@ TOOL_DEFINITIONS: list[dict] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": (
+                "Search the web for current information on a topic. "
+                "Use this when the student asks about recent events, needs "
+                "up-to-date references, or when your training data may be outdated. "
+                "Also use this when explicitly asked to search."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to look up on the web.",
+                    }
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_study_materials",
+            "description": (
+                "Search the student's uploaded study materials (notes, PDFs, documents) "
+                "using semantic similarity. Use this when the student asks about their "
+                "own materials, uploaded notes, or says 'check my materials/notes'. "
+                "Also use this proactively when answering questions that might be covered "
+                "in their study materials."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to find relevant content in the student's materials.",
+                    }
+                },
+                "required": ["query"],
+            },
+        },
+    },
 ]
 
 

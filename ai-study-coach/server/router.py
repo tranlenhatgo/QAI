@@ -23,7 +23,7 @@ def create_llm_provider(tier: Tier):
     if tier == Tier.LITE:
         return LMStudioProvider(
             base_url=f"{settings.lm_studio_url.rstrip('/')}/v1",
-            model=settings.external_llm_model,
+            model=settings.lm_studio_model,
         )
     else:
         return DeepSeekProvider(

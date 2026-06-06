@@ -1,4 +1,4 @@
-"""WebSearchTool — web search with citations (stub, requires API key)."""
+"""WebSearchTool — DuckDuckGo search integration."""
 
 import logging
 from typing import Any
@@ -41,10 +41,26 @@ class WebSearchTool(BaseTool):
         if not query:
             return "No query provided."
 
-        # TODO: Integrate with a web search API (e.g., SerpAPI, Brave Search)
-        # For now, return a stub response
-        logger.info(f"web_search called with query: {query}")
-        return (
-            f"[Web search not yet configured] "
-            f"Query: '{query}' — To enable, set COACH_SEARCH_API_KEY in environment."
-        )
+        logger.info(f"web_search: querying DuckDuckGo for '{query}'")
+
+        try:
+            from ddgs import DDGS
+
+            ddgs = DDGS()
+            results = list(ddgs.text(query, max_results=5))
+
+            if not results:
+                return f"No results found for: '{query}'"
+
+            formatted = []
+            for i, r in enumerate(results, 1):
+                title = r.get("title", "No title")
+                body = r.get("body", "").strip()
+                href = r.get("href", "")
+                formatted.append(f"{i}. **{title}**\n   {body}\n   Source: {href}")
+
+            return f"Search results for '{query}':\n\n" + "\n\n".join(formatted)
+
+        except Exception as e:
+            logger.error(f"Web search failed: {e}")
+            return f"Search failed: {str(e)}"

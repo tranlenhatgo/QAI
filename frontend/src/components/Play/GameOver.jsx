@@ -11,6 +11,8 @@ import { useState } from 'react';
 
 import playSound from '@/helpers/playSound'
 import ReactCanvasConfetti from 'react-canvas-confetti'
+import { renderMarkdown } from '@/components/Chat/ChatTranscript'
+import DOMPurify from 'dompurify'
 import { useBoundStore } from '@/store/useBoundStore'
 import saveAttempt from '@/helpers/take/saveAttempt'
 import getCorrectAnswer from '@/helpers/question/getCorrectAnswer'
@@ -26,13 +28,16 @@ const canvasStyles = {
 }
 
 export default function GameOver() {
-	const { queries, score, win, questions, setDecryptedAnswer, takeId, sendAsk, user } = useBoundStore(state => state)
+	const { queries, win, questions, adaptiveHistory, adaptiveStats, adaptiveEndReason, setDecryptedAnswer, takeId, user, coachTier } = useBoundStore(state => state)
 	const [expandedQuestionIndex, setExpandedQuestionIndex] = useState(null);
-	const { showAsk } = useState(false);
+	const [explanationIndex, setExplanationIndex] = useState(null);
+	const [explanation, setExplanation] = useState('');
+	const [isExplaining, setIsExplaining] = useState(false);
 	const refAnimationInstance = useRef(null)
 
 	const showCorrectAnswer = async (questionIndex) => {
-		const question = questions[questionIndex]; // Get the specific question
+		const resultQuestions = queries.infinitymode ? adaptiveHistory : questions
+		const question = resultQuestions[questionIndex]; // Get the specific question
 		if (queries.quizmode) {
 			const correctAnswer = await getCorrectAnswer(question.correctAnswer);
 
@@ -46,13 +51,33 @@ export default function GameOver() {
 		}
 	};
 
-	function handleAskAI(questionText) {
-		if (window.$chatwoot) {
-			window.$chatwoot.toggle('open'); // Open the widget
-			window.$chatwoot.sendMessage(questionText); // Send the question as a message
-		} else {
-			alert('Chatwoot is not loaded yet.');
-		}
+	function handleAskAI(questionIndex) {
+		const resultQuestions = queries.infinitymode ? adaptiveHistory : questions
+		const question = resultQuestions[questionIndex]
+		setExplanationIndex(questionIndex)
+		setExplanation('')
+		setIsExplaining(true)
+
+		fetch('/api/coach/explain-answer', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				question: question.question,
+				answers: question.answers,
+				correctAnswer: question.correctAnswer || null,
+				tier: coachTier,
+			}),
+		})
+			.then(res => res.json())
+			.then(data => {
+				setExplanation(data.explanation || 'No explanation available.')
+			})
+			.catch(() => {
+				setExplanation('Failed to get explanation. Please try again.')
+			})
+			.finally(() => {
+				setIsExplaining(false)
+			})
 	}
 
 	const getInstance = useCallback((instance) => {
@@ -127,10 +152,15 @@ export default function GameOver() {
 	}
 
 	function finalText() {
-		if (queries.infinitymode) return `You answered well ${score} questions!`
+		if (queries.infinitymode) {
+			if (adaptiveEndReason) return `${adaptiveEndReason}\nAnswered ${adaptiveStats.total} questions.`
+			return `Answered ${adaptiveStats.total} questions: ${adaptiveStats.correct} correct, ${adaptiveStats.wrong} wrong.`
+		}
 		if (win === true) return 'Congratulations! \nQuiz completed successfully.'
 		return 'Better luck next time! \nYou can try again.'
 	}
+
+	const resultQuestions = queries.infinitymode ? adaptiveHistory : questions
 
 	return (
 		<>
@@ -154,6 +184,13 @@ export default function GameOver() {
 						{finalImage()}
 						<h2 className="text-2xl font-bold">{finalTitle()}</h2>
 						<p className="text-center mb-3 whitespace-pre-line">{finalText()}</p>
+						{queries.infinitymode && (
+							<div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold text-slate-700">
+								<span className="rounded bg-slate-100 px-3 py-2">Static {adaptiveStats.static}</span>
+								<span className="rounded bg-slate-100 px-3 py-2">AI {adaptiveStats.ai}</span>
+								<span className="rounded bg-slate-100 px-3 py-2">Repeat {adaptiveStats.repeated}</span>
+							</div>
+						)}
 						{!user && queries.quizmode && (
 							<p className="text-sm text-gray-500 bg-yellow-50 p-3 rounded-md border border-yellow-200">
 								💡 Sign in to save your quiz results and track progress!
@@ -176,20 +213,20 @@ export default function GameOver() {
 					{/* List of Questions */}
 					<div className="flex-1 flex flex-col w-full md:w-1/3 max-h-[60vh]">
 						<ul className="flex-1 w-full overflow-y-auto bg-gray-100 p-4 rounded-md">
-							{questions.map((question, index) => (
+							{resultQuestions.map((question, index) => (
 								<li
 									key={question.id || index}
 									className="flex flex-col gap-4 p-4 mb-4 rounded-md shadow-md bg-white"
 								>
-									<p className='rounded-md h-16 md:h-[3.5rem] flex justify-center items-center bg-blue-500 px-5 py-0 text-white text-sm font-semibold'>
+									<p className='rounded-md min-h-[3.5rem] flex justify-center items-center bg-blue-500 px-5 py-3 text-white text-base font-semibold text-center'>
 										{question.question}
 									</p>
 									<hr className="border-gray-200" />
-									<ul className="flex flex-col gap-2">
+									<ul className="flex flex-col gap-1">
 										{question.answers.map((answer, j) => (
 											<li key={j} className="relative">
 												<button
-													className={`w-full mb-1 btn-primary text-left px-4 py-2 rounded-md flex justify-between items-center 
+													className={`w-full mb-1 btn-primary text-center px-3 py-1.5 rounded-md flex justify-center items-center text-xs 
 														${answer === question.answer
 															? question.userAnswer > 0
 																? 'correctAnswer'
@@ -233,13 +270,12 @@ export default function GameOver() {
 													Show Correct Answer
 												</button>
 
-												{/* <button
-													className="px-4 text-sm btn-primary"
-													name="askAIButton"
-													onClick={() => handleAskAI(question.question)}
+												<button
+													className="px-4 py-2 text-sm rounded-md bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-semibold hover:opacity-90 transition-opacity"
+													onClick={() => handleAskAI(index)}
 												>
-													Ask AI
-												</button> */}
+													✨ Explain Answer
+												</button>
 											</div>
 										</div>
 									</>
@@ -259,6 +295,37 @@ export default function GameOver() {
 					</div> */}
 				</div>
 			</dialog>
+
+			{/* AI Explanation Modal */}
+			{explanationIndex !== null && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setExplanationIndex(null)}>
+					<div className="w-full max-w-lg mx-4 rounded-2xl bg-white p-6 shadow-2xl max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+						<div className="flex items-center justify-between mb-4">
+							<h3 className="text-lg font-bold text-slate-800">✨ AI Explanation</h3>
+							<button
+								type="button"
+								onClick={() => setExplanationIndex(null)}
+								className="text-2xl text-slate-400 hover:text-slate-700 transition-colors"
+							>
+								<IoCloseSharp />
+							</button>
+						</div>
+						<div className="mb-4 rounded-lg bg-blue-50 p-3">
+							<p className="text-sm font-semibold text-blue-800">{resultQuestions[explanationIndex]?.question}</p>
+						</div>
+						{isExplaining ? (
+							<div className="flex items-center gap-3 py-6 justify-center">
+								<div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+								<span className="text-sm text-slate-500">Generating explanation...</span>
+							</div>
+						) : (
+							<div className="text-sm leading-relaxed text-slate-700 [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mb-1 [&_strong]:font-bold [&_em]:italic [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:mb-2"
+								dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderMarkdown(explanation)) }}
+							/>
+						)}
+					</div>
+				</div>
+			)}
 		</>
 	)
 }

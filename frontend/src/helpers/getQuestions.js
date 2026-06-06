@@ -15,7 +15,9 @@ export default async function getQuestions (topics, qNumber) {
 
 		const questions = []
 		Object.keys(questionsPerTopic).forEach(topic => {
-			randomArray(offlineQuestions[topic]).slice(0, questionsPerTopic[topic]).forEach(question => {
+			const topicQuestions = offlineQuestions[topic]
+			if (!topicQuestions || topicQuestions.length === 0) return
+			randomArray(topicQuestions).slice(0, questionsPerTopic[topic]).forEach(question => {
 				questions.push({
 					...question,
 					topic,

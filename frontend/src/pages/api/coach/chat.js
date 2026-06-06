@@ -1,4 +1,5 @@
 import withAuth from '@/lib/withAuth'
+import { resolveCoachTierForRequest } from '@/lib/coachSubscription'
 
 const DEFAULT_TIMEOUT_MS = Number(process.env.STUDY_COACH_TIMEOUT_MS || 180000)
 const DEFAULT_ALLOWED_HISTORY_ROLES = new Set(['user', 'assistant'])
@@ -46,6 +47,7 @@ async function handler(req, res) {
   const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
 
   try {
+    const tier = await resolveCoachTierForRequest(req, req.body?.tier || null)
     const upstreamResponse = await fetch(targetUrl, {
       method: 'POST',
       headers: {
@@ -56,6 +58,7 @@ async function handler(req, res) {
         user_id: userId,
         message,
         history,
+        tier,
       }),
       signal: controller.signal,
     })

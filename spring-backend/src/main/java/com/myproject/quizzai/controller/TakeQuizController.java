@@ -1,6 +1,7 @@
 package com.myproject.quizzai.controller;
 
 import com.myproject.quizzai.dto.TakeQuizEndRequestDto;
+import com.myproject.quizzai.dto.TakeQuizResponseDto;
 import com.myproject.quizzai.dto.TakeQuizStartRequestDto;
 import com.myproject.quizzai.dto.TakeQuizStartResponseDto;
 import com.myproject.quizzai.service.TakeQuizService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping(TakeQuizController.ROOT_MAPPING)
@@ -46,6 +48,19 @@ public class TakeQuizController {
 
         Map<String, String> response = Map.of("message", "Quiz ended successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // GET /take-quiz/player/{playerId}
+    @GetMapping("/player/{playerId}")
+    @Operation(summary = "Get completed quiz attempts by player ID")
+    public ResponseEntity<List<TakeQuizResponseDto>> getTakeQuizByPlayerId(@PathVariable String playerId) {
+        logger.info("getTakeQuizByPlayerId() method called with player ID: {}", playerId);
+
+        List<TakeQuizResponseDto> attempts = takeQuizService.getTakeQuizByPlayerId(playerId);
+        if (attempts != null && !attempts.isEmpty()) {
+            return ResponseEntity.ok(attempts);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 

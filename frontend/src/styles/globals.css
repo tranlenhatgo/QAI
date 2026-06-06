@@ -253,7 +253,7 @@ input[type='range']::-moz-range-thumb {
 
 /* Focus ============================ */
 :focus-visible {
-	outline: 5px dashed #0f172a;
+	outline: 2px dashed #0f172a;
 	outline-offset: 2px;
 	border-radius: 4px;
 }

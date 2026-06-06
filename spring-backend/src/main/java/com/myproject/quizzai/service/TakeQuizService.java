@@ -3,14 +3,18 @@ package com.myproject.quizzai.service;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Firestore;
 import com.myproject.quizzai.dto.*;
+import com.myproject.quizzai.model.Quiz;
 import com.myproject.quizzai.model.Status;
 import com.myproject.quizzai.model.TakeQuiz;
 import com.myproject.quizzai.utils.IdUtil;
+import com.myproject.quizzai.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +29,25 @@ public class TakeQuizService {
     private final QuestionService questionService;
     private final QuizService quizService;
     private final TakeQuestionService takeQuestionService;
+    private final WebhookService webhookService;
 
     @SneakyThrows
     public TakeQuizStartResponseDto StartQuiz(TakeQuizStartRequestDto takeQuizDto) {
         String quizId = takeQuizDto.getQuizId();
         String playerName = takeQuizDto.getPlayerName();
+
+        // Enforce quiz date limits
+        Quiz quiz = firestore.collection("quiz").document(quizId).get().get().toObject(Quiz.class);
+        if (quiz != null) {
+            Timestamp now = Timestamp.now();
+            if (quiz.getStart_time() != null && now.compareTo(quiz.getStart_time()) < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Quiz not available yet. Starts at " + TimeUtils.toIsoString(quiz.getStart_time()));
+            }
+            if (quiz.getEnd_time() != null && now.compareTo(quiz.getEnd_time()) > 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quiz has expired");
+            }
+        }
 
         List<QuestionResponseDto> questionDtos = questionService.getQuestionsByQuizId(quizId);
 
@@ -81,6 +99,26 @@ public class TakeQuizService {
 
         // Update the quiz status and score in Firestore
         firestore.collection("take_quiz").document(takeId).set(takeQuiz).get();
+
+        // Notify AI Coach via webhook (non-blocking)
+        String category = getQuizCategory(oldTakeQuiz.getQuiz_id());
+        webhookService.notifyQuizCompleted(takeQuiz, oldTakeQuiz.getQuiz_id(), category, takeQuestionDtos);
+    }
+
+    /**
+     * Look up quiz category from Firestore.
+     * Returns "unknown" if quiz not found.
+     */
+    @SneakyThrows
+    private String getQuizCategory(String quizId) {
+        if (quizId == null || quizId.isBlank()) {
+            return "unknown";
+        }
+        Quiz quiz = firestore.collection("quiz").document(quizId).get().get().toObject(Quiz.class);
+        if (quiz != null && quiz.getCategories() != null && !quiz.getCategories().isEmpty()) {
+            return quiz.getCategories().get(0).name().toLowerCase();
+        }
+        return "unknown";
     }
 
     // Method to get a taken quiz by ID
@@ -111,6 +149,9 @@ public class TakeQuizService {
         List<TakeQuizResponseDto> takeQuizResponseDtos = new ArrayList<>();
 
         for (TakeQuiz takeQuiz : takeQuizzes) {
+            if (takeQuiz.getScore() == null || takeQuiz.getScore().isBlank()) {
+                continue;
+            }
             String quizId = takeQuiz.getQuiz_id();
             QuizResponseDto quizResponse = quizService.getQuizById(quizId);
 
@@ -119,9 +160,10 @@ public class TakeQuizService {
             TakeQuizResponseDto takeQuizResponseDto = TakeQuizResponseDto.builder()
                     .quizId(quizId)
                     .quizTitle(quizTitle)
+                    .categories(quizResponse != null ? quizResponse.getCategories() : null)
                     .score(takeQuiz.getScore())
                     .status(takeQuiz.getStatus().toString())
-                    .updatedAt(takeQuiz.getUpdated_at().toString())
+                    .updatedAt(TimeUtils.toIsoString(takeQuiz.getUpdated_at()))
                     .build();
 
             takeQuizResponseDtos.add(takeQuizResponseDto);

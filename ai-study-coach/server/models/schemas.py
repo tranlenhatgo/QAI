@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 from enum import Enum
 from datetime import datetime
 
@@ -61,14 +61,16 @@ class LLMResponse(BaseModel):
 
 
 class QuizResponse(BaseModel):
-    id: str | None = None
-    hostId: str | None = None
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str | None = Field(default=None, validation_alias=AliasChoices("id", "quiz_id", "quizId"))
+    hostId: str | None = Field(default=None, validation_alias=AliasChoices("hostId", "host_id"))
     title: str | None = None
     description: str | None = None
     status: str | None = None
     categories: list[str] | None = None
-    startTime: str | None = None
-    endTime: str | None = None
+    startTime: str | None = Field(default=None, validation_alias=AliasChoices("startTime", "start_time"))
+    endTime: str | None = Field(default=None, validation_alias=AliasChoices("endTime", "end_time"))
 
 
 class TakeQuizResponse(BaseModel):
@@ -80,11 +82,13 @@ class TakeQuizResponse(BaseModel):
 
 
 class QuestionResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: str | None = None
-    quizId: str | None = None
-    content: str | None = None
+    quizId: str | None = Field(default=None, validation_alias=AliasChoices("quizId", "quiz_id"))
+    content: str | None = Field(default=None, validation_alias=AliasChoices("content", "question"))
     answers: list[str] | None = None
-    correctAnswer: str | None = None
+    correctAnswer: str | None = Field(default=None, validation_alias=AliasChoices("correctAnswer", "correct_answer"))
 
 
 class UserQuizProfile(BaseModel):

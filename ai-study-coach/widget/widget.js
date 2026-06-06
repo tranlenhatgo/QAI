@@ -4,9 +4,10 @@
   // ─── Config ────────────────────────────────────────────
   const config = window.STUDY_COACH_CONFIG || {};
   const userId = config.userId || 'anonymous';
-  const wsUrl = config.serverUrl || 'ws://localhost:8000/ws/chat';
-  const httpUrl = wsUrl.replace(/^ws/, 'http').replace(/\/ws\/chat$/, '/chat/agentic');
-  const onAction = config.onAction || null; // callback for agentic actions
+  const apiKey = config.apiKey || config.api_key || '';
+  const wsUrl = resolveWsUrl(config.serverUrl || 'ws://localhost:8000/ws');
+  const tier = config.tier === 'lite' ? 'lite' : 'full';
+  let mode = config.mode === 'agentic' ? 'agentic' : 'chat';
 
   // ─── State ─────────────────────────────────────────────
   let ws = null;
@@ -20,6 +21,34 @@
   let reconnectTimer = null;
   let hasUnread = false;
   const MAX_RECONNECT_DELAY = 30000;
+
+  function normalizeServerRoot(serverUrl) {
+    return String(serverUrl || 'ws://localhost:8000/ws')
+      .trim()
+      .replace(/\/+$/, '')
+      .replace(/\/ws\/chat$/i, '')
+      .replace(/\/ws$/i, '')
+      .replace(/\/chat\/agentic$/i, '')
+      .replace(/\/chat$/i, '');
+  }
+
+  function appendQueryParam(url, key, value) {
+    if (!value) return url;
+    return url + (url.includes('?') ? '&' : '?') + encodeURIComponent(key) + '=' + encodeURIComponent(value);
+  }
+
+  function resolveWsUrl(serverUrl) {
+    const root = normalizeServerRoot(serverUrl);
+    let url;
+    if (/^ws(s)?:\/\//i.test(root)) {
+      url = root + '/ws';
+    } else if (/^http(s)?:\/\//i.test(root)) {
+      url = root.replace(/^http:\/\//i, 'ws://').replace(/^https:\/\//i, 'wss://') + '/ws';
+    } else {
+      url = 'ws://' + root + '/ws';
+    }
+    return appendQueryParam(url, 'api_key', apiKey);
+  }
 
   // ─── Inject CSS ────────────────────────────────────────
   function injectCSS() {
@@ -36,6 +65,24 @@
   }
 
   // ─── Lightweight Markdown ──────────────────────────────
+  const ALLOWED_TAGS = new Set(['p', 'br', 'strong', 'em', 'code', 'h1', 'h2', 'h3', 'ul', 'li']);
+
+  function sanitizeHTML(html) {
+    if (typeof DOMParser === 'undefined') return html;
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const walker = doc.body.querySelectorAll('*');
+    walker.forEach(el => {
+      if (!ALLOWED_TAGS.has(el.tagName.toLowerCase())) {
+        el.replaceWith(doc.createTextNode(el.textContent));
+      }
+      // Strip all attributes (no href, onclick, style, etc.)
+      while (el.attributes && el.attributes.length > 0) {
+        el.removeAttribute(el.attributes[0].name);
+      }
+    });
+    return doc.body.innerHTML;
+  }
+
   function renderMarkdown(text) {
     let html = text
       // Escape HTML
@@ -72,7 +119,7 @@
       })
       .join('');
 
-    return html;
+    return sanitizeHTML(html);
   }
 
   // ─── DOM Creation ──────────────────────────────────────
@@ -179,8 +226,14 @@
 
     ws.onopen = () => {
       console.log('[StudyCoach] WS connected');
-      setConnected(true);
       reconnectAttempts = 0;
+      ws.send(JSON.stringify({
+        type: 'session_start',
+        tier,
+        mode,
+        user_id: userId,
+        kb_id: config.kbId || '',
+      }));
     };
 
     ws.onmessage = (event) => {
@@ -231,17 +284,24 @@
   // ─── Message Handling ──────────────────────────────────
   function handleServerMessage(data) {
     switch (data.type) {
+      case 'session_ack':
+        mode = data.mode === 'agentic' ? 'agentic' : 'chat';
+        setConnected(true);
+        break;
+      case 'content':
       case 'token':
         handleToken(data.content);
         break;
-      case 'action':
-        handleAction(data);
+      case 'stage':
+        break;
+      case 'tool':
+        handleTool(data);
         break;
       case 'done':
         handleDone(data.weaknesses);
         break;
       case 'error':
-        handleError(data.content);
+        handleError(data.message || data.content || 'Something went wrong.');
         break;
       default:
         console.warn('[StudyCoach] Unknown message type:', data.type);
@@ -289,42 +349,6 @@
     scrollToBottom();
   }
 
-  function handleAction(data) {
-    // Show action confirmation in chat
-    const actionEl = document.createElement('div');
-    actionEl.className = 'sc-msg sc-msg-action';
-    actionEl.innerHTML = `
-      <div class="sc-action-pill">
-        <span class="sc-action-icon">⚡</span>
-        <span class="sc-action-label">${escapeHtml(data.label || data.action)}</span>
-      </div>
-    `;
-    dom.messages.appendChild(actionEl);
-    scrollToBottom();
-
-    // Dispatch to host page
-    if (onAction) {
-      try {
-        onAction({
-          action: data.action,
-          params: data.params || {},
-          label: data.label || '',
-        });
-        console.log('[StudyCoach] Action dispatched:', data.action, data.params);
-      } catch (e) {
-        console.error('[StudyCoach] onAction callback error:', e);
-      }
-    } else {
-      console.warn('[StudyCoach] No onAction handler registered for:', data.action);
-    }
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
   function handleError(content) {
     removeTypingIndicator();
     isStreaming = false;
@@ -335,6 +359,16 @@
 
     appendMessage('error', content);
     scrollToBottom();
+  }
+
+  function handleTool(data) {
+    const toolName = data.tool_name || 'tool';
+    const label = data.status === 'calling'
+      ? 'Using ' + toolName
+      : data.status === 'error'
+        ? toolName + ' failed'
+        : toolName + ' finished';
+    appendMessage('assistant', label);
   }
 
   // ─── Send Message ──────────────────────────────────────
@@ -357,52 +391,19 @@
 
     // Send via WS
     const payload = {
-      user_id: userId,
-      message: text,
+      type: 'user_message',
+      content: text,
       history: history.slice(0, -1), // send history without the current message
     };
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(payload));
     } else {
-      // HTTP fallback
-      httpFallback(payload);
+      removeTypingIndicator();
+      appendMessage('error', 'WebSocket is not connected. Reconnecting...');
+      scheduleReconnect();
     }
 
-    scrollToBottom();
-  }
-
-  async function httpFallback(payload) {
-    try {
-      const resp = await fetch(httpUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json();
-      removeTypingIndicator();
-
-      // Handle actions from HTTP response
-      if (data.actions && Array.isArray(data.actions)) {
-        for (const action of data.actions) {
-          handleAction({
-            action: action.action,
-            params: action.params || {},
-            label: action.label || action.action,
-          });
-        }
-      }
-
-      if (data.content) {
-        const el = appendMessage('assistant', '');
-        const bubble = el.querySelector('.sc-msg-bubble');
-        bubble.innerHTML = renderMarkdown(data.content);
-        history.push({ role: 'assistant', content: data.content });
-      }
-    } catch (e) {
-      removeTypingIndicator();
-      appendMessage('error', 'Failed to reach the server. Please try again.');
-    }
     scrollToBottom();
   }
 

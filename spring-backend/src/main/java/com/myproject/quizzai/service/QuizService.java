@@ -13,6 +13,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import com.myproject.quizzai.utils.TimeUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +22,24 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class QuizService {
     private final Firestore firestore;
+
+    /**
+     * Compute quiz availability based on start_time and end_time.
+     * Returns "upcoming", "active", "expired", or null (no time restriction).
+     */
+    private String computeAvailability(Quiz quiz) {
+        if (quiz.getStart_time() == null && quiz.getEnd_time() == null) {
+            return null;
+        }
+        Timestamp now = Timestamp.now();
+        if (quiz.getStart_time() != null && now.compareTo(quiz.getStart_time()) < 0) {
+            return "upcoming";
+        }
+        if (quiz.getEnd_time() != null && now.compareTo(quiz.getEnd_time()) > 0) {
+            return "expired";
+        }
+        return "active";
+    }
 
     @SneakyThrows
     public String create(@NonNull final QuizCreationRequestDto quizCreationRequest) {
@@ -60,10 +80,13 @@ public class QuizService {
                         .host_id(quiz.getHost_id())
                         .title(quiz.getTitle())
                         .description(quiz.getDescription())
-                        .status(quiz.getStatus().name())
-                        .categories(quiz.getCategories().stream().map(Category::getName).toList())
-                        .start_time(String.valueOf(quiz.getStart_time()))
-                        .end_time(String.valueOf(quiz.getEnd_time()))
+                        .status(quiz.getStatus() != null ? quiz.getStatus().name() : "ACTIVE")
+                        .categories(quiz.getCategories() != null
+                                ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                                : Collections.emptyList())
+                        .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                        .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .availability(computeAvailability(quiz))
                         .build())
                 .toList();
     }
@@ -80,10 +103,13 @@ public class QuizService {
                 .host_id(quiz.getHost_id())
                 .title(quiz.getTitle())
                 .description(quiz.getDescription())
-                .status(quiz.getStatus().name())
-                .categories(quiz.getCategories().stream().map(Category::getName).toList())
-                .start_time(String.valueOf(quiz.getStart_time()))
-                .end_time(String.valueOf(quiz.getEnd_time()))
+                .status(quiz.getStatus() != null ? quiz.getStatus().name() : "ACTIVE")
+                .categories(quiz.getCategories() != null
+                        ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                        : Collections.emptyList())
+                .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                .availability(computeAvailability(quiz))
                 .build();
     }
 
@@ -100,6 +126,75 @@ public class QuizService {
         existingQuiz.setEnd_time(quizCreationRequest.getEnd_time());
         existingQuiz.setUpdatedAt(Timestamp.now());
 
+        firestore.collection("quiz").document(id).set(existingQuiz).get();
+    }
+
+    @SneakyThrows
+    public List<QuizResponseDto> getAllQuizzes() {
+        List<Quiz> quizzes = firestore.collection("quiz")
+                .whereEqualTo("status", Status.ACTIVE.name())
+                .get()
+                .get()
+                .toObjects(Quiz.class);
+
+        return quizzes.stream()
+                .map(quiz -> QuizResponseDto.builder()
+                        .quiz_id(quiz.getId())
+                        .host_id(quiz.getHost_id())
+                        .title(quiz.getTitle())
+                        .description(quiz.getDescription())
+                        .status(quiz.getStatus().name())
+                        .categories(quiz.getCategories() != null
+                                ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                                : List.of())
+                        .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                        .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .availability(computeAvailability(quiz))
+                        .build())
+                .toList();
+    }
+
+    @SneakyThrows
+    public List<QuizResponseDto> getQuizzesByCategory(@NonNull final String category) {
+        Category categoryEnum;
+        try {
+            categoryEnum = Category.valueOf(category.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Collections.emptyList();
+        }
+
+        List<Quiz> quizzes = firestore.collection("quiz")
+                .whereEqualTo("status", Status.ACTIVE.name())
+                .whereArrayContains("categories", categoryEnum.name())
+                .get()
+                .get()
+                .toObjects(Quiz.class);
+
+        return quizzes.stream()
+                .map(quiz -> QuizResponseDto.builder()
+                        .quiz_id(quiz.getId())
+                        .host_id(quiz.getHost_id())
+                        .title(quiz.getTitle())
+                        .description(quiz.getDescription())
+                        .status(quiz.getStatus().name())
+                        .categories(quiz.getCategories() != null
+                                ? quiz.getCategories().stream().map(c -> c.name().toLowerCase()).toList()
+                                : Collections.emptyList())
+                        .start_time(TimeUtils.toIsoString(quiz.getStart_time()))
+                        .end_time(TimeUtils.toIsoString(quiz.getEnd_time()))
+                        .availability(computeAvailability(quiz))
+                        .build())
+                .toList();
+    }
+
+    @SneakyThrows
+    public void deleteQuizById(@NonNull final String id) {
+        Quiz existingQuiz = firestore.collection("quiz").document(id).get().get().toObject(Quiz.class);
+        if (existingQuiz == null) {
+            return;
+        }
+        existingQuiz.setStatus(Status.DELETED);
+        existingQuiz.setUpdatedAt(Timestamp.now());
         firestore.collection("quiz").document(id).set(existingQuiz).get();
     }
 

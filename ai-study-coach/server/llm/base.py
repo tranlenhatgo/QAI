@@ -57,6 +57,7 @@ class StreamChunk:
     tool_call: dict[str, Any] | None = None  # Single tool call dict (for TOOL_CALL chunks)
     tool_calls: list[ToolCall] = field(default_factory=list)
     finish_reason: str = ""
+    usage: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -97,6 +98,7 @@ class LLMService(ABC):
         content = ""
         tool_calls: list[ToolCall] = []
         finish_reason = ""
+        usage: dict[str, int] = {}
 
         async for chunk in self.complete(messages, tools, temperature, max_tokens):
             if chunk.type == ChunkType.CONTENT:
@@ -105,9 +107,12 @@ class LLMService(ABC):
                 tool_calls.extend(chunk.tool_calls)
             elif chunk.type == ChunkType.FINISH:
                 finish_reason = chunk.finish_reason
+            if chunk.usage:
+                usage = chunk.usage
 
         return CompletionResult(
             content=content,
             tool_calls=tool_calls,
             finish_reason=finish_reason,
+            usage=usage,
         )

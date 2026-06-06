@@ -1,6 +1,33 @@
 import { useState } from 'react'
 import { FiClipboard, FiRotateCcw, FiZap } from 'react-icons/fi'
+import DOMPurify from 'dompurify'
 import { useBoundStore } from '@/store/useBoundStore'
+
+function renderMathText(text) {
+	const html = String(text || '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/\\\((.*?)\\\)/gs, '$1')
+		.replace(/\\\[(.*?)\\\]/gs, '$1')
+		.replace(/\\approx|\\simeq/g, '≈')
+		.replace(/\\cdot/g, '·')
+		.replace(/\\times/g, '×')
+		.replace(/\\left|\\right/g, '')
+		.replace(/\\ln/g, 'ln')
+		.replace(/\\log/g, 'log')
+		.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>')
+		.replace(/_\{([^}]+)\}/g, '<sub>$1</sub>')
+		.replace(/\^([A-Za-z0-9+-]+)/g, '<sup>$1</sup>')
+		.replace(/_([A-Za-z0-9+-]+)/g, '<sub>$1</sub>')
+		.replace(/\n/g, '<br>')
+
+	return DOMPurify.sanitize(html)
+}
+
+function MathText({ text }) {
+	return <span dangerouslySetInnerHTML={{ __html: renderMathText(text) }} />
+}
 
 function StepCard({ step }) {
 	const [expanded, setExpanded] = useState(false)
@@ -17,9 +44,9 @@ function StepCard({ step }) {
 			</button>
 			<div className="border-t border-gray-100 px-4 py-3">
 				{expanded ? (
-					<p className="mb-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{step.reasoning}</p>
+					<p className="mb-3 text-sm leading-6 text-slate-600"><MathText text={step.reasoning} /></p>
 				) : null}
-				<p className="rounded-md bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800">{step.result}</p>
+				<p className="rounded-md bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800"><MathText text={step.result} /></p>
 			</div>
 		</li>
 	)
@@ -34,8 +61,8 @@ function FinalAnswer({ answer, confidence, analysis }) {
 
 	return (
 		<div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-4">
-			{analysis ? <p className="mb-3 text-sm leading-6 text-slate-600">{analysis}</p> : null}
-			<p className="text-base font-semibold text-slate-900">{answer}</p>
+			{analysis ? <p className="mb-3 text-sm leading-6 text-slate-600"><MathText text={analysis} /></p> : null}
+			<p className="text-base font-semibold text-slate-900"><MathText text={answer} /></p>
 			<div className="mt-3 flex flex-wrap items-center gap-2">
 				<span className={`rounded-md border px-2 py-1 text-xs font-semibold ${confidenceClassName}`}>
 					Confidence: {confidence || 'unknown'}
@@ -67,6 +94,7 @@ export default function StepSolver() {
 		finalAnswer,
 		confidence,
 		analysis,
+		coachTier,
 	} = useBoundStore(state => state)
 
 	async function handleSubmit(event) {
@@ -88,6 +116,10 @@ export default function StepSolver() {
 				</div>
 				<span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">{solutionSteps.length} steps</span>
 			</div>
+
+			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Advanced multi-step reasoning for complex problems. Automatically retries with backup if needed.' : 'Basic problem solving using a lightweight local model. Best for simpler problems.'}
+			</p>
 
 			<form onSubmit={handleSubmit}>
 				<textarea

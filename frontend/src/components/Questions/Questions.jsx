@@ -9,7 +9,7 @@ import playSound from '@/helpers/playSound'
 import { useBoundStore } from '@/store/useBoundStore'
 
 export default function Questions() {
-	const { questions, loading, loadingInfinity, currentQuestion, setCurrentQuestion, setUserAnswer, win, questionProgress, setWin, setQuestionProgress, wildCards, useLivesCard, queries, getQuestions } = useBoundStore(state => state)
+	const { questions, loading, loadingInfinity, currentQuestion, setCurrentQuestion, setUserAnswer, win, questionProgress, setWin, setQuestionProgress, wildCards, useLivesCard, queries, getQuestions, answerAdaptiveInfinity } = useBoundStore(state => state)
 	const [time, setTime] = useState(Number(queries.time))
 
 	useEffect(() => {
@@ -49,23 +49,29 @@ export default function Questions() {
 	useEffect(() => {
 		if (queries.quizmode || !queries.timemode || win !== undefined || time > 0) return
 
+		if (queries.infinitymode) {
+			const activeQuestion = questions[0]
+			clickCorrectAnswer()
+			playSound('wrong_answer', 0.3)
+			if (activeQuestion) {
+				setTimeout(() => {
+					answerAdaptiveInfinity(activeQuestion, null, false)
+					setTime(Number(queries.time))
+				}, 1000)
+			}
+			return
+		}
+
 		if (wildCards.lives < 1) {
 			clickCorrectAnswer()
 			setUserAnswer(questionProgress - 1, -1)
 			playSound('wrong_answer', 0.3)
 			setWin(false)
 		} else {
-			if (queries.infinitymode) {
-				if (questionProgress !== 1 && questionProgress % 5 === 0) {
-					clickCorrectAnswer()
-					getAnotherQuestions()
-				} else clickCorrectAnswer(true)
-			} else {
-				if (questionProgress === queries.questions) {
-					setWin(true)
-					clickCorrectAnswer()
-				} else clickCorrectAnswer(true)
-			}
+			if (questionProgress === queries.questions) {
+				setWin(true)
+				clickCorrectAnswer()
+			} else clickCorrectAnswer(true)
 
 			setUserAnswer(questionProgress - 1, 2)
 			useLivesCard()
@@ -93,9 +99,11 @@ export default function Questions() {
 			}, 1000)
 		}
 
-		document.querySelectorAll(`.answers-${questionProgress} button`).forEach(answer => {
+		const activeIndex = queries.infinitymode ? 0 : questionProgress - 1
+		const answerClass = queries.infinitymode ? 1 : questionProgress
+		document.querySelectorAll(`.answers-${answerClass} button`).forEach(answer => {
 			answer.disabled = true
-			if (answer.textContent === questions[questionProgress - 1].correctAnswer) {
+			if (answer.textContent === questions[activeIndex]?.correctAnswer) {
 				answer.classList.add('correctAnswer')
 				answer.parentNode.classList.add('shake-left-right')
 			}

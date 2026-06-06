@@ -42,6 +42,7 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 						<input id="cbx" onClick={handleInputs} defaultChecked={!nowQueries.infinitymode} type="checkbox" name="infinitymode" className='w-5 h-5 absolute top-[2px] left-[2px]' />
 						<label htmlFor="cbx" className="cbx" title={nowQueries.infinitymode ? 'Classic mode' : 'Infinity mode'}></label>
 					</div>
+					<div className="mb-2 pl-14 text-sm font-semibold text-slate-700">Infinity Quiz</div>
 
 					<div className='flex items-center'>
 						<input type="range" name="questions" min={defaultQuestions.minQuestions} max={defaultQuestions.maxQuestions} defaultValue={nowQueries.questions} onChange={handleInputs} className={`w-full cursor-pointer ${nowQueries.infinitymode ? 'grayscale cursor-not-allowed' : ''}`} disabled={nowQueries.infinitymode} />
@@ -72,7 +73,7 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 			</div>
 
 			<fieldset>
-				<legend className='text-lg font-semibold mb-2 mx-1'>Categories</legend>
+				<legend className='text-lg font-semibold mb-2 mx-1'>Category</legend>
 
 				<div className='grid grid-cols-4 sm:grid-cols-2 gap-2 h-full'>
 					{categoriesJSON.map(category => (
@@ -80,8 +81,7 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 							<input
 								defaultChecked={queries.categories.includes(category.id)}
 								className="peer relative h-16 opacity-0 w-full md:h-full block cursor-pointer"
-								type="checkbox" name="categories" id={category.name} value={category.id} onClick={handleInputs}
-								disabled={queries.categories.length === 1 && queries.categories.includes(category.id)}
+								type="radio" name="categories" id={category.name} value={category.id} onClick={handleInputs}
 							/>
 
 							<Image className={`absolute transition-all w-full h-full peer-checked:scale-90 p-2 rounded peer-checked:bg-[${category.color}] invert peer-checked:invert-0 peer-checked:bg-[var(--bgColor)] top-0 pointer-events-none peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline outline-[var(--bgColor)]`} src={`/categories-icons/${category.name.toLowerCase()}.svg`} alt={category.name} width={40} height={40} style={{ '--bgColor': category.color }} />

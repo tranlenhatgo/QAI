@@ -12,9 +12,11 @@ import {
 	FiUser,
 	FiZap,
 } from 'react-icons/fi'
+import DueReviews from './DueReviews'
 import EmbeddedChat from './EmbeddedChat'
 import GenerateQuestions from './GenerateQuestions'
 import MyWeaknesses from './MyWeaknesses'
+import NotificationBell from './NotificationBell'
 import ProgressOverview from './ProgressOverview'
 import StepSolver from './StepSolver'
 import StudyMaterials from './StudyMaterials'
@@ -76,7 +78,7 @@ export default function CoachDashboard() {
 		activeCoachFeature,
 		setActiveCoachFeature,
 		coachTier,
-		setCoachTier,
+		requestCoachTier,
 	} = useBoundStore(state => state)
 	const selectedFeature = COACH_FEATURES.find(feature => feature.id === activeCoachFeature) || COACH_FEATURES[0]
 
@@ -111,7 +113,13 @@ export default function CoachDashboard() {
 				return <EmbeddedChat />
 			case 'overview':
 			default:
-				return <ProgressOverview />
+				return (
+					<>
+						<NotificationBell />
+						<ProgressOverview />
+						<DueReviews />
+					</>
+				)
 		}
 	}
 
@@ -199,7 +207,7 @@ export default function CoachDashboard() {
 									<button
 										key={tier}
 										type="button"
-										onClick={() => setCoachTier(tier)}
+										onClick={() => requestCoachTier(tier)}
 										aria-pressed={isActive}
 										className={`h-8 rounded-md px-3 text-sm font-semibold capitalize transition-colors ${
 											isActive
