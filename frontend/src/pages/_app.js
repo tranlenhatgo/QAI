@@ -21,7 +21,7 @@ function isFirstFirebaseSignIn(firebaseUser) {
 
 export default function App({ Component, pageProps }) {
 	const { user, setUser, setAuthReady, setChatConfig, hydrateChat, loadUserDocuments, loadSubscriptionForUser, createLiteSubscriptionForNewUser, resetSubscription } = useBoundStore(state => state);
-	const studyCoachHiddenPaths = ['/', '/chat', '/play', '/coach'];
+	const studyCoachHiddenPaths = ['/', '/chat', '/play', '/coach', '/payment'];
 	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	
 	useEffect(() => {

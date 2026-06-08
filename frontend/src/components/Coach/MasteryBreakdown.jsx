@@ -2,7 +2,7 @@ export default function MasteryBreakdown({ categories }) {
 	if (!categories || categories.length === 0) {
 		return (
 			<div className="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-sm text-slate-500">
-				No category data yet — take some quizzes to see mastery levels.
+				No category data yet - take some quizzes to see mastery levels.
 			</div>
 		)
 	}

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useBoundStore } from '@/store/useBoundStore'
 
 /**
- * NotificationBell — shows unread notification count badge and dropdown list.
+ * NotificationBell - shows unread notification count badge and dropdown list.
  * Fetches notifications from Firestore via Spring Boot on mount.
  */
 export default function NotificationBell() {

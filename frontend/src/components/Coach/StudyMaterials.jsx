@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { FiFileText, FiTrash2, FiUploadCloud } from 'react-icons/fi'
+import { FiAlertTriangle, FiFileText, FiSearch, FiTrash2, FiUploadCloud } from 'react-icons/fi'
 import { useBoundStore } from '@/store/useBoundStore'
 
 function statusClassName(status) {
@@ -52,7 +52,7 @@ export default function StudyMaterials() {
 			</div>
 
 			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
-				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Advanced AI extracts key concepts, generates high-quality questions, and indexes documents for AI-powered search in chat.' : 'Lightweight local model generates questions from your documents. Switch to Full mode to enable AI search (RAG) in chat.'}
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> - {coachTier === 'full' ? 'Advanced AI extracts key concepts, generates high-quality questions, and indexes documents for AI-powered search in chat.' : 'Lightweight local model generates questions from your documents. Switch to Full mode to enable AI search (RAG) in chat.'}
 			</p>
 
 			<div
@@ -108,10 +108,16 @@ export default function StudyMaterials() {
 						<div className="flex flex-shrink-0 items-center gap-2">
 							<span className={`rounded-md border px-2 py-1 text-xs font-semibold ${statusClassName(document.status)}`}>{document.status}</span>
 							{document.ragStatus === 'indexed' && (
-								<span className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700" title="Indexed for AI search">🔍 RAG</span>
+								<span className="inline-flex items-center gap-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700" title="Indexed for AI search">
+									<FiSearch />
+									RAG
+								</span>
 							)}
 							{document.ragStatus === 'failed' && (
-								<span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700" title={document.ragError || 'Not indexed for AI search'}>⚠️ {document.ragError || 'Not indexed'}</span>
+								<span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700" title={document.ragError || 'Not indexed for AI search'}>
+									<FiAlertTriangle />
+									{document.ragError || 'Not indexed'}
+								</span>
 							)}
 							<button
 								type="button"

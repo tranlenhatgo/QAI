@@ -100,13 +100,13 @@ export default function GenerateQuestions() {
 			</div>
 
 			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
-				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Higher quality questions generated using advanced AI. Automatically retries with backup if needed.' : 'Questions generated using a lightweight local model. May produce simpler output.'}
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> - {coachTier === 'full' ? 'Higher quality questions generated using advanced AI. Automatically retries with backup if needed.' : 'Questions generated using a lightweight local model. May produce simpler output.'}
 			</p>
 
 			<form onSubmit={handleSubmit} className="grid gap-3">
 				<div className="grid gap-3 md:grid-cols-[8fr_2fr]">
 					<label className="grid gap-2">
-						<span className="text-sm font-semibold text-slate-700">Title <span className="font-normal text-slate-400">(optional — narrows the generated questions)</span></span>
+						<span className="text-sm font-semibold text-slate-700">Title <span className="font-normal text-slate-400">(optional - narrows the generated questions)</span></span>
 						<input
 							type="text"
 							value={generateTitle}
@@ -132,7 +132,7 @@ export default function GenerateQuestions() {
 
 				{indexedDocuments.length > 0 && (
 					<label className={`grid gap-2 ${coachTier !== 'full' ? 'pointer-events-none opacity-50' : ''}`}>
-						<span className="text-sm font-semibold text-slate-700">Source document <span className="font-normal text-slate-400">(optional — generate from uploaded material)</span></span>
+						<span className="text-sm font-semibold text-slate-700">Source document <span className="font-normal text-slate-400">(optional - generate from uploaded material)</span></span>
 						{coachTier !== 'full' && <span className="text-xs text-amber-600">Available in Full mode only</span>}
 						<select
 							value={coachTier === 'full' ? selectedDocument : ''}

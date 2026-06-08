@@ -52,7 +52,7 @@ export default function DueReviews() {
 					{showTooltip && (
 						<div className="absolute right-0 top-7 z-10 w-64 rounded-lg border border-gray-200 bg-white p-3 text-xs text-slate-600 shadow-lg">
 							<p className="mb-1 font-semibold text-slate-800">How it works</p>
-							<p>After each quiz, the system schedules your next review using the SM-2 algorithm. Topics you score well on are reviewed less often, while weak topics come back sooner — helping you remember more with less effort.</p>
+							<p>After each quiz, the system schedules your next review using the SM-2 algorithm. Topics you score well on are reviewed less often, while weak topics come back sooner - helping you remember more with less effort.</p>
 						</div>
 					)}
 				</div>
