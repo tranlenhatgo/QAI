@@ -111,13 +111,7 @@ export default function Questions() {
 	}
 
 	function changueCurrent(number) {
-		if (number > questions.lenght || number < 1) return
-		document.querySelectorAll('[id^="question-"]').forEach(question => {
-			question.classList.remove('slide-left', 'slide-right')
-			if (question.id !== `question-${number}`) {
-				question.classList.add(Number(question.id.replace('question-', '')) < number ? 'slide-left' : 'slide-right')
-			}
-		})
+		if (number > questions.length || number < 1) return
 		setCurrentQuestion(number)
 	}
 

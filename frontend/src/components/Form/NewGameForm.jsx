@@ -7,7 +7,7 @@ import fiftyImg from '@/assets/fifty.svg'
 import categoriesJSON from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
 
-export default function NewGameForm ({ handleInputs, nowQueries }) {
+export default function NewGameForm({ handleInputs, nowQueries }) {
 	const { queries } = useBoundStore(state => state)
 
 	const WILCARDS = [
@@ -75,16 +75,16 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 			<fieldset>
 				<legend className='text-lg font-semibold mb-2 mx-1'>Category</legend>
 
-				<div className='grid grid-cols-4 sm:grid-cols-2 gap-2 h-full'>
+				<div className='grid grid-cols-6 sm:grid-cols-2 h-full'>
 					{categoriesJSON.map(category => (
 						<label key={category.id} className="relative cursor-pointer" title={category.name}>
 							<input
 								defaultChecked={queries.categories.includes(category.id)}
-								className="peer relative h-16 opacity-0 w-full md:h-full block cursor-pointer"
+								className="peer relative h-full opacity-0 w-full block cursor-pointer aspect-square"
 								type="radio" name="categories" id={category.name} value={category.id} onClick={handleInputs}
 							/>
 
-							<Image className={`absolute transition-all w-full h-full peer-checked:scale-90 p-2 rounded peer-checked:bg-[${category.color}] invert peer-checked:invert-0 peer-checked:bg-[var(--bgColor)] top-0 pointer-events-none peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline outline-[var(--bgColor)]`} src={`/categories-icons/${category.name.toLowerCase()}.svg`} alt={category.name} width={40} height={40} style={{ '--bgColor': category.color }} />
+							<Image className={`absolute transition-all w-full h-full peer-checked:scale-90 p-2 sm:p-3 rounded peer-checked:bg-[${category.color}] invert peer-checked:invert-0 peer-checked:bg-[var(--bgColor)] top-0 pointer-events-none peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline outline-[var(--bgColor)]`} src={`/categories-icons/${category.name.toLowerCase()}.svg`} alt={category.name} width={60} height={60} style={{ '--bgColor': category.color }} />
 						</label>
 					))}
 				</div>

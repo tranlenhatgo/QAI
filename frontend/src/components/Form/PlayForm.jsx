@@ -103,7 +103,7 @@ export default function PlayForm() {
 			const query = Object.keys(nowQueries)
 				.filter(key => !['quizId', 'name'].includes(key)) // Exclude unwanted keys
 				.map(key => `${key}=${nowQueries[key]}`)
-				.join('&'); 
+				.join('&');
 			setQueries(queryValidator(nowQueries))
 			router.push({ pathname: '/play', query })
 
