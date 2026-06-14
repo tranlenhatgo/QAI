@@ -2,6 +2,7 @@ import categoriesJSON from '@/assets/categories.json'
 import getQuizByUserId from '@/helpers/quiz/getQuizByUserId'
 import { db } from '@/helpers/auth/firebase'
 import { collection, doc, setDoc, deleteDoc, getDocs, query, orderBy } from 'firebase/firestore'
+import { resolveVisibleCoachTier } from '@/helpers/coachTier.mjs'
 
 const DEFAULT_GENERATE_COUNT = 5
 const MAX_GENERATE_COUNT = 20
@@ -284,7 +285,6 @@ export const useCoachStore = (set, get) => ({
 			return null
 		}
 
-		const previousTier = get().coachTier === 'full' ? 'full' : 'lite'
 		set({
 			subscription: null,
 			subscriptionReady: false,
@@ -297,7 +297,7 @@ export const useCoachStore = (set, get) => ({
 			const response = await fetch('/api/subscription/current')
 			const subscription = await readJsonResponse(response, 'Failed to load subscription')
 			const canUseFull = !!subscription.fullAccess
-			const nextTier = canUseFull && previousTier === 'full' ? 'full' : 'lite'
+			const nextTier = resolveVisibleCoachTier(subscription)
 			set({
 				subscription,
 				subscriptionReady: true,
