@@ -32,7 +32,7 @@ export default function Play() {
 
 	return (
 		<>
-			<Head><title>Quizi | Play</title></Head>
+			<Head><title>QAI | Play</title></Head>
 			<PageLoading visible={loading} />
 			{error[0] && <PageError />}
 			{!loading && !error[0] && <>

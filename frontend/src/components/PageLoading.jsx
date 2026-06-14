@@ -75,6 +75,7 @@ export default function PageLoading({ visible }) {
 			className="mainHome bg-vertical-scroll-animation fixed inset-0 z-[9999] flex flex-col items-center justify-center cursor-progress overflow-hidden !bg-[length:30rem]"
 			style={{
 				opacity: isExiting ? 0 : 1,
+				pointerEvents: isExiting ? 'none' : 'auto',
 				transition: `opacity ${EXIT_DURATION}ms ease-in-out`,
 			}}
 		>
