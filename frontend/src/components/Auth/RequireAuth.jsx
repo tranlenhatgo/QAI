@@ -14,8 +14,11 @@ export default function RequireAuth({ children }) {
    }, [authReady, user, router])
 
    if (!authReady || !user) {
-      return <PageLoading />
+      return <PageLoading visible={true} />
    }
 
-   return children
+   return <>
+      <PageLoading visible={false} />
+      {children}
+   </>
 }

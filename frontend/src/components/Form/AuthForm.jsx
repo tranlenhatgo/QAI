@@ -124,7 +124,7 @@ export default function AuthForm() {
 
 	return (
 		<>
-			{authloading && <PageLoading />}
+			<PageLoading visible={authloading} />
 			<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="authDialog" className='fixed top-1/2 w-5/6 sm:w-fit left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 backdrop-blur-lg rounded-md py-9 px-8 md:px-11'>
 				<button className='absolute top-2 right-2 text-3xl hover:scale-110 transition-all' onClick={closeDialog} >
 					<IoCloseSharp />

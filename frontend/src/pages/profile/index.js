@@ -30,7 +30,7 @@ export default function Profile() {
 			<Head>
 					<title>QAI | Profile</title>
 			</Head>
-			{authloading && <PageLoading />}
+			<PageLoading visible={authloading} />
 			{!authloading && <>
 				<ProfileHeader />
 				<main className='pt-6 pb-12'>

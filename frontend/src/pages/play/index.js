@@ -33,7 +33,7 @@ export default function Play() {
 	return (
 		<>
 			<Head><title>Quizi | Play</title></Head>
-			{loading && <PageLoading />}
+			<PageLoading visible={loading} />
 			{error[0] && <PageError />}
 			{!loading && !error[0] && <>
 				<PlayHeader />
