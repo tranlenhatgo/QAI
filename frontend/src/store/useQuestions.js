@@ -3,8 +3,13 @@ import getQuestionsByQuizId from '@/helpers/question/getQuestionsByQuizId'
 import takeQuiz from '@/helpers/take/takeQuiz'
 import offlineQuestions from '@/assets/questions.json'
 import categories from '@/assets/categories.json'
-
-const ADAPTIVE_AI_CONTEXT_LIMIT = 20
+import {
+	ADAPTIVE_AI_CONTEXT_LIMIT,
+	buildAdaptiveAiRequestBody,
+	historyItemFromQuestion,
+	pickAdaptiveMetadata,
+	shouldPrefetchAdaptiveAi,
+} from '@/helpers/adaptiveInfinity.mjs'
 
 function shuffleAnswers(questions) {
 	return questions.map(q => ({
@@ -64,20 +69,10 @@ function normalizeWrongQuestion(question, categoryName, dueIn = 2) {
 			selectedAnswer: question.selectedAnswer || null,
 			repeated: true,
 			ia: question.source === 'adaptive_ai',
+			...pickAdaptiveMetadata(question),
 		},
 		dueIn,
 		wrongCount: Number(question.wrongCount || 1),
-	}
-}
-
-function historyItemFromQuestion(question, selectedAnswer, correct) {
-	return {
-		question: question.question,
-		answers: question.answers,
-		correctAnswer: question.correctAnswer,
-		selectedAnswer,
-		wasCorrect: correct,
-		source: question.source || (question.ia ? 'adaptive_ai' : 'static_json'),
 	}
 }
 
@@ -205,24 +200,10 @@ export const useQuestionsStore = (set, get) => ({
 		set({ adaptiveAiLoading: true, adaptiveAiError: '' })
 		try {
 			const state = get()
-			const recentTexts = [
-				...(state.adaptiveRecentQuestions || []),
-				...state.adaptiveHistory.map(item => item.question),
-				...state.adaptiveQueue.map(item => item.question),
-				...state.questions.map(item => item.question),
-			].filter(Boolean)
 			const response = await fetch('/api/coach/adaptive-questions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					category: categoryName,
-					history: state.adaptiveRecentAnswers.slice(-ADAPTIVE_AI_CONTEXT_LIMIT),
-					wrong_questions: state.adaptiveWrongQueue.slice(-ADAPTIVE_AI_CONTEXT_LIMIT).map(item => ({
-						...historyItemFromQuestion(item.question, item.question.selectedAnswer || null, false),
-						wrongCount: item.wrongCount,
-					})),
-					recent_questions: [...new Set(recentTexts)].slice(-ADAPTIVE_AI_CONTEXT_LIMIT),
-				}),
+				body: JSON.stringify(buildAdaptiveAiRequestBody(state)),
 			})
 			const data = await readJsonResponse(response, 'Failed to generate adaptive questions')
 			const generated = (Array.isArray(data.questions) ? data.questions : []).map(question => ({
@@ -233,6 +214,7 @@ export const useQuestionsStore = (set, get) => ({
 				source: 'adaptive_ai',
 				sourceQuestionId: `ai:${hashString(`${question.question}|${question.correctAnswer}`)}`,
 				generatedFromQuestion: question.generatedFromQuestion || null,
+				...pickAdaptiveMetadata(question),
 				selectedAnswer: null,
 				userAnswer: undefined,
 				answer: undefined,
@@ -255,8 +237,7 @@ export const useQuestionsStore = (set, get) => ({
 	},
 	maybePrefetchAdaptiveAi: () => {
 		const state = get()
-		if (!state.queries.infinitymode || state.adaptiveAiLoading) return
-		if (state.adaptiveQueue.length <= 5) {
+		if (shouldPrefetchAdaptiveAi(state)) {
 			get().fetchAdaptiveAiQuestions()
 		}
 	},
@@ -365,6 +346,8 @@ export const useQuestionsStore = (set, get) => ({
 				source: answeredQuestion.repeated ? 'repeat' : (answeredQuestion.source || 'static_json'),
 				repeated: !!answeredQuestion.repeated,
 				generatedFromQuestion: answeredQuestion.generatedFromQuestion || null,
+				...pickAdaptiveMetadata(answeredQuestion),
+				attemptIndex: history.length,
 			}),
 		}).catch(error => console.warn('Could not save adaptive answer:', error))
 
