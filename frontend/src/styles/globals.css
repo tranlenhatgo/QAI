@@ -215,10 +215,73 @@ body {
 	}
 	.wrongAnswer {
 		@apply before:bg-red-700 !bg-[#e11d48];
+		animation: wrongPulseGlow 0.6s ease-out;
 	}
 	.correctAnswer {
 		@apply before:bg-green-600 !bg-[#22c55e];
+		animation: correctPulseGlow 0.6s ease-out;
 	}
+}
+
+/* Answer feedback effects ====================== */
+@keyframes correctPulseGlow {
+	0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+	40% { box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0.4); }
+	100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+@keyframes wrongPulseGlow {
+	0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+	40% { box-shadow: 0 0 20px 10px rgba(225, 29, 72, 0.4); }
+	100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+}
+
+/* Full-screen flash overlay for correct/wrong */
+.answer-flash {
+	position: fixed;
+	inset: 0;
+	z-index: 9998;
+	pointer-events: none;
+	animation: flashFade 0.5s ease-out forwards;
+}
+.answer-flash--correct {
+	background: radial-gradient(circle at center, rgba(34, 197, 94, 0.25), transparent 70%);
+}
+.answer-flash--wrong {
+	background: radial-gradient(circle at center, rgba(225, 29, 72, 0.25), transparent 70%);
+}
+@keyframes flashFade {
+	0% { opacity: 1; }
+	100% { opacity: 0; }
+}
+
+/* Ripple burst from answer button */
+.answer-ripple {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	overflow: hidden;
+	pointer-events: none;
+}
+.answer-ripple::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	transform: translate(-50%, -50%) scale(0);
+	animation: rippleBurst 0.6s ease-out forwards;
+}
+.answer-ripple--correct::after {
+	background: rgba(34, 197, 94, 0.35);
+}
+.answer-ripple--wrong::after {
+	background: rgba(225, 29, 72, 0.35);
+}
+@keyframes rippleBurst {
+	0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+	100% { transform: translate(-50%, -50%) scale(40); opacity: 0; }
 }
 
 /* Dialog  ============================ */
@@ -394,44 +457,59 @@ input:focus-visible {
 @keyframes shake-left-right {
 	0%,
 	100% {
-		transform: rotate(0deg);
+		transform: rotate(0deg) scale(1);
 		transform-origin: 50% 50%;
 	}
+	10% {
+		transform: rotate(0deg) scale(1.06);
+	}
 	20% {
-		transform: rotate(8deg);
+		transform: rotate(6deg) scale(1.04);
 	}
 	40% {
-		transform: rotate(-8deg);
+		transform: rotate(-6deg) scale(1.02);
 	}
 	60% {
-		transform: rotate(8deg);
+		transform: rotate(4deg) scale(1.01);
 	}
 	80% {
-		transform: rotate(-8deg);
+		transform: rotate(-3deg) scale(1);
 	}
 }
 /* For wrong answer */
 .vibrate {
-	animation: vibrate 0.3s linear both;
+	animation: vibrate 0.45s linear both;
 }
 @keyframes vibrate {
 	0% {
-		transform: translate(0);
+		transform: translate(0) scale(1);
+	}
+	10% {
+		transform: translate(-4px, 3px) scale(0.98);
 	}
 	20% {
-		transform: translate(-2px, 2px);
+		transform: translate(4px, -3px) scale(0.97);
+	}
+	30% {
+		transform: translate(-4px, -2px) scale(0.98);
 	}
 	40% {
-		transform: translate(-2px, -2px);
+		transform: translate(3px, 3px) scale(0.97);
+	}
+	50% {
+		transform: translate(-3px, -2px) scale(0.98);
 	}
 	60% {
-		transform: translate(2px, 2px);
+		transform: translate(2px, 2px) scale(0.99);
+	}
+	70% {
+		transform: translate(-2px, -1px) scale(1);
 	}
 	80% {
-		transform: translate(2px, -2px);
+		transform: translate(1px, 1px) scale(1);
 	}
 	100% {
-		transform: translate(0);
+		transform: translate(0) scale(1);
 	}
 }
 /* For title "Quizi" hover */

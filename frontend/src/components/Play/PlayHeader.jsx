@@ -7,16 +7,23 @@ export default function PlayHeader () {
 	const { cleanQuestions, cleanWildCards, cleanQueries } = useBoundStore(state => state)
 
 	return (
-		<nav>
-			<ul className='flex gap-4 p-4'>
+		<nav className='fixed top-4 left-4 z-20'>
+			<ul className='flex gap-2'>
 				<li>
-					<Link href="/" className='block' onClick={() => { cleanQuestions(); cleanWildCards(); cleanQueries() }}>
-						<BiArrowBack color='#0f172a' className='text-4xl hover:scale-105 transition-all  p-1 bg-white rounded' title='Go back' />
+					<Link href="/" className='group flex items-center justify-center w-10 h-10 bg-white rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md'
+						onClick={() => { cleanQuestions(); cleanWildCards(); cleanQueries() }}
+						title='Go back'
+					>
+						<BiArrowBack className='text-xl text-slate-900 group-hover:text-blue-500 transition-colors' />
 					</Link>
 				</li>
 				<li>
-					<button className='hover:scale-105 transition-all p-1 bg-white rounded' onClick={() => document.getElementById('newGameDialog').showModal()}>
-						<BsArrowRepeat className='text-[28px]' color='#0f172a' title='New game' />
+					<button
+						className='group flex items-center justify-center w-10 h-10 bg-white rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-180 active:scale-95 shadow-sm hover:shadow-md'
+						onClick={() => document.getElementById('newGameDialog').showModal()}
+						title='New game'
+					>
+						<BsArrowRepeat className='text-xl text-slate-900 group-hover:text-blue-500 transition-colors' />
 					</button>
 				</li>
 			</ul>

@@ -140,9 +140,23 @@ export default function GameOver() {
 	}
 
 	function finalImage() {
-		if (queries.infinitymode) return <Image src={trophyIcon} width={100} height={200} alt='Trophy' />
-		if (win === true) return <AiFillCheckCircle className='text-8xl text-green-500' />
-		return <AiFillCloseCircle className='text-8xl text-red-500' />
+		if (queries.infinitymode) {
+			return <Image src={trophyIcon} width={100} height={200} alt='Trophy' />
+		}
+		if (win === true) {
+			return (
+				<div className="relative">
+					<div className="absolute inset-0 rounded-full bg-green-400/20 animate-ping" style={{ animationDuration: '2s' }} />
+					<AiFillCheckCircle className='text-8xl text-green-500 relative z-10 drop-shadow-lg' />
+				</div>
+			)
+		}
+		return (
+			<div className="relative">
+				<div className="absolute inset-0 rounded-full bg-red-400/20 animate-pulse" />
+				<AiFillCloseCircle className='text-8xl text-red-500 relative z-10 drop-shadow-lg' />
+			</div>
+		)
 	}
 
 	function finalTitle() {
@@ -171,10 +185,16 @@ export default function GameOver() {
 			<dialog
 				id="gameoverdialog"
 				open={true}
-				className="fixed m-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl px-2 md:px-6 py-6 md:py-12 rounded-md bg-white text-slate-900 z-40
-				max-h-screen overflow-y-auto"
+				className="fixed m-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl px-2 md:px-6 py-6 md:py-12 rounded-2xl z-40
+				max-h-screen overflow-y-auto border-0"
+				style={{
+					background: 'rgba(255,255,255,0.95)',
+					backdropFilter: 'blur(20px)',
+					WebkitBackdropFilter: 'blur(20px)',
+					boxShadow: '0 25px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.2)',
+				}}
 			>
-				<button className="absolute top-2 right-2 text-3xl hover:scale-105" onClick={closeDialog}>
+				<button className="absolute top-3 right-3 text-2xl text-slate-400 hover:text-slate-700 hover:rotate-90 transition-all duration-300 rounded-full w-8 h-8 flex items-center justify-center hover:bg-slate-100" onClick={closeDialog}>
 					<IoCloseSharp />
 				</button>
 
@@ -182,13 +202,13 @@ export default function GameOver() {
 					{/* Main GameOver Panel */}
 					<div className="flex flex-col items-center justify-center gap-4 flex-shrink-0 w-full md:w-1/3 mb-6 md:mb-0">
 						{finalImage()}
-						<h2 className="text-2xl font-bold">{finalTitle()}</h2>
-						<p className="text-center mb-3 whitespace-pre-line">{finalText()}</p>
+						<h2 className="text-2xl font-bold text-slate-800">{finalTitle()}</h2>
+						<p className="text-center mb-3 whitespace-pre-line text-slate-600">{finalText()}</p>
 						{queries.infinitymode && (
 							<div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold text-slate-700">
-								<span className="rounded bg-slate-100 px-3 py-2">Static {adaptiveStats.static}</span>
-								<span className="rounded bg-slate-100 px-3 py-2">AI {adaptiveStats.ai}</span>
-								<span className="rounded bg-slate-100 px-3 py-2">Repeat {adaptiveStats.repeated}</span>
+								<span className="rounded-lg bg-slate-100 px-3 py-2 border border-slate-200">Static {adaptiveStats.static}</span>
+								<span className="rounded-lg bg-slate-100 px-3 py-2 border border-slate-200">AI {adaptiveStats.ai}</span>
+								<span className="rounded-lg bg-slate-100 px-3 py-2 border border-slate-200">Repeat {adaptiveStats.repeated}</span>
 							</div>
 						)}
 						{!user && queries.quizmode && (
@@ -212,94 +232,101 @@ export default function GameOver() {
 
 					{/* List of Questions */}
 					<div className="flex-1 flex flex-col w-full md:w-1/3 max-h-[60vh]">
-						<ul className="flex-1 w-full overflow-y-auto bg-gray-100 p-4 rounded-md">
-							{resultQuestions.map((question, index) => (
-								<li
-									key={question.id || index}
-									className="flex flex-col gap-4 p-4 mb-4 rounded-md shadow-md bg-white"
-								>
-									<p className='rounded-md min-h-[3.5rem] flex justify-center items-center bg-blue-500 px-5 py-3 text-white text-base font-semibold text-center'>
-										{question.question}
-									</p>
-									<hr className="border-gray-200" />
-									<ul className="flex flex-col gap-1">
-										{question.answers.map((answer, j) => (
-											<li key={j} className="relative">
-												<button
-													className={`w-full mb-1 btn-primary text-center px-3 py-1.5 rounded-md flex justify-center items-center text-xs 
-														${answer === question.answer
-															? question.userAnswer > 0
-																? 'correctAnswer'
-																: 'wrongAnswer'
-															: answer === question.correctAnswer
-																? 'correctAnswer'
-																: ''
-														}`}
-													disabled
-												>
-													<span>{answer || '---'}</span>
-													{answer === question.answer && (
-														<span className="ml-2">
-															{question.userAnswer > 0 ? '✔' : '✘'}
-														</span>
-													)}
-												</button>
-											</li>
-										))}
-									</ul>
-									{queries.quizmode && <>
-										<div
-											className="flex justify-center items-center cursor-pointer mt-2"
-											onClick={() =>
-												setExpandedQuestionIndex(
-													expandedQuestionIndex === index ? null : index
-												)
-											}
-										>
-											<FaRegLightbulb className="text-gray-400 text-2xl hover:text-yellow-500 transition-colors" />
-										</div>
-										<div
-											className={`expandable ${expandedQuestionIndex === index ? 'expanded py-2' : ''}`}
-										>
-											<div className="flex flex-col gap-2">
-
-												<button
-													className="px-4 py-2 mb-1 text-sm rounded-md btn-primary correctAnswer"
-													onClick={() => showCorrectAnswer(index)}
-												>
-													Show Correct Answer
-												</button>
-
-												<button
-													className="px-4 py-2 text-sm rounded-md bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-semibold hover:opacity-90 transition-opacity"
-													onClick={() => handleAskAI(index)}
-												>
-													✨ Explain Answer
-												</button>
+						<ul className="flex-1 w-full overflow-y-auto bg-gray-50 p-4 rounded-xl border border-gray-100">
+							{resultQuestions.map((question, index) => {
+								const isCorrect = question.userAnswer > 0
+								return (
+									<li
+										key={question.id || index}
+										className="flex flex-col gap-4 p-4 mb-4 rounded-xl shadow-sm bg-white border transition-all hover:shadow-md"
+										style={{
+											borderColor: isCorrect ? 'rgba(34,197,94,0.25)' : 'rgba(225,29,72,0.15)',
+											borderLeftWidth: '3px',
+											borderLeftColor: isCorrect ? '#22c55e' : '#e11d48',
+										}}
+									>
+										<p className='rounded-lg min-h-[3.5rem] flex justify-center items-center bg-blue-500 px-5 py-3 text-white text-base font-semibold text-center'>
+											{question.question}
+										</p>
+										<hr className="border-gray-100" />
+										<ul className="flex flex-col gap-1">
+											{question.answers.map((answer, j) => (
+												<li key={j} className="relative">
+													<button
+														className={`w-full mb-1 btn-primary text-center px-3 py-1.5 rounded-md flex justify-center items-center text-xs 
+															${answer === question.answer
+																? question.userAnswer > 0
+																	? 'correctAnswer'
+																	: 'wrongAnswer'
+																: answer === question.correctAnswer
+																	? 'correctAnswer'
+																	: ''
+															}`}
+														disabled
+													>
+														<span>{answer || '---'}</span>
+														{answer === question.answer && (
+															<span className="ml-2">
+																{question.userAnswer > 0 ? '✔' : '✘'}
+															</span>
+														)}
+													</button>
+												</li>
+											))}
+										</ul>
+										{queries.quizmode && <>
+											<div
+												className="flex justify-center items-center cursor-pointer mt-2"
+												onClick={() =>
+													setExpandedQuestionIndex(
+														expandedQuestionIndex === index ? null : index
+													)
+												}
+											>
+												<FaRegLightbulb className="text-gray-400 text-2xl hover:text-yellow-500 transition-colors" />
 											</div>
-										</div>
-									</>
-									}
-								</li>
-							))}
+											<div
+												className={`expandable ${expandedQuestionIndex === index ? 'expanded py-2' : ''}`}
+											>
+												<div className="flex flex-col gap-2">
+
+													<button
+														className="px-4 py-2 mb-1 text-sm rounded-md btn-primary correctAnswer"
+														onClick={() => showCorrectAnswer(index)}
+													>
+														Show Correct Answer
+													</button>
+
+													<button
+														className="px-4 py-2 text-sm rounded-md bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-semibold hover:opacity-90 transition-opacity"
+														onClick={() => handleAskAI(index)}
+													>
+														✨ Explain Answer
+													</button>
+												</div>
+											</div>
+										</>
+										}
+									</li>
+								)
+							})}
 						</ul>
 					</div>
-
-					{/* Chatwoot Chat Panel
-					<div className="flex-1 flex flex-col w-full md:w-1/3 max-h-[80vh] min-h-[320px]">
-						<iframe
-							src="https://app.chatwoot.com/widget?website_token=GLCbXECkHvwiQQnNbEsxnCA6"
-							className="flex-1 w-full h-[60vh] md:h-full rounded-md border min-h-[320px]"
-							title="Chatwoot"
-						/>
-					</div> */}
 				</div>
 			</dialog>
 
 			{/* AI Explanation Modal */}
 			{explanationIndex !== null && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setExplanationIndex(null)}>
-					<div className="w-full max-w-lg mx-4 rounded-2xl bg-white p-6 shadow-2xl max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+					<div
+						className="w-full max-w-lg mx-4 rounded-2xl p-6 max-h-[80vh] overflow-y-auto border-0"
+						style={{
+							background: 'rgba(255,255,255,0.97)',
+							backdropFilter: 'blur(20px)',
+							boxShadow: '0 25px 60px rgba(0,0,0,0.2)',
+						}}
+						onClick={e => e.stopPropagation()}
+					>
 						<div className="flex items-center justify-between mb-4">
 							<h3 className="text-lg font-bold text-slate-800">✨ AI Explanation</h3>
 							<button

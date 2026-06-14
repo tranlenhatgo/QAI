@@ -5,6 +5,7 @@ import Head from 'next/head'
 import PageLoading from '@/components/PageLoading'
 import PageError from '@/components/PageError'
 import PlayHeader from '@/components/Play/PlayHeader'
+import PlayBackground from '@/components/Play/PlayBackground'
 import GameInfo from '@/components/Play/GameInfo'
 import Footer from '@/components/PageFooter'
 import Questions from '@/components/Questions/Questions'
@@ -36,6 +37,7 @@ export default function Play() {
 			<PageLoading visible={loading} />
 			{error[0] && <PageError />}
 			{!loading && !error[0] && <>
+				<PlayBackground />
 				<PlayHeader />
 				<GameInfo />
 				<Questions />
