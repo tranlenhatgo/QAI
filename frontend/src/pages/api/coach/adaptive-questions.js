@@ -1,11 +1,8 @@
 import withAuth from '@/lib/withAuth'
 import { resolveBestCoachTierForRequest } from '@/lib/coachSubscription'
+import { buildAdaptiveCoachRequestPayload } from '@/helpers/adaptiveInfinity.mjs'
 
 const COACH_URL = process.env.STUDY_COACH_API_URL || 'http://localhost:8000'
-const ADAPTIVE_TIER_LIMITS = {
-	lite: { batchSize: 5, contextLimit: 5 },
-	full: { batchSize: 10, contextLimit: 20 },
-}
 
 async function handler(req, res) {
 	if (req.method !== 'POST') {
@@ -13,13 +10,15 @@ async function handler(req, res) {
 	}
 
 	const category = String(req.body?.category || '').trim()
-	if (!category) {
+	const categories = Array.isArray(req.body?.categories) ? req.body.categories.filter(Boolean) : []
+	const categoryContexts = Array.isArray(req.body?.category_contexts) ? req.body.category_contexts : []
+	if (!category && categories.length === 0 && categoryContexts.length === 0) {
 		return res.status(400).json({ message: 'category is required', statusCode: 400 })
 	}
 
 	try {
 		const tier = await resolveBestCoachTierForRequest(req)
-		const limits = ADAPTIVE_TIER_LIMITS[tier] || ADAPTIVE_TIER_LIMITS.lite
+		const upstreamBody = buildAdaptiveCoachRequestPayload(req.body, { tier })
 		const headers = { 'Content-Type': 'application/json' }
 		const apiKey = process.env.COACH_API_KEY || process.env.STUDY_COACH_API_KEY
 		if (apiKey) headers['X-API-Key'] = apiKey
@@ -31,14 +30,7 @@ async function handler(req, res) {
 			method: 'POST',
 			headers,
 			...(signal ? { signal } : {}),
-			body: JSON.stringify({
-				category,
-				count: limits.batchSize,
-				history: Array.isArray(req.body?.history) ? req.body.history.slice(-limits.contextLimit) : [],
-				wrong_questions: Array.isArray(req.body?.wrong_questions) ? req.body.wrong_questions.slice(-limits.contextLimit) : [],
-				recent_questions: Array.isArray(req.body?.recent_questions) ? req.body.recent_questions.slice(-limits.contextLimit) : [],
-				tier,
-			}),
+			body: JSON.stringify(upstreamBody),
 		})
 		const data = await upstreamResponse.json().catch(() => ({}))
 
@@ -52,10 +44,13 @@ async function handler(req, res) {
 		return res.status(200).json({
 			questions: Array.isArray(data.questions) ? data.questions : [],
 			tier,
-			count: limits.batchSize,
-			contextLimit: limits.contextLimit,
+			count: upstreamBody.count,
+			contextLimit: tier === 'full' ? 20 : 5,
 		})
 	} catch (error) {
+		if (error.message?.includes('supports at most')) {
+			return res.status(400).json({ message: error.message, statusCode: 400 })
+		}
 		console.error('[coach/adaptive-questions] Failed to proxy request', error.message)
 		return res.status(500).json({ message: 'Internal Server Error', statusCode: 500 })
 	}

@@ -9,8 +9,10 @@ from server.router import Tier
 
 ADAPTIVE_LITE_BATCH_SIZE = 5
 ADAPTIVE_LITE_CONTEXT_LIMIT = 5
+ADAPTIVE_LITE_CATEGORY_LIMIT = 2
 ADAPTIVE_FULL_BATCH_SIZE = 10
 ADAPTIVE_FULL_CONTEXT_LIMIT = 20
+ADAPTIVE_FULL_CATEGORY_LIMIT = 3
 
 
 class AdaptiveQuestionMetadata(BaseModel):
@@ -46,12 +48,22 @@ class AdaptiveWrongQuestion(AdaptiveQuestionMetadata):
     wrongCount: int | None = None
 
 
+class AdaptiveCategoryContext(BaseModel):
+    category: str
+    requestedCount: int
+    history: list[AdaptiveAnswerHistoryItem] = Field(default_factory=list)
+    wrong_questions: list[AdaptiveWrongQuestion] = Field(default_factory=list)
+    recent_questions: list[str] = Field(default_factory=list)
+
+
 class AdaptiveQuestionsRequest(BaseModel):
     category: str | None = None
+    categories: list[str] = Field(default_factory=list)
     count: int = ADAPTIVE_LITE_BATCH_SIZE
     history: list[AdaptiveAnswerHistoryItem] = Field(default_factory=list)
     wrong_questions: list[AdaptiveWrongQuestion] = Field(default_factory=list)
     recent_questions: list[str] = Field(default_factory=list)
+    category_contexts: list[AdaptiveCategoryContext] = Field(default_factory=list)
     tier: str | None = None
 
 
@@ -131,3 +143,7 @@ def adaptive_batch_size_for_tier(tier: Tier) -> int:
 
 def adaptive_context_limit_for_tier(tier: Tier) -> int:
     return ADAPTIVE_FULL_CONTEXT_LIMIT if tier == Tier.FULL else ADAPTIVE_LITE_CONTEXT_LIMIT
+
+
+def adaptive_category_limit_for_tier(tier: Tier) -> int:
+    return ADAPTIVE_FULL_CATEGORY_LIMIT if tier == Tier.FULL else ADAPTIVE_LITE_CATEGORY_LIMIT

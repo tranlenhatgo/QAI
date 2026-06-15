@@ -44,17 +44,51 @@ def _template_payload(template: AdaptiveQuestionTemplate) -> dict:
 def build_adaptive_generation_messages(
     plan: AdaptiveBatchPlan,
     retry_error: str | None = None,
+    previous_response: list[dict] | None = None,
+    repair_mode: str | None = None,
 ) -> list[Message]:
     retry_block = ""
     if retry_error:
-        retry_block = (
-            "\n\nThe previous response failed validation with this reason:\n"
-            f"{retry_error}\n"
-            "Repair the batch by returning a fully valid replacement JSON object."
+        if repair_mode == "repair_response" and previous_response is not None:
+            retry_block = (
+                "\n\nYour previous JSON response was close, but it failed validation.\n"
+                "Repair only the invalid questions. Keep valid questions unchanged unless needed "
+                "to satisfy the rules. Return the full corrected JSON object, not a diff.\n\n"
+                "Validation error:\n"
+                f"{retry_error}\n\n"
+                "Previous response:\n"
+                f"{json.dumps({'questions': previous_response}, ensure_ascii=False, indent=2)}"
+            )
+        else:
+            retry_block = (
+                "\n\nThe previous response failed structural validation with this reason:\n"
+                f"{retry_error}\n"
+                "Return a completely new replacement JSON object."
+            )
+
+    categories = []
+    category_counts: dict[str, int] = {}
+    for template in plan.templates:
+        if template.category not in categories:
+            categories.append(template.category)
+        category_counts[template.category] = category_counts.get(template.category, 0) + 1
+    category_rule = (
+        f'Every question must stay inside category "{plan.category}".'
+        if len(categories) <= 1
+        else (
+            "Every question must set topic to its template category exactly. "
+            "Required category counts: "
+            + ", ".join(f"{category}={count}" for category, count in category_counts.items())
+            + "."
         )
+    )
+    template_id_example = plan.templates[0].template_id if plan.templates else "adaptive-01"
+    topic_example = categories[0] if categories else plan.category
 
     plan_payload = {
         "category": plan.category,
+        "categories": categories,
+        "categoryCounts": category_counts,
         "tier": plan.tier.value,
         "count": plan.count,
         "diagnosisSummary": plan.coverage.diagnosis_summary,
@@ -75,7 +109,7 @@ Plan JSON:
 Rules:
 - Return exactly {plan.count} questions.
 - Return one question for each templateId, in the same order as templates.
-- Every question must stay inside category "{plan.category}".
+- {category_rule}
 - Do not repeat or closely paraphrase any alreadySeenQuestionTexts, evidence question, or same-batch question.
 - For remedial/prerequisite templates, test the same weak area with a new surface form.
 - For transfer/challenge templates, apply the weak area in a nearby or harder same-category case.
@@ -88,11 +122,11 @@ Respond ONLY with valid JSON in this exact shape:
 {{
   "questions": [
     {{
-      "templateId": "adaptive-01",
+      "templateId": "{template_id_example}",
       "question": "Question text",
       "answers": ["Option A", "Option B", "Option C", "Option D"],
       "correctAnswer": "Option A",
-      "topic": "{plan.category}",
+      "topic": "{topic_example}",
       "source": "adaptive_ai",
       "generatedFromQuestion": "short source question text or null",
       "subskill": "specific skill being tested",

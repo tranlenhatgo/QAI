@@ -6,9 +6,9 @@ import { IoMdInfinite } from 'react-icons/io'
 import { FaHeart, FaDice } from 'react-icons/fa'
 import fiftyImg from '@/assets/fifty.svg'
 import categoriesJSON from '@/assets/categories.json'
-import { shouldShowClassicControls } from '@/helpers/adaptiveInfinity.mjs'
+import { adaptiveCategoryLimitForTier, shouldShowClassicControls } from '@/helpers/adaptiveInfinity.mjs'
 
-export default function NewGameForm ({ handleInputs, nowQueries }) {
+export default function NewGameForm({ handleInputs, nowQueries, coachTier = 'lite' }) {
 	const selectedCategories = Array.isArray(nowQueries.categories) ? nowQueries.categories : []
 	const selectedCategory = selectedCategories[0] || categoriesJSON[0].id
 	const infinityMode = nowQueries.infinitymode === true || nowQueries.infinitymode === 'true'
@@ -39,6 +39,10 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 	}, [handleInputs])
 
 	const isRandomHighlighted = (categoryId) => randomMode && randomCategories.includes(categoryId)
+	const categoryLimit = adaptiveCategoryLimitForTier(coachTier)
+	const visibleSelectedCategories = infinityMode
+		? selectedCategories.slice(0, categoryLimit)
+		: [selectedCategory]
 
 	const WILDCARDS = [
 		{ name: 'Skip question', icon: <BsSkipEndFill color='white' className='text-2xl' />, amount: 1 },
@@ -154,11 +158,10 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 							type='button'
 							onClick={pickRandomCategories}
 							title='Random — pick 3 categories'
-							className={`relative flex h-12 cursor-pointer items-center justify-center rounded-md sm:h-14 col-span-full overflow-hidden transition-all active:scale-[0.98] ${
-								randomMode
+							className={`relative flex h-12 cursor-pointer items-center justify-center rounded-md sm:h-14 col-span-full overflow-hidden transition-all active:scale-[0.98] ${randomMode
 									? 'ring-2 ring-offset-1 ring-purple-500'
 									: 'hover:scale-[1.01]'
-							}`}
+								}`}
 							style={{
 								background: randomMode
 									? 'linear-gradient(135deg, #a855f7, #ec4899, #f59e0b)'
@@ -175,9 +178,8 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 								}}
 							/>
 							{/* Dashed border effect */}
-							<span className={`absolute inset-[2px] rounded-[5px] border-2 border-dashed transition-colors ${
-								randomMode ? 'border-white/60' : 'border-white/30'
-							}`} />
+							<span className={`absolute inset-[2px] rounded-[5px] border-2 border-dashed transition-colors ${randomMode ? 'border-white/60' : 'border-white/30'
+								}`} />
 							<span className='relative z-10 flex items-center gap-2'>
 								<FaDice className={`text-xl text-white transition-transform ${randomMode ? 'animate-bounce' : ''}`} />
 								<span className='text-sm font-black uppercase tracking-wider text-white'>Random</span>
@@ -201,19 +203,17 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 										onChange={handleCategoryChange}
 									/>
 									<span
-										className={`absolute inset-0 rounded-md border transition-all ${
-											isRandomPick
+										className={`absolute inset-0 rounded-md border transition-all ${isRandomPick
 												? 'border-transparent bg-[var(--bgColor)] shadow-[0_0_0_3px_rgba(168,85,247,0.25)]'
 												: 'border-slate-200 bg-slate-100 peer-checked:border-transparent peer-checked:bg-[var(--bgColor)] peer-checked:shadow-[0_0_0_3px_rgba(37,99,235,0.16)]'
-										}`}
+											}`}
 										style={{ '--bgColor': category.color }}
 									/>
 									<Image
-										className={`relative z-10 h-7 w-7 transition-all sm:h-8 sm:w-8 ${
-											isRandomPick || isSelected
+										className={`relative z-10 h-7 w-7 transition-all sm:h-8 sm:w-8 ${isRandomPick || isSelected
 												? 'scale-110 opacity-100'
 												: 'opacity-80 invert'
-										}`}
+											}`}
 										src={`/categories-icons/${category.name.toLowerCase()}.svg`}
 										alt={category.name}
 										width={40}
