@@ -1,4 +1,5 @@
 import categoriesJSON from '@/assets/categories.json'
+import { normalizeAdaptiveCategoryIds } from './adaptiveInfinity.mjs'
 
 const MAX_QUESTIONS = 10
 const MIN_QUESTIONS = 4
@@ -9,7 +10,7 @@ const INFINITY_MODE = false
 const TIME_MODE = false
 const QUIZ_MODE = false
 
-export default function queryValidator(query) {
+export default function queryValidator(query, options = {}) {
 	const { questions, time, infinitymode, timemode, categories } = query
 	const urlQueries = {}
 
@@ -36,10 +37,12 @@ export default function queryValidator(query) {
 	} else urlQueries.timemode = TIME_MODE
 
 	if (categories) {
-		const categoriesArray = typeof categories === 'string' ? categories.split(',') : categories
-		const categoriesArrayFiltered = categoriesArray.filter(category => categoriesJSON.map(category => category.id).includes(category))
-		if (categoriesArrayFiltered.length > 0) urlQueries.categories = [categoriesArrayFiltered[0]]
-		else urlQueries.categories = [categoriesJSON[0].id]
+		urlQueries.categories = normalizeAdaptiveCategoryIds(categories, {
+			infinitymode: urlQueries.infinitymode,
+			tier: options.tier || query.tier || 'full',
+			validCategoryIds: categoriesJSON.map(category => category.id),
+			fallbackCategoryId: categoriesJSON[0].id,
+		})
 	} else urlQueries.categories = [categoriesJSON[0].id]
 
 	return urlQueries

@@ -9,9 +9,10 @@ import queryValidator, { quizQueryValidator } from '@/helpers/gameConfig'
 import categoriesJSON from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
 import JoinGameForm from './JoinGameForm'
+import { adaptiveCategoryLimitForTier } from '@/helpers/adaptiveInfinity.mjs'
 
 export default function PlayForm() {
-	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest } = useBoundStore(state => state)
+	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest, coachTier } = useBoundStore(state => state)
 	const [nowQueries, setNowQueries] = useState(queries)
 	const [joinQuery, setJoinQuery] = useState({ ...queries, name: '' })
 	const [dialogOpen, setDialogOpen] = useState(false)
@@ -40,10 +41,10 @@ export default function PlayForm() {
 	useEffect(() => {
 		if (router.isReady && router.pathname === '/play') {
 			if (!queries.quizmode) {
-				setQueries(queryValidator(router.query));
+				setQueries(queryValidator(router.query, { tier: coachTier }));
 			}
 		}
-	}, [router.isReady]);
+	}, [router.isReady, coachTier]);
 
 	useEffect(() => {
 		if (error[0]) {
@@ -63,7 +64,16 @@ export default function PlayForm() {
 				document.getElementById('authDialog')?.showModal()
 				return setNowQueries({ ...nowQueries, infinitymode: false })
 			}
-			return setNowQueries({ ...nowQueries, infinitymode: value })
+			const currentCategories = Array.isArray(nowQueries.categories) && nowQueries.categories.length > 0
+				? nowQueries.categories
+				: [categoriesJSON[0].id]
+			return setNowQueries({
+				...nowQueries,
+				infinitymode: value,
+				categories: value
+					? currentCategories.slice(0, adaptiveCategoryLimitForTier(coachTier))
+					: [currentCategories[0]],
+			})
 		}
 
 		if (e.target.name === 'timemode') {
@@ -74,6 +84,16 @@ export default function PlayForm() {
 
 		if (e.target.name === 'categories') {
 			playSound('pop-up-on')
+			if (nowQueries.infinitymode) {
+				const selected = Array.isArray(nowQueries.categories) ? [...nowQueries.categories] : []
+				const exists = selected.includes(e.target.value)
+				const nextCategories = exists
+					? selected.filter(category => category !== e.target.value)
+					: selected.length < adaptiveCategoryLimitForTier(coachTier)
+						? [...selected, e.target.value]
+						: selected
+				return setNowQueries({ ...nowQueries, categories: nextCategories.length > 0 ? nextCategories : [e.target.value] })
+			}
 			return setNowQueries({ ...nowQueries, [e.target.name]: [e.target.value] })
 		}
 
@@ -106,17 +126,18 @@ export default function PlayForm() {
 			cleanQuestions()
 			cleanWildCards()
 
-			const query = Object.keys(nowQueries)
+			const validQueries = queryValidator(nowQueries, { tier: coachTier })
+			const query = Object.keys(validQueries)
 				.filter(key => !['quizId', 'name'].includes(key)) // Exclude unwanted keys
-				.map(key => `${key}=${nowQueries[key]}`)
+				.map(key => `${key}=${validQueries[key]}`)
 				.join('&'); 
-			setQueries(queryValidator(nowQueries))
+			setQueries(validQueries)
 			router.push({ pathname: '/play', query })
 
-			const cate = nowQueries.categories.map(cat => categoriesJSON.find(c => c.id === cat).name)
+			const cate = validQueries.categories.map(cat => categoriesJSON.find(c => c.id === cat).name)
 			if (router.pathname === '/play') {
-				if (nowQueries.infinitymode) startAdaptiveInfinity(nowQueries.categories[0])
-				else getQuestions(cate, nowQueries.questions)
+				if (validQueries.infinitymode) startAdaptiveInfinity(validQueries.categories)
+				else getQuestions(cate, validQueries.questions)
 			}
 
 			closeDialog()
@@ -169,7 +190,7 @@ export default function PlayForm() {
 				</div>
 
 				<div className='mb-5'>
-					<NewGameForm handleInputs={handleInputs} nowQueries={nowQueries} />
+					<NewGameForm handleInputs={handleInputs} nowQueries={nowQueries} coachTier={coachTier} />
 				</div>
 
 				<button type='submit' className='btn-primary uppercase py-3 px-6 w-full tracking-widest' name='newgame' onClick={(e) => handleSubmit(e)}>New game</button>

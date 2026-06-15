@@ -20,6 +20,7 @@ firestore-mcp/
 /spring-backend/docs/
 /adaptive-infinity-sdd-plans
 /adaptive-infinity-ai-qa-reports
+/tdd-plans
 
 # Editors and OS files
 .vscode/

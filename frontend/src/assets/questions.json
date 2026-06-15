@@ -12,12 +12,7 @@
 		},
 		{
 			"question": "According to ancient legends, who founded Rome?",
-			"answers": [
-				"Romulus and Remus",
-				"Julius Caesar",
-				"Augustus",
-				"Marcus Aurelius"
-			],
+			"answers": ["Romulus and Remus", "Julius Caesar", "Augustus", "Marcus Aurelius"],
 			"correctAnswer": "Romulus and Remus"
 		},
 		{
@@ -27,12 +22,7 @@
 		},
 		{
 			"question": "Who was the first woman to win a Nobel Prize?",
-			"answers": [
-				"Marie Curie",
-				"Mother Teresa",
-				"Margaret Thatcher",
-				"Indira Gandhi"
-			],
+			"answers": ["Marie Curie", "Mother Teresa", "Margaret Thatcher", "Indira Gandhi"],
 			"correctAnswer": "Marie Curie"
 		},
 		{
@@ -42,12 +32,7 @@
 		},
 		{
 			"question": "By what other name is the Eastern Roman Empire known?",
-			"answers": [
-				"The Byzantine Empire",
-				"The Ottoman Empire",
-				"The Persian Empire",
-				"The Holy Roman Empire"
-			],
+			"answers": ["The Byzantine Empire", "The Ottoman Empire", "The Persian Empire", "The Holy Roman Empire"],
 			"correctAnswer": "The Byzantine Empire"
 		},
 		{
@@ -57,47 +42,17 @@
 		},
 		{
 			"question": "Who was the first explorer to circumnavigate the globe?",
-			"answers": [
-				"Christopher Columbus",
-				"Vasco da Gama",
-				"Magellan",
-				"Francis Drake"
-			],
+			"answers": ["Christopher Columbus", "Vasco da Gama", "Magellan", "Francis Drake"],
 			"correctAnswer": "Magellan"
 		},
 		{
 			"question": "What was the name of the document that established the United Nations?",
-			"answers": [
-				"The Treaty of Versailles",
-				"The Geneva Convention",
-				"The Charter of the United Nations",
-				"The Magna Carta"
-			],
+			"answers": ["The Treaty of Versailles", "The Geneva Convention", "The Charter of the United Nations", "The Magna Carta"],
 			"correctAnswer": "The Charter of the United Nations"
 		},
 		{
-			"question": "What is the name of the goddess of victory in Greek mythology?",
-			"answers": ["Nike", "Puma", "Adidas", "Aphrodite"],
-			"correctAnswer": "Nike"
-		},
-		{
-			"question": "How many operas did Beethoven compose?",
-			"answers": ["1", "26", "165", "7"],
-			"correctAnswer": "1"
-		},
-		{
-			"question": "What philosopher said \"I think, therefore I am\"?",
-			"answers": ["Descartes", "Plato", "Aristotle", "Socrates"],
-			"correctAnswer": "Descartes"
-		},
-		{
 			"question": "Which of these is not one of the Seven Wonders of the Ancient World?",
-			"answers": [
-				"The Great Library of Alexandria",
-				"Colossus of Rhodes",
-				"Lighthouse of Alexandria",
-				"Temple of Artemis"
-			],
+			"answers": ["The Great Library of Alexandria", "Colossus of Rhodes", "Lighthouse of Alexandria", "Temple of Artemis"],
 			"correctAnswer": "The Great Library of Alexandria"
 		},
 		{
@@ -154,6 +109,46 @@
 			"question": "The Industrial Revolution started in which country?",
 			"answers": ["England", "Germany", "France", "United States"],
 			"correctAnswer": "England"
+		},
+		{
+			"question": "What was the name of the ship that brought the Pilgrims to America in 1620?",
+			"answers": ["Mayflower", "Santa Maria", "Endeavour", "Beagle"],
+			"correctAnswer": "Mayflower"
+		},
+		{
+			"question": "Which war was fought between the North and South regions of the United States?",
+			"answers": ["The Civil War", "The Revolutionary War", "The War of 1812", "The Mexican-American War"],
+			"correctAnswer": "The Civil War"
+		},
+		{
+			"question": "Who was the Egyptian queen known for her relationship with Julius Caesar and Mark Antony?",
+			"answers": ["Cleopatra", "Nefertiti", "Hatshepsut", "Isis"],
+			"correctAnswer": "Cleopatra"
+		},
+		{
+			"question": "What ancient trade route connected China to the Mediterranean?",
+			"answers": ["The Silk Road", "The Spice Route", "The Amber Road", "The Salt Road"],
+			"correctAnswer": "The Silk Road"
+		},
+		{
+			"question": "In which year did the Titanic sink?",
+			"answers": ["1912", "1905", "1920", "1898"],
+			"correctAnswer": "1912"
+		},
+		{
+			"question": "Who was the famous nurse during the Crimean War known as 'The Lady with the Lamp'?",
+			"answers": ["Florence Nightingale", "Clara Barton", "Mary Seacole", "Edith Cavell"],
+			"correctAnswer": "Florence Nightingale"
+		},
+		{
+			"question": "What was the last dynasty to rule China?",
+			"answers": ["Qing Dynasty", "Ming Dynasty", "Tang Dynasty", "Han Dynasty"],
+			"correctAnswer": "Qing Dynasty"
+		},
+		{
+			"question": "Which treaty ended World War I?",
+			"answers": ["Treaty of Versailles", "Treaty of Paris", "Treaty of Ghent", "Treaty of Tordesillas"],
+			"correctAnswer": "Treaty of Versailles"
 		}
 	],
 	"Entertainment": [
@@ -169,12 +164,7 @@
 		},
 		{
 			"question": "Who played the role of Batman in the 2008 movie \"The Dark Knight\"?",
-			"answers": [
-				"Christian Bale",
-				"Ben Affleck",
-				"George Clooney",
-				"Val Kilmer"
-			],
+			"answers": ["Christian Bale", "Ben Affleck", "George Clooney", "Val Kilmer"],
 			"correctAnswer": "Christian Bale"
 		},
 		{
@@ -188,28 +178,13 @@
 			"correctAnswer": "Richard Parker"
 		},
 		{
-			"question": "Who wrote the novel \"One Hundred Years of Solitude\"?",
-			"answers": [
-				"Gabriel García Márquez",
-				"Jorge Luis Borges",
-				"Isabel Allende",
-				"Octavio Paz"
-			],
-			"correctAnswer": "Gabriel García Márquez"
-		},
-		{
 			"question": "Which of these is not a race or species in the video game \"World of Warcraft\"?",
 			"answers": ["Kokiri", "Undead", "Huargen", "Troll"],
 			"correctAnswer": "Kokiri"
 		},
 		{
-			"question": "How does Alice wane for the first time in the Disney movie \"Alice in Wonderland\"?",
-			"answers": [
-				"She drinks a potion",
-				"She eats a cake",
-				"She falls down a hole",
-				"She walks through a mirror"
-			],
+			"question": "How does Alice shrink for the first time in the Disney movie \"Alice in Wonderland\"?",
+			"answers": ["She drinks a potion", "She eats a cake", "She falls down a hole", "She walks through a mirror"],
 			"correctAnswer": "She drinks a potion"
 		},
 		{
@@ -219,12 +194,7 @@
 		},
 		{
 			"question": "In which of these animes does the main character carry his sister in a box?",
-			"answers": [
-				"Kimetsu no Yaiba",
-				"Elfen Lied",
-				"Code Geass",
-				"Made in Abyss"
-			],
+			"answers": ["Kimetsu no Yaiba", "Elfen Lied", "Code Geass", "Made in Abyss"],
 			"correctAnswer": "Kimetsu no Yaiba"
 		},
 		{
@@ -241,16 +211,6 @@
 			"question": "How many dragon balls are there in the anime \"Dragon Ball\"?",
 			"answers": ["7", "8", "6", "12"],
 			"correctAnswer": "7"
-		},
-		{
-			"question": "In which of these movies are there aliens?",
-			"answers": [
-				"The Great Wall",
-				"Big Heroes 6",
-				"Duplicity",
-				"Braveheart"
-			],
-			"correctAnswer": "The Great Wall"
 		},
 		{
 			"question": "What is the name of Misa Amane's shinigami in the anime \"Death Note\"?",
@@ -288,24 +248,59 @@
 			"correctAnswer": "Christopher Nolan"
 		},
 		{
-			"question": "What is the name of the fictional continent in 'Game of Thrones'?",
-			"answers": ["Westeros", "Middle-earth", "Narnia", "Tamriel"],
-			"correctAnswer": "Westeros"
-		},
-		{
 			"question": "Which video game franchise features a character named Master Chief?",
 			"answers": ["Halo", "Call of Duty", "Gears of War", "Destiny"],
 			"correctAnswer": "Halo"
 		},
 		{
-			"question": "Who wrote the Harry Potter book series?",
-			"answers": ["J.K. Rowling", "J.R.R. Tolkien", "C.S. Lewis", "George R.R. Martin"],
-			"correctAnswer": "J.K. Rowling"
-		},
-		{
 			"question": "Which streaming platform produced the series 'Stranger Things'?",
 			"answers": ["Netflix", "Amazon Prime", "Disney+", "HBO Max"],
 			"correctAnswer": "Netflix"
+		},
+		{
+			"question": "What is the best-selling video game in history?",
+			"answers": ["Minecraft", "Tetris", "Wii Sports", "Grand Theft Auto V"],
+			"correctAnswer": "Minecraft"
+		},
+		{
+			"question": "What color are the pigs in the video game \"Angry Birds\"?",
+			"answers": ["Green", "Red", "Yellow", "Blue"],
+			"correctAnswer": "Green"
+		},
+		{
+			"question": "What is the name of the main character in the video game \"The Legend of Zelda\"?",
+			"answers": ["Link", "Zelda", "Ganon", "Ganondorf"],
+			"correctAnswer": "Link"
+		},
+		{
+			"question": "Who turns into the Hulk?",
+			"answers": ["Bruce Banner", "Tony Stark", "Peter Parker", "Steve Rogers"],
+			"correctAnswer": "Bruce Banner"
+		},
+		{
+			"question": "What color is the hair of the protagonist in the anime \"Death Note\"?",
+			"answers": ["Black", "Blonde", "Red", "Brown"],
+			"correctAnswer": "Brown"
+		},
+		{
+			"question": "What is inside a black hole in the movie \"Interstellar\"?",
+			"answers": ["A fifth dimension", "A planet", "A spaceship", "Nothing"],
+			"correctAnswer": "A fifth dimension"
+		},
+		{
+			"question": "What is the name of the wizarding school in the Harry Potter series?",
+			"answers": ["Hogwarts", "Beauxbatons", "Durmstrang", "Ilvermorny"],
+			"correctAnswer": "Hogwarts"
+		},
+		{
+			"question": "In the movie 'The Matrix', what color pill does Neo take?",
+			"answers": ["Red", "Blue", "Green", "Yellow"],
+			"correctAnswer": "Red"
+		},
+		{
+			"question": "What is the name of the fictional kingdom in the movie 'Black Panther'?",
+			"answers": ["Wakanda", "Zamunda", "Genovia", "Asgard"],
+			"correctAnswer": "Wakanda"
 		}
 	],
 	"Geography": [
@@ -345,7 +340,7 @@
 			"correctAnswer": "Bogotá"
 		},
 		{
-			"question": "Which country is the smallest in the world",
+			"question": "Which country is the smallest in the world?",
 			"answers": ["Vatican City", "Monaco", "Nauru", "Tuvalu"],
 			"correctAnswer": "Vatican City"
 		},
@@ -355,13 +350,8 @@
 			"correctAnswer": "Algeria"
 		},
 		{
-			"question": "What is the highest mountain in America?",
-			"answers": [
-				"Mount Denali",
-				"Mount Logan",
-				"Mount Saint Elias",
-				"Pico de Orizaba"
-			],
+			"question": "What is the highest mountain in North America?",
+			"answers": ["Mount Denali", "Mount Logan", "Mount Saint Elias", "Pico de Orizaba"],
 			"correctAnswer": "Mount Denali"
 		},
 		{
@@ -371,18 +361,13 @@
 		},
 		{
 			"question": "What is the name of the world's largest reef system, located in Australia?",
-			"answers": [
-				"Great Barrier Reef",
-				"Belize Barrier Reef",
-				"Mesoamerican Barrier Reef",
-				"Andros Barrier Reef"
-			],
+			"answers": ["Great Barrier Reef", "Belize Barrier Reef", "Mesoamerican Barrier Reef", "Andros Barrier Reef"],
 			"correctAnswer": "Great Barrier Reef"
 		},
 		{
 			"question": "Which river is the longest in the world?",
 			"answers": ["Nile", "Amazon", "Yangtze", "Mississippi"],
-			"correctAnswer": "Amazon"
+			"correctAnswer": "Nile"
 		},
 		{
 			"question": "Which country is the largest by land area?",
@@ -393,11 +378,6 @@
 			"question": "How many states are part of the United States?",
 			"answers": ["50", "51", "48", "53"],
 			"correctAnswer": "50"
-		},
-		{
-			"question": "Which of these countries is not in Europe?",
-			"answers": ["Georgia", "Moldova", "Armenia", "Azerbaijan"],
-			"correctAnswer": "Armenia"
 		},
 		{
 			"question": "What is the official currency of India?",
@@ -420,24 +400,9 @@
 			"correctAnswer": "Canada"
 		},
 		{
-			"question": "What is the capital of Australia?",
-			"answers": ["Canberra", "Sydney", "Melbourne", "Brisbane"],
-			"correctAnswer": "Canberra"
-		},
-		{
 			"question": "The Sahara Desert is located in which continent?",
 			"answers": ["Africa", "Asia", "South America", "Australia"],
 			"correctAnswer": "Africa"
-		},
-		{
-			"question": "Which river is the longest in the world?",
-			"answers": ["Nile", "Amazon", "Yangtze", "Mississippi"],
-			"correctAnswer": "Nile"
-		},
-		{
-			"question": "What is the smallest country in the world by area?",
-			"answers": ["Vatican City", "Monaco", "San Marino", "Liechtenstein"],
-			"correctAnswer": "Vatican City"
 		},
 		{
 			"question": "Which country is known as the Land of the Rising Sun?",
@@ -458,6 +423,36 @@
 			"question": "Which continent has the most countries?",
 			"answers": ["Africa", "Asia", "Europe", "South America"],
 			"correctAnswer": "Africa"
+		},
+		{
+			"question": "Which river runs through London?",
+			"answers": ["Thames", "Seine", "Danube", "Nile"],
+			"correctAnswer": "Thames"
+		},
+		{
+			"question": "What is the capital of Canada?",
+			"answers": ["Ottawa", "Toronto", "Vancouver", "Montreal"],
+			"correctAnswer": "Ottawa"
+		},
+		{
+			"question": "Which country is home to the Great Wall?",
+			"answers": ["China", "Mongolia", "Japan", "India"],
+			"correctAnswer": "China"
+		},
+		{
+			"question": "What is the driest continent on Earth?",
+			"answers": ["Antarctica", "Africa", "Australia", "Asia"],
+			"correctAnswer": "Antarctica"
+		},
+		{
+			"question": "What is the deepest ocean trench in the world?",
+			"answers": ["Mariana Trench", "Tonga Trench", "Philippine Trench", "Kuril-Kamchatka Trench"],
+			"correctAnswer": "Mariana Trench"
+		},
+		{
+			"question": "Which European country is shaped like a boot?",
+			"answers": ["Italy", "Spain", "Greece", "Portugal"],
+			"correctAnswer": "Italy"
 		}
 	],
 	"Science": [
@@ -467,29 +462,9 @@
 			"correctAnswer": "Au"
 		},
 		{
-			"question": "What is the triangle that has three equal sides called?",
-			"answers": ["Equilateral", "Isosceles", "Scalene", "Right"],
-			"correctAnswer": "Equilateral"
-		},
-		{
 			"question": "What is an oviparous?",
-			"answers": [
-				"An animal that lays eggs",
-				"An animal that gives birth",
-				"An animal that flies",
-				"An animal that lives in the water"
-			],
+			"answers": ["An animal that lays eggs", "An animal that gives birth", "An animal that flies", "An animal that lives in the water"],
 			"correctAnswer": "An animal that lays eggs"
-		},
-		{
-			"question": "Cartography is the study of what?",
-			"answers": ["Maps", "Cars", "Cats", "Carpets"],
-			"correctAnswer": "Maps"
-		},
-		{
-			"question": "If 50 is 100%, what is 90%?",
-			"answers": ["45", "10", "100", "50"],
-			"correctAnswer": "45"
 		},
 		{
 			"question": "How many legs does a fly have?",
@@ -508,12 +483,7 @@
 		},
 		{
 			"question": "What is the name of the process by which plants convert sunlight into energy?",
-			"answers": [
-				"Photosynthesis",
-				"Respiration",
-				"Digestion",
-				"Fermentation"
-			],
+			"answers": ["Photosynthesis", "Respiration", "Digestion", "Fermentation"],
 			"correctAnswer": "Photosynthesis"
 		},
 		{
@@ -533,12 +503,7 @@
 		},
 		{
 			"question": "What is the name of the process by which a solid turns into a gas without passing through the liquid state?",
-			"answers": [
-				"Sublimation",
-				"Evaporation",
-				"Condensation",
-				"Freezing"
-			],
+			"answers": ["Sublimation", "Evaporation", "Condensation", "Freezing"],
 			"correctAnswer": "Sublimation"
 		},
 		{
@@ -565,31 +530,6 @@
 			"question": "Every how many years does Halley's Comet pass the earth?",
 			"answers": ["75", "86", "96", "106"],
 			"correctAnswer": "75"
-		},
-		{
-			"question": "What is the only even prime number?",
-			"answers": ["2", "14", "6", "8"],
-			"correctAnswer": "2"
-		},
-		{
-			"question": "-3 + 10 ÷ 2",
-			"answers": ["2", "1", "4", "3.5"],
-			"correctAnswer": "2"
-		},
-		{
-			"question": "What does the gallon measure?",
-			"answers": ["Volume", "Weight", "Distance", "Time"],
-			"correctAnswer": "Volume"
-		},
-		{
-			"question": "What does the newton measure?",
-			"answers": ["Force", "Weight", "Distance", "Time"],
-			"correctAnswer": "Force"
-		},
-		{
-			"question": "What is the chemical symbol for gold?",
-			"answers": ["Au", "Ag", "Fe", "Cu"],
-			"correctAnswer": "Au"
 		},
 		{
 			"question": "How many bones are in the adult human body?",
@@ -622,11 +562,6 @@
 			"correctAnswer": "300,000 km/s"
 		},
 		{
-			"question": "Which element has the atomic number 1?",
-			"answers": ["Hydrogen", "Helium", "Lithium", "Carbon"],
-			"correctAnswer": "Hydrogen"
-		},
-		{
 			"question": "What is the largest organ in the human body?",
 			"answers": ["Skin", "Liver", "Brain", "Lungs"],
 			"correctAnswer": "Skin"
@@ -635,6 +570,41 @@
 			"question": "What type of animal is a dolphin?",
 			"answers": ["Mammal", "Fish", "Reptile", "Amphibian"],
 			"correctAnswer": "Mammal"
+		},
+		{
+			"question": "What does the newton measure?",
+			"answers": ["Force", "Weight", "Distance", "Time"],
+			"correctAnswer": "Force"
+		},
+		{
+			"question": "What is the chemical formula for water?",
+			"answers": ["H2O", "CO2", "NaCl", "O2"],
+			"correctAnswer": "H2O"
+		},
+		{
+			"question": "What type of blood cells fight infection?",
+			"answers": ["White blood cells", "Red blood cells", "Platelets", "Plasma"],
+			"correctAnswer": "White blood cells"
+		},
+		{
+			"question": "What is the most abundant gas in Earth's atmosphere?",
+			"answers": ["Nitrogen", "Oxygen", "Carbon dioxide", "Argon"],
+			"correctAnswer": "Nitrogen"
+		},
+		{
+			"question": "What part of the human brain controls balance and coordination?",
+			"answers": ["Cerebellum", "Cerebrum", "Brain stem", "Hypothalamus"],
+			"correctAnswer": "Cerebellum"
+		},
+		{
+			"question": "What is the boiling point of water at sea level in Fahrenheit?",
+			"answers": ["212°F", "100°F", "200°F", "180°F"],
+			"correctAnswer": "212°F"
+		},
+		{
+			"question": "What is the study of fossils called?",
+			"answers": ["Paleontology", "Archaeology", "Geology", "Anthropology"],
+			"correctAnswer": "Paleontology"
 		}
 	],
 	"Technology": [
@@ -650,12 +620,7 @@
 		},
 		{
 			"question": "How many megabytes is a gigabyte?",
-			"answers": [
-				"1024",
-				"1000",
-				"100",
-				"Depends on the size of the file"
-			],
+			"answers": ["1024", "1000", "100", "Depends on the size of the file"],
 			"correctAnswer": "1024"
 		},
 		{
@@ -664,7 +629,7 @@
 			"correctAnswer": "Ubuntu"
 		},
 		{
-			"question": "What is the name of the first computer?",
+			"question": "What is the name of the first electronic general-purpose computer?",
 			"answers": ["ENIAC", "UNIVAC I", "Z1", "Colossus"],
 			"correctAnswer": "ENIAC"
 		},
@@ -675,7 +640,7 @@
 		},
 		{
 			"question": "What is the name of the programming language used to create web pages?",
-			"answers": ["JavaScript", "CSS", "PhP", "Python"],
+			"answers": ["JavaScript", "CSS", "PHP", "Python"],
 			"correctAnswer": "JavaScript"
 		},
 		{
@@ -695,43 +660,8 @@
 		},
 		{
 			"question": "What is the name of the first video game console?",
-			"answers": [
-				"Magnavox Odyssey",
-				"Atari 2600",
-				"Nintendo Entertainment System",
-				"Sega Genesis"
-			],
+			"answers": ["Magnavox Odyssey", "Atari 2600", "Nintendo Entertainment System", "Sega Genesis"],
 			"correctAnswer": "Magnavox Odyssey"
-		},
-		{
-			"question": "What is the best-selling video game in history?",
-			"answers": [
-				"Minecraft",
-				"Tetris",
-				"Wii Sports",
-				"Grand Theft Auto V"
-			],
-			"correctAnswer": "Minecraft"
-		},
-		{
-			"question": "What color are the pigs in the video game \"Angry Birds\"?",
-			"answers": ["Green", "Red", "Yellow", "Blue"],
-			"correctAnswer": "Green"
-		},
-		{
-			"question": "Which of these is not a champion in the video game \"League of Legends\"?",
-			"answers": ["Gang-il", "Ahri", "Teemo", "Ryze"],
-			"correctAnswer": "Gang-il"
-		},
-		{
-			"question": "How many points do the grapes give in the video game \"Pacman\"?",
-			"answers": ["1000", "700", "100", "400"],
-			"correctAnswer": "1000"
-		},
-		{
-			"question": "What is the name of the main character in the video game \"The Legend of Zelda\"?",
-			"answers": ["Link", "Zelda", "Ganon", "Ganondorf"],
-			"correctAnswer": "Link"
 		},
 		{
 			"question": "What does 'HTTP' stand for?",
@@ -782,37 +712,67 @@
 			"question": "What is the most popular programming language in 2024?",
 			"answers": ["Python", "JavaScript", "Java", "C++"],
 			"correctAnswer": "Python"
+		},
+		{
+			"question": "What does 'URL' stand for?",
+			"answers": ["Uniform Resource Locator", "Universal Reference Link", "Unified Resource Library", "Universal Resource Locator"],
+			"correctAnswer": "Uniform Resource Locator"
+		},
+		{
+			"question": "What does 'CPU' stand for?",
+			"answers": ["Central Processing Unit", "Computer Processing Unit", "Central Program Unit", "Core Processing Unit"],
+			"correctAnswer": "Central Processing Unit"
+		},
+		{
+			"question": "Which company is known for the Windows operating system?",
+			"answers": ["Microsoft", "Apple", "Google", "IBM"],
+			"correctAnswer": "Microsoft"
+		},
+		{
+			"question": "What technology allows devices to communicate wirelessly over short distances?",
+			"answers": ["Bluetooth", "Wi-Fi", "NFC", "Infrared"],
+			"correctAnswer": "Bluetooth"
+		},
+		{
+			"question": "What does 'SSD' stand for?",
+			"answers": ["Solid State Drive", "Super Speed Disk", "Solid Storage Device", "System Storage Drive"],
+			"correctAnswer": "Solid State Drive"
+		},
+		{
+			"question": "What is the name of the markup language used to structure web content?",
+			"answers": ["HTML", "CSS", "XML", "JSON"],
+			"correctAnswer": "HTML"
+		},
+		{
+			"question": "What does 'GPU' stand for?",
+			"answers": ["Graphics Processing Unit", "General Processing Unit", "Graphical Program Unit", "Global Processing Unit"],
+			"correctAnswer": "Graphics Processing Unit"
+		},
+		{
+			"question": "Which programming language is known as the backbone of the internet?",
+			"answers": ["JavaScript", "Python", "C++", "Ruby"],
+			"correctAnswer": "JavaScript"
+		},
+		{
+			"question": "What does 'VPN' stand for?",
+			"answers": ["Virtual Private Network", "Virtual Public Network", "Verified Private Network", "Visual Processing Network"],
+			"correctAnswer": "Virtual Private Network"
 		}
 	],
 	"Art": [
 		{
 			"question": "Who painted the famous artwork \"The Starry Night\"?",
-			"answers": [
-				"Vincent van Gogh",
-				"Leonardo da Vinci",
-				"Pablo Picasso",
-				"Michelangelo"
-			],
+			"answers": ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Michelangelo"],
 			"correctAnswer": "Vincent van Gogh"
 		},
 		{
-			"question": "Which sculptor made the famous sculpture \"David?\"?",
-			"answers": [
-				"Michelangelo",
-				"Donatello",
-				"Leonardo da Vinci",
-				"Raphael"
-			],
+			"question": "Which sculptor made the famous sculpture \"David\"?",
+			"answers": ["Michelangelo", "Donatello", "Leonardo da Vinci", "Raphael"],
 			"correctAnswer": "Michelangelo"
 		},
 		{
 			"question": "What is the best-selling album in history?",
-			"answers": [
-				"Thriller",
-				"Back in Black",
-				"The Dark Side of the Moon",
-				"Bat Out of Hell"
-			],
+			"answers": ["Thriller", "Back in Black", "The Dark Side of the Moon", "Bat Out of Hell"],
 			"correctAnswer": "Thriller"
 		},
 		{
@@ -822,57 +782,32 @@
 		},
 		{
 			"question": "What is the name of the famous statue that depicts the Greek goddess of love and beauty?",
-			"answers": [
-				"Venus de Milo",
-				"David",
-				"The Thinker",
-				"Laocoön and His Sons"
-			],
+			"answers": ["Venus de Milo", "David", "The Thinker", "Laocoön and His Sons"],
 			"correctAnswer": "Venus de Milo"
 		},
 		{
 			"question": "What band is the author of the song \"Believer\"?",
-			"answers": [
-				"Imagine Dragons",
-				"Coldplay",
-				"Maroon 5",
-				"Linkin Park"
-			],
+			"answers": ["Imagine Dragons", "Coldplay", "Maroon 5", "Linkin Park"],
 			"correctAnswer": "Imagine Dragons"
 		},
 		{
 			"question": "What is the name of the famous Italian artist who painted the ceiling of the Sistine Chapel?",
-			"answers": [
-				"Michelangelo",
-				"Leonardo da Vinci",
-				"Raphael",
-				"Sandro Botticelli"
-			],
+			"answers": ["Michelangelo", "Leonardo da Vinci", "Raphael", "Sandro Botticelli"],
 			"correctAnswer": "Michelangelo"
 		},
 		{
-			"question": "Who is Don Quixote in love with in the play \"The Ingenious Hidalgo Don Quixote of La Mancha\"?",
+			"question": "Who is Don Quixote in love with in \"The Ingenious Hidalgo Don Quixote of La Mancha\"?",
 			"answers": ["Dulcinea", "Maritornes", "Antonia", "Fernanda"],
 			"correctAnswer": "Dulcinea"
 		},
 		{
 			"question": "What is the name of the famous ballet composed by Tchaikovsky?",
-			"answers": [
-				"Swan Lake",
-				"The Nutcracker",
-				"Romeo and Juliet",
-				"The Sleeping Beauty"
-			],
+			"answers": ["Swan Lake", "The Nutcracker", "Romeo and Juliet", "The Sleeping Beauty"],
 			"correctAnswer": "Swan Lake"
 		},
 		{
 			"question": "Who is the author of the famous book \"The Little Prince\"?",
-			"answers": [
-				"Antoine de Saint-Exupéry",
-				"Jean-Jacques Rousseau",
-				"Voltaire",
-				"Victor Hugo"
-			],
+			"answers": ["Antoine de Saint-Exupéry", "Jean-Jacques Rousseau", "Voltaire", "Victor Hugo"],
 			"correctAnswer": "Antoine de Saint-Exupéry"
 		},
 		{
@@ -882,43 +817,13 @@
 		},
 		{
 			"question": "Which famous playwright wrote the play \"Hamlet\"?",
-			"answers": [
-				"William Shakespeare",
-				"Tennessee Williams",
-				"Arthur Miller",
-				"Samuel Beckett"
-			],
+			"answers": ["William Shakespeare", "Tennessee Williams", "Arthur Miller", "Samuel Beckett"],
 			"correctAnswer": "William Shakespeare"
-		},
-		{
-			"question": "Which famous novel by George Orwell tells the story of a society where government surveillance and propaganda control all aspects of people's lives?",
-			"answers": [
-				"1984",
-				"Animal Farm",
-				"Brave New World",
-				"Fahrenheit 451"
-			],
-			"correctAnswer": "1984"
-		},
-		{
-			"question": "Who is the author of the 'Harry Potter' book series?",
-			"answers": [
-				"J.K. Rowling",
-				"Stephen King",
-				"George R.R. Martin",
-				"Dan Brown"
-			],
-			"correctAnswer": "J.K. Rowling"
 		},
 		{
 			"question": "In music, how many lines does a staff have?",
 			"answers": ["Five", "Four", "Six", "Three"],
 			"correctAnswer": "Five"
-		},
-		{
-			"question": "Who painted the ceiling of the Sistine Chapel?",
-			"answers": ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
-			"correctAnswer": "Michelangelo"
 		},
 		{
 			"question": "Which art movement is Salvador Dali associated with?",
@@ -964,6 +869,46 @@
 			"question": "Which artist is famous for the painting 'The Persistence of Memory'?",
 			"answers": ["Salvador Dali", "Pablo Picasso", "Claude Monet", "Andy Warhol"],
 			"correctAnswer": "Salvador Dali"
+		},
+		{
+			"question": "How many operas did Beethoven compose?",
+			"answers": ["1", "26", "165", "7"],
+			"correctAnswer": "1"
+		},
+		{
+			"question": "What is the name of the goddess of victory in Greek mythology?",
+			"answers": ["Nike", "Puma", "Adidas", "Aphrodite"],
+			"correctAnswer": "Nike"
+		},
+		{
+			"question": "Which painting is also known as 'La Gioconda'?",
+			"answers": ["Mona Lisa", "The Starry Night", "Girl with a Pearl Earring", "The Birth of Venus"],
+			"correctAnswer": "Mona Lisa"
+		},
+		{
+			"question": "What is the traditional Japanese theater form that uses elaborate masks?",
+			"answers": ["Noh", "Kabuki", "Bunraku", "Rakugo"],
+			"correctAnswer": "Noh"
+		},
+		{
+			"question": "Which artist is known for painting 'Water Lilies'?",
+			"answers": ["Claude Monet", "Pierre-Auguste Renoir", "Edgar Degas", "Paul Cézanne"],
+			"correctAnswer": "Claude Monet"
+		},
+		{
+			"question": "What type of painting uses water-soluble pigments on wet plaster?",
+			"answers": ["Fresco", "Oil painting", "Watercolor", "Tempera"],
+			"correctAnswer": "Fresco"
+		},
+		{
+			"question": "Who composed the famous piece 'Moonlight Sonata'?",
+			"answers": ["Beethoven", "Mozart", "Chopin", "Bach"],
+			"correctAnswer": "Beethoven"
+		},
+		{
+			"question": "What art movement was Andy Warhol a leading figure of?",
+			"answers": ["Pop Art", "Surrealism", "Abstract Expressionism", "Minimalism"],
+			"correctAnswer": "Pop Art"
 		}
 	],
 	"Space": [
@@ -974,12 +919,7 @@
 		},
 		{
 			"question": "What is the name of the brightest star in the night sky?",
-			"answers": [
-				"Sirius",
-				"Proxima Centauri",
-				"Betelgeuse",
-				"Aldebaran"
-			],
+			"answers": ["Sirius", "Proxima Centauri", "Betelgeuse", "Aldebaran"],
 			"correctAnswer": "Sirius"
 		},
 		{
@@ -991,16 +931,6 @@
 			"question": "What is the name of the first artificial satellite launched into space?",
 			"answers": ["Sputnik 1", "Explorer 1", "Vanguard 1", "Vostok 1"],
 			"correctAnswer": "Sputnik 1"
-		},
-		{
-			"question": "What is the speed of light approximately?",
-			"answers": [
-				"300,000 km/s",
-				"200,000 km/s",
-				"100,000 km/s",
-				"400,000 km/s"
-			],
-			"correctAnswer": "300,000 km/s"
 		},
 		{
 			"question": "What is the name of the largest known asteroid in our solar system?",
@@ -1038,44 +968,19 @@
 			"correctAnswer": "Hydrogen"
 		},
 		{
-			"question": "What is inside a black hole in the movie \"Interstellar\"?",
-			"answers": [
-				"A fifth dimension",
-				"A planet",
-				"A spaceship",
-				"Nothing"
-			],
-			"correctAnswer": "A fifth dimension"
-		},
-		{
 			"question": "What is the geometric figure that describes the orbit of the planets?",
 			"answers": ["Ellipse", "Circle", "Circumference", "Square"],
 			"correctAnswer": "Ellipse"
 		},
 		{
 			"question": "How many moons does Mars have?",
-			"answers": ["1", "2", "4", "Does not have"],
+			"answers": ["2", "1", "4", "Does not have"],
 			"correctAnswer": "2"
 		},
 		{
 			"question": "What is the name of the first man to walk on the moon?",
-			"answers": [
-				"Neil Armstrong",
-				"Buzz Aldrin",
-				"Alan Shepard",
-				"Yuri Gagarin"
-			],
+			"answers": ["Neil Armstrong", "Buzz Aldrin", "Alan Shepard", "Yuri Gagarin"],
 			"correctAnswer": "Neil Armstrong"
-		},
-		{
-			"question": "What is the largest planet in our solar system?",
-			"answers": ["Jupiter", "Saturn", "Neptune", "Uranus"],
-			"correctAnswer": "Jupiter"
-		},
-		{
-			"question": "How long does it take light from the Sun to reach Earth?",
-			"answers": ["8 minutes", "1 minute", "30 minutes", "1 hour"],
-			"correctAnswer": "8 minutes"
 		},
 		{
 			"question": "What is a supernova?",
@@ -1091,11 +996,6 @@
 			"question": "What is the closest star to Earth after the Sun?",
 			"answers": ["Proxima Centauri", "Alpha Centauri A", "Sirius", "Barnard's Star"],
 			"correctAnswer": "Proxima Centauri"
-		},
-		{
-			"question": "What is the name of NASA's Mars rover that landed in 2021?",
-			"answers": ["Perseverance", "Curiosity", "Opportunity", "Spirit"],
-			"correctAnswer": "Perseverance"
 		},
 		{
 			"question": "How many planets are in our solar system?",
@@ -1116,6 +1016,51 @@
 			"question": "What is the Great Red Spot on Jupiter?",
 			"answers": ["A giant storm", "A volcano", "An ocean", "A crater"],
 			"correctAnswer": "A giant storm"
+		},
+		{
+			"question": "What planet is known for its prominent ring system?",
+			"answers": ["Saturn", "Jupiter", "Uranus", "Neptune"],
+			"correctAnswer": "Saturn"
+		},
+		{
+			"question": "What was the first space station launched by the United States?",
+			"answers": ["Skylab", "Mir", "ISS", "Salyut"],
+			"correctAnswer": "Skylab"
+		},
+		{
+			"question": "Which planet rotates on its side?",
+			"answers": ["Uranus", "Neptune", "Venus", "Pluto"],
+			"correctAnswer": "Uranus"
+		},
+		{
+			"question": "What is the name of the region beyond Neptune populated by icy bodies?",
+			"answers": ["Kuiper Belt", "Asteroid Belt", "Oort Cloud", "Van Allen Belt"],
+			"correctAnswer": "Kuiper Belt"
+		},
+		{
+			"question": "Who was the first human to travel into space?",
+			"answers": ["Yuri Gagarin", "Alan Shepard", "John Glenn", "Neil Armstrong"],
+			"correctAnswer": "Yuri Gagarin"
+		},
+		{
+			"question": "What is the name of the galaxy closest to the Milky Way?",
+			"answers": ["Andromeda", "Triangulum", "Magellanic Cloud", "Whirlpool"],
+			"correctAnswer": "Andromeda"
+		},
+		{
+			"question": "What type of celestial object is Pluto currently classified as?",
+			"answers": ["Dwarf planet", "Planet", "Asteroid", "Comet"],
+			"correctAnswer": "Dwarf planet"
+		},
+		{
+			"question": "What phenomenon occurs when the Moon passes between the Sun and Earth?",
+			"answers": ["Solar eclipse", "Lunar eclipse", "Equinox", "Solstice"],
+			"correctAnswer": "Solar eclipse"
+		},
+		{
+			"question": "What is the International Space Station's approximate orbital altitude?",
+			"answers": ["400 km", "200 km", "800 km", "1000 km"],
+			"correctAnswer": "400 km"
 		}
 	],
 	"General culture": [
@@ -1123,21 +1068,6 @@
 			"question": "What part of the ship does the nautical term \"starboard\" refer to?",
 			"answers": ["Right", "Left", "Front", "Back"],
 			"correctAnswer": "Right"
-		},
-		{
-			"question": "Which river runs through London?",
-			"answers": ["Thames", "Seine", "Danube", "Nile"],
-			"correctAnswer": "Thames"
-		},
-		{
-			"question": "Who turns into Hulk?",
-			"answers": [
-				"Bruce Banner",
-				"Tony Stark",
-				"Peter Parker",
-				"Steve Rogers"
-			],
-			"correctAnswer": "Bruce Banner"
 		},
 		{
 			"question": "How many players does a soccer team have on the field?",
@@ -1155,7 +1085,7 @@
 			"correctAnswer": "Blue"
 		},
 		{
-			"question": "What holds the Oscar trophy figurine?",
+			"question": "What does the Oscar trophy figurine hold?",
 			"answers": ["A sword", "A torch", "A book", "Nothing"],
 			"correctAnswer": "A sword"
 		},
@@ -1178,11 +1108,6 @@
 			"question": "What does the Tin Woodman want in the novel \"The Wonderful Wizard of Oz\"?",
 			"answers": ["A heart", "A brain", "Courage", "A home"],
 			"correctAnswer": "A heart"
-		},
-		{
-			"question": "What color is the hair of the protagonist in the anime \"Death Note\"?",
-			"answers": ["Black", "Blonde", "Red", "Brown"],
-			"correctAnswer": "Brown"
 		},
 		{
 			"question": "What is the name of the holy book of Islam?",
@@ -1230,11 +1155,6 @@
 			"correctAnswer": "Burj Khalifa"
 		},
 		{
-			"question": "What sport is played at Wimbledon?",
-			"answers": ["Tennis", "Cricket", "Golf", "Badminton"],
-			"correctAnswer": "Tennis"
-		},
-		{
 			"question": "How many colors are in a rainbow?",
 			"answers": ["7", "6", "5", "8"],
 			"correctAnswer": "7"
@@ -1248,88 +1168,507 @@
 			"question": "Which language has the most native speakers in the world?",
 			"answers": ["Mandarin Chinese", "English", "Spanish", "Hindi"],
 			"correctAnswer": "Mandarin Chinese"
+		},
+		{
+			"question": "Cartography is the study of what?",
+			"answers": ["Maps", "Cars", "Cats", "Carpets"],
+			"correctAnswer": "Maps"
+		},
+		{
+			"question": "What does the gallon measure?",
+			"answers": ["Volume", "Weight", "Distance", "Time"],
+			"correctAnswer": "Volume"
+		},
+		{
+			"question": "What is the most widely spoken language in the world?",
+			"answers": ["English", "Mandarin Chinese", "Spanish", "Arabic"],
+			"correctAnswer": "English"
+		},
+		{
+			"question": "What is the national animal of Australia?",
+			"answers": ["Kangaroo", "Koala", "Platypus", "Emu"],
+			"correctAnswer": "Kangaroo"
+		},
+		{
+			"question": "What is the primary ingredient in traditional Japanese miso soup?",
+			"answers": ["Soybean paste", "Rice", "Seaweed", "Fish"],
+			"correctAnswer": "Soybean paste"
+		},
+		{
+			"question": "How many cards are in a standard deck of playing cards?",
+			"answers": ["52", "48", "54", "56"],
+			"correctAnswer": "52"
+		},
+		{
+			"question": "What is the hardest rock?",
+			"answers": ["Diamond", "Granite", "Marble", "Obsidian"],
+			"correctAnswer": "Diamond"
+		},
+		{
+			"question": "What animal is known as the 'King of the Jungle'?",
+			"answers": ["Lion", "Tiger", "Elephant", "Gorilla"],
+			"correctAnswer": "Lion"
+		},
+		{
+			"question": "How many days are there in a leap year?",
+			"answers": ["366", "365", "364", "367"],
+			"correctAnswer": "366"
+		}
+	],
+	"Math": [
+		{
+			"question": "What is 2 + 2?",
+			"answers": ["4", "3", "5", "6"],
+			"correctAnswer": "4"
+		},
+		{
+			"question": "What is the square root of 144?",
+			"answers": ["12", "14", "11", "13"],
+			"correctAnswer": "12"
+		},
+		{
+			"question": "What is 7 x 8?",
+			"answers": ["56", "54", "48", "64"],
+			"correctAnswer": "56"
+		},
+		{
+			"question": "What is 15% of 200?",
+			"answers": ["30", "25", "35", "20"],
+			"correctAnswer": "30"
+		},
+		{
+			"question": "What is the value of pi to two decimal places?",
+			"answers": ["3.14", "3.16", "3.12", "3.18"],
+			"correctAnswer": "3.14"
+		},
+		{
+			"question": "What is the triangle that has three equal sides called?",
+			"answers": ["Equilateral", "Isosceles", "Scalene", "Right"],
+			"correctAnswer": "Equilateral"
+		},
+		{
+			"question": "If 50 is 100%, what is 90%?",
+			"answers": ["45", "10", "100", "50"],
+			"correctAnswer": "45"
+		},
+		{
+			"question": "What is the only even prime number?",
+			"answers": ["2", "14", "6", "8"],
+			"correctAnswer": "2"
+		},
+		{
+			"question": "-3 + 10 ÷ 2",
+			"answers": ["2", "1", "4", "3.5"],
+			"correctAnswer": "2"
+		},
+		{
+			"question": "What is the sum of the angles in a triangle?",
+			"answers": ["180 degrees", "360 degrees", "90 degrees", "270 degrees"],
+			"correctAnswer": "180 degrees"
+		},
+		{
+			"question": "What is 25% of 80?",
+			"answers": ["20", "25", "15", "30"],
+			"correctAnswer": "20"
+		},
+		{
+			"question": "What is the next prime number after 7?",
+			"answers": ["11", "9", "10", "13"],
+			"correctAnswer": "11"
+		},
+		{
+			"question": "What is the area of a rectangle with length 5 and width 3?",
+			"answers": ["15", "8", "16", "12"],
+			"correctAnswer": "15"
+		},
+		{
+			"question": "How many degrees are in a circle?",
+			"answers": ["360", "180", "270", "400"],
+			"correctAnswer": "360"
+		},
+		{
+			"question": "What is the result of 3^3 (3 cubed)?",
+			"answers": ["27", "9", "18", "81"],
+			"correctAnswer": "27"
+		},
+		{
+			"question": "What is the perimeter of a square with side length 4?",
+			"answers": ["16", "8", "12", "20"],
+			"correctAnswer": "16"
+		},
+		{
+			"question": "What is 1000 divided by 8?",
+			"answers": ["125", "120", "128", "135"],
+			"correctAnswer": "125"
+		},
+		{
+			"question": "What is the least common multiple (LCM) of 4 and 6?",
+			"answers": ["12", "24", "6", "8"],
+			"correctAnswer": "12"
+		},
+		{
+			"question": "What is the Fibonacci sequence's next number after 0, 1, 1, 2, 3, 5?",
+			"answers": ["8", "7", "10", "6"],
+			"correctAnswer": "8"
+		},
+		{
+			"question": "How many sides does a pentagon have?",
+			"answers": ["5", "6", "4", "7"],
+			"correctAnswer": "5"
+		},
+		{
+			"question": "What is the absolute value of -15?",
+			"answers": ["15", "-15", "0", "1"],
+			"correctAnswer": "15"
+		},
+		{
+			"question": "What is 12 factorial (12!) divided by 11 factorial (11!)?",
+			"answers": ["12", "1", "11", "132"],
+			"correctAnswer": "12"
+		},
+		{
+			"question": "What is the greatest common divisor (GCD) of 24 and 36?",
+			"answers": ["12", "6", "8", "4"],
+			"correctAnswer": "12"
+		},
+		{
+			"question": "What is the circumference formula for a circle?",
+			"answers": ["2πr", "πr²", "πd²", "4πr"],
+			"correctAnswer": "2πr"
+		},
+		{
+			"question": "What number is neither prime nor composite?",
+			"answers": ["1", "0", "2", "-1"],
+			"correctAnswer": "1"
+		},
+		{
+			"question": "What is 0.5 expressed as a fraction?",
+			"answers": ["1/2", "1/4", "1/3", "2/3"],
+			"correctAnswer": "1/2"
+		},
+		{
+			"question": "What type of angle is exactly 90 degrees?",
+			"answers": ["Right angle", "Acute angle", "Obtuse angle", "Straight angle"],
+			"correctAnswer": "Right angle"
+		},
+		{
+			"question": "In a right triangle, what is the longest side called?",
+			"answers": ["Hypotenuse", "Base", "Height", "Adjacent"],
+			"correctAnswer": "Hypotenuse"
+		},
+		{
+			"question": "What is the result of 2^10?",
+			"answers": ["1024", "1000", "512", "2048"],
+			"correctAnswer": "1024"
+		},
+		{
+			"question": "What is the mean of the numbers 2, 4, 6, 8, 10?",
+			"answers": ["6", "5", "7", "8"],
+			"correctAnswer": "6"
+		}
+	],
+	"Literature": [
+		{
+			"question": "Who wrote Romeo and Juliet?",
+			"answers": ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
+			"correctAnswer": "William Shakespeare"
+		},
+		{
+			"question": "What is the first book of the Harry Potter series?",
+			"answers": ["The Philosopher's Stone", "The Chamber of Secrets", "The Prisoner of Azkaban", "The Goblet of Fire"],
+			"correctAnswer": "The Philosopher's Stone"
+		},
+		{
+			"question": "Who wrote 1984?",
+			"answers": ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
+			"correctAnswer": "George Orwell"
+		},
+		{
+			"question": "What literary device gives human qualities to non-human things?",
+			"answers": ["Personification", "Metaphor", "Simile", "Hyperbole"],
+			"correctAnswer": "Personification"
+		},
+		{
+			"question": "Who is the author of The Great Gatsby?",
+			"answers": ["F. Scott Fitzgerald", "Ernest Hemingway", "John Steinbeck", "William Faulkner"],
+			"correctAnswer": "F. Scott Fitzgerald"
+		},
+		{
+			"question": "Who wrote the novel \"One Hundred Years of Solitude\"?",
+			"answers": ["Gabriel García Márquez", "Jorge Luis Borges", "Isabel Allende", "Octavio Paz"],
+			"correctAnswer": "Gabriel García Márquez"
+		},
+		{
+			"question": "Who wrote the Harry Potter book series?",
+			"answers": ["J.K. Rowling", "J.R.R. Tolkien", "C.S. Lewis", "George R.R. Martin"],
+			"correctAnswer": "J.K. Rowling"
+		},
+		{
+			"question": "Which novel by George Orwell tells the story of a farm where animals overthrow their human owner?",
+			"answers": ["Animal Farm", "1984", "Brave New World", "Lord of the Flies"],
+			"correctAnswer": "Animal Farm"
+		},
+		{
+			"question": "Who wrote 'Pride and Prejudice'?",
+			"answers": ["Jane Austen", "Charlotte Brontë", "Emily Brontë", "Virginia Woolf"],
+			"correctAnswer": "Jane Austen"
+		},
+		{
+			"question": "What is the name of the captain in 'Moby-Dick'?",
+			"answers": ["Captain Ahab", "Captain Hook", "Captain Nemo", "Captain Flint"],
+			"correctAnswer": "Captain Ahab"
+		},
+		{
+			"question": "Who wrote 'The Lord of the Rings'?",
+			"answers": ["J.R.R. Tolkien", "C.S. Lewis", "J.K. Rowling", "George R.R. Martin"],
+			"correctAnswer": "J.R.R. Tolkien"
+		},
+		{
+			"question": "What is the opening line of Charles Dickens' 'A Tale of Two Cities'?",
+			"answers": ["It was the best of times, it was the worst of times", "Call me Ishmael", "It is a truth universally acknowledged", "All happy families are alike"],
+			"correctAnswer": "It was the best of times, it was the worst of times"
+		},
+		{
+			"question": "Who wrote 'To Kill a Mockingbird'?",
+			"answers": ["Harper Lee", "Mark Twain", "John Steinbeck", "Ernest Hemingway"],
+			"correctAnswer": "Harper Lee"
+		},
+		{
+			"question": "In which novel would you find the character Jay Gatsby?",
+			"answers": ["The Great Gatsby", "The Sun Also Rises", "Tender Is the Night", "This Side of Paradise"],
+			"correctAnswer": "The Great Gatsby"
+		},
+		{
+			"question": "Who wrote 'The Catcher in the Rye'?",
+			"answers": ["J.D. Salinger", "F. Scott Fitzgerald", "Ernest Hemingway", "Kurt Vonnegut"],
+			"correctAnswer": "J.D. Salinger"
+		},
+		{
+			"question": "What literary genre does 'Dracula' by Bram Stoker belong to?",
+			"answers": ["Gothic horror", "Science fiction", "Romance", "Mystery"],
+			"correctAnswer": "Gothic horror"
+		},
+		{
+			"question": "Who wrote 'The Odyssey'?",
+			"answers": ["Homer", "Virgil", "Sophocles", "Aristotle"],
+			"correctAnswer": "Homer"
+		},
+		{
+			"question": "What is the pen name of Samuel Clemens?",
+			"answers": ["Mark Twain", "O. Henry", "Lewis Carroll", "George Eliot"],
+			"correctAnswer": "Mark Twain"
+		},
+		{
+			"question": "Which Shakespeare play features the characters Oberon and Titania?",
+			"answers": ["A Midsummer Night's Dream", "The Tempest", "Twelfth Night", "As You Like It"],
+			"correctAnswer": "A Midsummer Night's Dream"
+		},
+		{
+			"question": "Who wrote 'Crime and Punishment'?",
+			"answers": ["Fyodor Dostoevsky", "Leo Tolstoy", "Anton Chekhov", "Ivan Turgenev"],
+			"correctAnswer": "Fyodor Dostoevsky"
+		},
+		{
+			"question": "What is a haiku?",
+			"answers": ["A three-line Japanese poem", "A five-act play", "A type of novel", "A rhyming couplet"],
+			"correctAnswer": "A three-line Japanese poem"
+		},
+		{
+			"question": "Who wrote 'Les Misérables'?",
+			"answers": ["Victor Hugo", "Alexandre Dumas", "Gustave Flaubert", "Émile Zola"],
+			"correctAnswer": "Victor Hugo"
+		},
+		{
+			"question": "What type of literature is 'Aesop's Fables'?",
+			"answers": ["Fables", "Epics", "Sonnets", "Novels"],
+			"correctAnswer": "Fables"
+		},
+		{
+			"question": "Who wrote 'The Divine Comedy'?",
+			"answers": ["Dante Alighieri", "Giovanni Boccaccio", "Petrarch", "Virgil"],
+			"correctAnswer": "Dante Alighieri"
+		},
+		{
+			"question": "What is a sonnet?",
+			"answers": ["A 14-line poem", "A 3-line poem", "A one-act play", "A short story"],
+			"correctAnswer": "A 14-line poem"
+		},
+		{
+			"question": "Who is the protagonist of 'Don Quixote'?",
+			"answers": ["Alonso Quixano", "Sancho Panza", "Dulcinea", "Rocinante"],
+			"correctAnswer": "Alonso Quixano"
+		},
+		{
+			"question": "Which novel begins with 'Call me Ishmael'?",
+			"answers": ["Moby-Dick", "The Old Man and the Sea", "Treasure Island", "Robinson Crusoe"],
+			"correctAnswer": "Moby-Dick"
+		},
+		{
+			"question": "Who wrote 'Brave New World'?",
+			"answers": ["Aldous Huxley", "George Orwell", "Ray Bradbury", "Philip K. Dick"],
+			"correctAnswer": "Aldous Huxley"
+		},
+		{
+			"question": "What genre is 'Frankenstein' by Mary Shelley?",
+			"answers": ["Science fiction", "Romance", "Comedy", "Historical fiction"],
+			"correctAnswer": "Science fiction"
+		},
+		{
+			"question": "Who wrote 'War and Peace'?",
+			"answers": ["Leo Tolstoy", "Fyodor Dostoevsky", "Anton Chekhov", "Alexander Pushkin"],
+			"correctAnswer": "Leo Tolstoy"
+		}
+	],
+	"Sports": [
+		{
+			"question": "How many players are on a basketball team on the court?",
+			"answers": ["5", "6", "4", "7"],
+			"correctAnswer": "5"
+		},
+		{
+			"question": "In which sport is the term 'love' used for zero?",
+			"answers": ["Tennis", "Badminton", "Cricket", "Golf"],
+			"correctAnswer": "Tennis"
+		},
+		{
+			"question": "How many rings are on the Olympic flag?",
+			"answers": ["5", "4", "6", "7"],
+			"correctAnswer": "5"
+		},
+		{
+			"question": "Which country won the 2022 FIFA World Cup?",
+			"answers": ["Argentina", "France", "Brazil", "Germany"],
+			"correctAnswer": "Argentina"
+		},
+		{
+			"question": "What is the diameter of a basketball hoop in inches?",
+			"answers": ["18", "16", "20", "15"],
+			"correctAnswer": "18"
+		},
+		{
+			"question": "What sport is played at Wimbledon?",
+			"answers": ["Tennis", "Cricket", "Golf", "Badminton"],
+			"correctAnswer": "Tennis"
+		},
+		{
+			"question": "How many points is a touchdown worth in American football?",
+			"answers": ["6", "7", "3", "4"],
+			"correctAnswer": "6"
+		},
+		{
+			"question": "Which country has won the most FIFA World Cups?",
+			"answers": ["Brazil", "Germany", "Italy", "Argentina"],
+			"correctAnswer": "Brazil"
+		},
+		{
+			"question": "How long is a marathon in miles?",
+			"answers": ["26.2", "25", "30", "24"],
+			"correctAnswer": "26.2"
+		},
+		{
+			"question": "In which sport would you perform a slam dunk?",
+			"answers": ["Basketball", "Volleyball", "Tennis", "Handball"],
+			"correctAnswer": "Basketball"
+		},
+		{
+			"question": "How many holes are played in a standard round of golf?",
+			"answers": ["18", "9", "12", "21"],
+			"correctAnswer": "18"
+		},
+		{
+			"question": "What is the national sport of Japan?",
+			"answers": ["Sumo", "Judo", "Karate", "Baseball"],
+			"correctAnswer": "Sumo"
+		},
+		{
+			"question": "In swimming, what stroke is also known as the 'front crawl'?",
+			"answers": ["Freestyle", "Backstroke", "Breaststroke", "Butterfly"],
+			"correctAnswer": "Freestyle"
+		},
+		{
+			"question": "How many periods are there in an ice hockey game?",
+			"answers": ["3", "2", "4", "5"],
+			"correctAnswer": "3"
+		},
+		{
+			"question": "What color is the center of an archery target?",
+			"answers": ["Gold/Yellow", "Red", "Blue", "White"],
+			"correctAnswer": "Gold/Yellow"
+		},
+		{
+			"question": "Which sport uses the terms 'strike' and 'spare'?",
+			"answers": ["Bowling", "Baseball", "Cricket", "Tennis"],
+			"correctAnswer": "Bowling"
+		},
+		{
+			"question": "How many players are on a volleyball team on the court?",
+			"answers": ["6", "5", "7", "8"],
+			"correctAnswer": "6"
+		},
+		{
+			"question": "What is the highest possible score in a single frame of bowling?",
+			"answers": ["30", "10", "20", "300"],
+			"correctAnswer": "30"
+		},
+		{
+			"question": "Which Grand Slam tennis tournament is played on clay?",
+			"answers": ["French Open", "Wimbledon", "US Open", "Australian Open"],
+			"correctAnswer": "French Open"
+		},
+		{
+			"question": "What sport is known as 'the beautiful game'?",
+			"answers": ["Soccer/Football", "Cricket", "Rugby", "Tennis"],
+			"correctAnswer": "Soccer/Football"
+		},
+		{
+			"question": "How many innings are in a standard baseball game?",
+			"answers": ["9", "7", "10", "8"],
+			"correctAnswer": "9"
+		},
+		{
+			"question": "In which sport do you use a shuttlecock?",
+			"answers": ["Badminton", "Tennis", "Squash", "Table Tennis"],
+			"correctAnswer": "Badminton"
+		},
+		{
+			"question": "What is the maximum score in a single game of ten-pin bowling?",
+			"answers": ["300", "200", "250", "350"],
+			"correctAnswer": "300"
+		},
+		{
+			"question": "Which country invented cricket?",
+			"answers": ["England", "Australia", "India", "South Africa"],
+			"correctAnswer": "England"
+		},
+		{
+			"question": "How many sets does a player need to win in a men's Grand Slam tennis match?",
+			"answers": ["3", "2", "4", "5"],
+			"correctAnswer": "3"
+		},
+		{
+			"question": "What is the length of an Olympic swimming pool in meters?",
+			"answers": ["50", "25", "100", "75"],
+			"correctAnswer": "50"
+		},
+		{
+			"question": "In which sport is the Ryder Cup contested?",
+			"answers": ["Golf", "Tennis", "Cricket", "Sailing"],
+			"correctAnswer": "Golf"
+		},
+		{
+			"question": "What does 'FIFA' stand for?",
+			"answers": ["Fédération Internationale de Football Association", "Federation of International Football Associations", "Federal International Football Authority", "Foundation of International Football Association"],
+			"correctAnswer": "Fédération Internationale de Football Association"
+		},
+		{
+			"question": "Which martial art originated in Korea?",
+			"answers": ["Taekwondo", "Karate", "Judo", "Kung Fu"],
+			"correctAnswer": "Taekwondo"
+		},
+		{
+			"question": "How many laps make up a standard NASCAR race at Daytona?",
+			"answers": ["200", "100", "300", "500"],
+			"correctAnswer": "200"
 		}
 	]
-,
-        "Math": [
-                {
-                        "question": "What is 2 + 2?",
-                        "answers": ["4", "3", "5", "6"],
-                        "correctAnswer": "4"
-                },
-                {
-                        "question": "What is the square root of 144?",
-                        "answers": ["12", "14", "11", "13"],
-                        "correctAnswer": "12"
-                },
-                {
-                        "question": "What is 7 x 8?",
-                        "answers": ["56", "54", "48", "64"],
-                        "correctAnswer": "56"
-                },
-                {
-                        "question": "What is 15% of 200?",
-                        "answers": ["30", "25", "35", "20"],
-                        "correctAnswer": "30"
-                },
-                {
-                        "question": "What is the value of pi to two decimal places?",
-                        "answers": ["3.14", "3.16", "3.12", "3.18"],
-                        "correctAnswer": "3.14"
-                }
-        ],
-        "Literature": [
-                {
-                        "question": "Who wrote Romeo and Juliet?",
-                        "answers": ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
-                        "correctAnswer": "William Shakespeare"
-                },
-                {
-                        "question": "What is the first book of the Harry Potter series?",
-                        "answers": ["The Philosopher's Stone", "The Chamber of Secrets", "The Prisoner of Azkaban", "The Goblet of Fire"],
-                        "correctAnswer": "The Philosopher's Stone"
-                },
-                {
-                        "question": "Who wrote 1984?",
-                        "answers": ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
-                        "correctAnswer": "George Orwell"
-                },
-                {
-                        "question": "What literary device gives human qualities to non-human things?",
-                        "answers": ["Personification", "Metaphor", "Simile", "Hyperbole"],
-                        "correctAnswer": "Personification"
-                },
-                {
-                        "question": "Who is the author of The Great Gatsby?",
-                        "answers": ["F. Scott Fitzgerald", "Ernest Hemingway", "John Steinbeck", "William Faulkner"],
-                        "correctAnswer": "F. Scott Fitzgerald"
-                }
-        ],
-        "Sports": [
-                {
-                        "question": "How many players are on a soccer team?",
-                        "answers": ["11", "9", "10", "12"],
-                        "correctAnswer": "11"
-                },
-                {
-                        "question": "In which sport is the term 'love' used for zero?",
-                        "answers": ["Tennis", "Badminton", "Cricket", "Golf"],
-                        "correctAnswer": "Tennis"
-                },
-                {
-                        "question": "How many rings are on the Olympic flag?",
-                        "answers": ["5", "4", "6", "7"],
-                        "correctAnswer": "5"
-                },
-                {
-                        "question": "Which country won the 2022 FIFA World Cup?",
-                        "answers": ["Argentina", "France", "Brazil", "Germany"],
-                        "correctAnswer": "Argentina"
-                },
-                {
-                        "question": "What is the diameter of a basketball hoop in inches?",
-                        "answers": ["18", "16", "20", "15"],
-                        "correctAnswer": "18"
-                }
-        ]
 }
