@@ -260,7 +260,7 @@ export const useQuestionsStore = (set, get) => ({
 			set({
 				adaptiveWrongQueue: nextWrongQueue,
 				questions: shuffleAnswers([nextQuestion]),
-				currentQuestion: 1,
+				currentQuestion: state.adaptiveHistory.length + 1,
 				questionProgress: state.adaptiveHistory.length + 1,
 			})
 			return
@@ -271,7 +271,7 @@ export const useQuestionsStore = (set, get) => ({
 			set({
 				adaptiveQueue: remaining,
 				questions: shuffleAnswers([{ ...nextQuestion, answer: undefined, userAnswer: undefined }]),
-				currentQuestion: 1,
+				currentQuestion: state.adaptiveHistory.length + 1,
 				questionProgress: state.adaptiveHistory.length + 1,
 			})
 			return

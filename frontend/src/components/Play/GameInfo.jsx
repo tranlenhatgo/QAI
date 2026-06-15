@@ -18,11 +18,8 @@ export default function GameInfo() {
 					? 'Time'
 					: 'Infinity Quiz';
 
-	// Get the single category (quiz can only have one category now)
 	const singleCategoryId = queries.categories?.[0]
 	const singleCategory = singleCategoryId ? categories.find(c => c.id === singleCategoryId) : null
-
-	// Removed — using solid white via className instead
 
 	return (
 		<>
@@ -36,7 +33,6 @@ export default function GameInfo() {
 
 			<aside className={`fixed h-fit transition-all duration-500 z-10 lg:bottom-4 left-4 md:top-1/2 md:-translate-y-1/2 text-center font-medium lg:!scale-100 lg:!opacity-100 ${showInfo ? 'bottom-16 scale-100 opacity-100' : 'bottom-0 scale-50 opacity-0 pointer-events-none lg:pointer-events-auto'}`}>
 				<div className='flex flex-col gap-2 min-w-[120px]'>
-					{/* Category display - single category only */}
 					{singleCategory && (
 						<div
 							className='bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm transition-transform hover:scale-105'

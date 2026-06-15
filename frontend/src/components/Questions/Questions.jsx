@@ -9,27 +9,70 @@ import playSound from '@/helpers/playSound'
 import { useBoundStore } from '@/store/useBoundStore'
 
 export default function Questions() {
-	const { questions, loading, loadingInfinity, currentQuestion, setCurrentQuestion, setUserAnswer, win, questionProgress, setWin, setQuestionProgress, wildCards, useLivesCard, queries, getQuestions, answerAdaptiveInfinity } = useBoundStore(state => state)
+	const { questions, loading, loadingInfinity, currentQuestion, setCurrentQuestion, setUserAnswer, win, questionProgress, setWin, setQuestionProgress, wildCards, useLivesCard, queries, getQuestions, answerAdaptiveInfinity, adaptiveHistory } = useBoundStore(state => state)
 	const [time, setTime] = useState(Number(queries.time))
 
 	useEffect(() => {
 		var color = null
 		if (!queries.quizmode) {
-			color = categories.find(cat => cat.name.toLowerCase() === questions[currentQuestion - 1]?.topic.toLowerCase())?.color
+			// In infinity mode, use adaptiveHistory for past questions, questions[0] for active
+			const topicSource = queries.infinitymode
+				? (adaptiveHistory[currentQuestion - 1] || questions[0])
+				: questions[currentQuestion - 1]
+			color = categories.find(cat => cat.name.toLowerCase() === topicSource?.topic?.toLowerCase())?.color
 		} else {
 			color = "#307de7"
 		}
 		color && (document.body.style.backgroundColor = color)
 
 		function shortcuts(e) {
-			if (!queries.infinitymode) {
+			if (queries.infinitymode) {
+				const activePos = adaptiveHistory.length + 1 // 1-based position of current unanswered question
+
+				if (e.key === 'ArrowLeft' && currentQuestion > 1) {
+					// Navigate left, skipping wrong-answer questions
+					for (let target = currentQuestion - 1; target >= 1; target--) {
+						const histItem = adaptiveHistory[target - 1]
+						if (!histItem || histItem.userAnswer !== -1) {
+							changueCurrent(target)
+							return
+						}
+					}
+					// All left are wrong — stay put
+				}
+				if (e.key === 'ArrowRight' && currentQuestion < activePos) {
+					// Navigate right, skipping wrong-answer questions, max is activePos
+					for (let target = currentQuestion + 1; target <= activePos; target++) {
+						if (target === activePos) {
+							changueCurrent(target)
+							return
+						}
+						const histItem = adaptiveHistory[target - 1]
+						if (!histItem || histItem.userAnswer !== -1) {
+							changueCurrent(target)
+							return
+						}
+					}
+				}
+			} else {
 				if (e.key === 'ArrowLeft' && currentQuestion > 1) changueCurrent(currentQuestion - 1)
 				if (e.key === 'ArrowRight' && currentQuestion < questionProgress) changueCurrent(currentQuestion + 1)
 			}
 
 			if (e.key === 'a' || e.key === 'b' || e.key === 'c' || e.key === 'd') {
 				const answer = ['a', 'b', 'c', 'd'].indexOf(e.key)
-				if (answer !== -1) document.querySelector(`.answers-${queries.infinitymode ? currentQuestion : questionProgress} .answer-${answer + 1}`)?.click()
+				if (answer !== -1) {
+					if (queries.infinitymode) {
+						// Only allow answering the active (current unanswered) question
+						const activePos = adaptiveHistory.length + 1
+						if (currentQuestion === activePos) {
+							document.querySelector(`.answers-inf-active .answer-${answer + 1}`)?.click()
+						}
+						// If viewing a past question, do nothing — can't answer it
+					} else {
+						document.querySelector(`.answers-${questionProgress} .answer-${answer + 1}`)?.click()
+					}
+				}
 			}
 		}
 
@@ -38,7 +81,7 @@ export default function Questions() {
 			document.removeEventListener('keydown', shortcuts)
 			document.body.style.backgroundColor = ''
 		}
-	}, [currentQuestion, questionProgress])
+	}, [currentQuestion, questionProgress, adaptiveHistory])
 
 	useEffect(() => {
 		if (win !== undefined || !queries.timemode || loading || loadingInfinity) return
@@ -100,8 +143,8 @@ export default function Questions() {
 		}
 
 		const activeIndex = queries.infinitymode ? 0 : questionProgress - 1
-		const answerClass = queries.infinitymode ? 1 : questionProgress
-		document.querySelectorAll(`.answers-${answerClass} button`).forEach(answer => {
+		const answerSelector = queries.infinitymode ? 'answers-inf-active' : `answers-${questionProgress}`
+		document.querySelectorAll(`.${answerSelector} button`).forEach(answer => {
 			answer.disabled = true
 			if (answer.textContent === questions[activeIndex]?.correctAnswer) {
 				answer.classList.add('correctAnswer')
@@ -111,7 +154,17 @@ export default function Questions() {
 	}
 
 	function changueCurrent(number) {
-		if (number > questions.length || number < 1) return
+		if (number < 1) return
+		if (queries.infinitymode) {
+			// In infinity mode, max navigable position is the current active question
+			const maxPos = adaptiveHistory.length + (questions.length > 0 ? 1 : 0)
+			if (number > maxPos) return
+			// Block navigation to wrong-answer past questions (final safeguard)
+			const histItem = adaptiveHistory[number - 1]
+			if (histItem && histItem.userAnswer === -1) return
+		} else {
+			if (number > questions.length) return
+		}
 		setCurrentQuestion(number)
 	}
 
