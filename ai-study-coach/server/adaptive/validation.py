@@ -132,6 +132,14 @@ def validate_adaptive_questions_for_plan(
             raise ValueError(f"{template.template_id} repeats its source question")
         seen.add(normalized_question)
 
+        raw_category = normalize_question_text(
+            raw_question.get("topic") or raw_question.get("category") or template.category
+        )
+        if raw_category != normalize_question_text(template.category):
+            raise ValueError(
+                f"{template.template_id} category must be {template.category}"
+            )
+
         difficulty = normalize_enum(
             raw_question.get("difficulty"),
             DIFFICULTIES,
@@ -145,7 +153,7 @@ def validate_adaptive_questions_for_plan(
         raw_subskill = clean_optional(raw_question.get("subskill"), limit=100)
         if _template_requires_weak_area_anchor(template):
             inferred_subskill = stable_subskill_label(
-                plan.category,
+                template.category,
                 question_text,
                 fallback=raw_subskill,
             )
@@ -163,7 +171,7 @@ def validate_adaptive_questions_for_plan(
                 question=question_text,
                 answers=normalized_answers,
                 correctAnswer=correct_answer_text,
-                topic=plan.category,
+                topic=template.category,
                 source="adaptive_ai",
                 generatedFromQuestion=clean_optional(
                     raw_question.get("generatedFromQuestion"), limit=220

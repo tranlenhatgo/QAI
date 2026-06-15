@@ -5,15 +5,19 @@ import { IoMdInfinite } from 'react-icons/io'
 import { FaHeart } from 'react-icons/fa'
 import fiftyImg from '@/assets/fifty.svg'
 import categoriesJSON from '@/assets/categories.json'
-import { shouldShowClassicControls } from '@/helpers/adaptiveInfinity.mjs'
+import { adaptiveCategoryLimitForTier, shouldShowClassicControls } from '@/helpers/adaptiveInfinity.mjs'
 
-export default function NewGameForm ({ handleInputs, nowQueries }) {
+export default function NewGameForm ({ handleInputs, nowQueries, coachTier = 'lite' }) {
 	const selectedCategories = Array.isArray(nowQueries.categories) ? nowQueries.categories : []
 	const selectedCategory = selectedCategories[0] || categoriesJSON[0].id
 	const infinityMode = nowQueries.infinitymode === true || nowQueries.infinitymode === 'true'
 	const timeMode = nowQueries.timemode === true || nowQueries.timemode === 'true'
 	const questionCount = nowQueries.questions || defaultQuestions.minQuestions
 	const showClassicControls = shouldShowClassicControls(nowQueries)
+	const categoryLimit = adaptiveCategoryLimitForTier(coachTier)
+	const visibleSelectedCategories = infinityMode
+		? selectedCategories.slice(0, categoryLimit)
+		: [selectedCategory]
 
 	const WILDCARDS = [
 		{ name: 'Skip question', icon: <BsSkipEndFill color='white' className='text-2xl' />, amount: 1 },
@@ -127,9 +131,9 @@ export default function NewGameForm ({ handleInputs, nowQueries }) {
 						{categoriesJSON.map(category => (
 							<label key={category.id} className='relative flex h-12 cursor-pointer items-center justify-center rounded-md sm:h-14' title={category.name}>
 								<input
-									checked={selectedCategory === category.id}
+									checked={visibleSelectedCategories.includes(category.id)}
 									className='peer sr-only'
-									type='radio'
+									type={infinityMode ? 'checkbox' : 'radio'}
 									name='categories'
 									id={category.name}
 									value={category.id}

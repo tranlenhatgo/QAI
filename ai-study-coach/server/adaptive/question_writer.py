@@ -37,6 +37,8 @@ async def call_adaptive_question_writer(
     provider: object,
     plan: AdaptiveBatchPlan,
     retry_error: str | None = None,
+    previous_response: list[dict[str, Any]] | None = None,
+    repair_mode: str | None = None,
 ) -> list[dict[str, Any]]:
     if not await _provider_available(provider):
         raise HTTPException(
@@ -44,7 +46,12 @@ async def call_adaptive_question_writer(
             detail=f"{plan.tier.value} provider is unavailable",
         )
 
-    messages = build_adaptive_generation_messages(plan, retry_error=retry_error)
+    messages = build_adaptive_generation_messages(
+        plan,
+        retry_error=retry_error,
+        previous_response=previous_response,
+        repair_mode=repair_mode,
+    )
     max_tokens = 2200 if plan.tier.value == "lite" else 6000
     result_parts: list[str] = []
 

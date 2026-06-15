@@ -2,6 +2,10 @@
 
 import asyncio
 import json
+from collections import Counter
+
+import pytest
+from fastapi import HTTPException
 
 from server.adaptive.pipeline import generate_adaptive_pipeline
 from server.adaptive.schemas import AdaptiveQuestionsRequest
@@ -56,6 +60,42 @@ def make_valid_questions(count):
         }
         for index in range(count)
     ]
+
+
+def make_multi_category_questions(categories):
+    questions = []
+    index = 1
+    for category, count in categories.items():
+        for category_index in range(count):
+            question_text = (
+                f"What is {category_index + 2} x 3?"
+                if category == "math"
+                else f"Which {category} statement is true for adaptive test {category_index + 1}?"
+            )
+            questions.append(
+                {
+                    "templateId": f"{category}-adaptive-{category_index + 1:02d}",
+                    "question": question_text,
+                    "answers": [
+                        f"{category} correct {category_index + 1}",
+                        f"{category} distractor A {category_index + 1}",
+                        f"{category} distractor B {category_index + 1}",
+                        f"{category} distractor C {category_index + 1}",
+                    ],
+                    "correctAnswer": f"{category} correct {category_index + 1}",
+                    "topic": category,
+                    "source": "adaptive_ai",
+                    "subskill": category,
+                    "difficulty": "easy",
+                    "explanation": "The correct option matches the targeted concept.",
+                    "adaptationReason": "Matches the planned category allocation.",
+                    "planningIntent": "diagnostic",
+                    "masteryBefore": 0.5,
+                    "masteryAfter": 0.55,
+                }
+            )
+            index += 1
+    return questions
 
 
 def sample_request():
@@ -309,3 +349,139 @@ def test_pipeline_retries_invalid_batch_then_returns_metadata():
     assert result.questions[0].templateId == "adaptive-01"
     assert result.questions[0].subskill
     assert result.questions[0].validationStatus == "validated"
+
+
+def test_multi_category_pipeline_returns_exact_lite_allocation():
+    request = AdaptiveQuestionsRequest(
+        categories=["math", "science"],
+        count=5,
+        tier="lite",
+        category_contexts=[
+            {
+                "category": "math",
+                "requestedCount": 4,
+                "history": [
+                    {
+                        "question": "What is 6 x 7?",
+                        "answers": ["42", "36", "48", "40"],
+                        "correctAnswer": "42",
+                        "selectedAnswer": "36",
+                        "wasCorrect": False,
+                        "source": "static_json",
+                    }
+                ],
+                "wrong_questions": [],
+                "recent_questions": ["What is 6 x 7?"],
+            },
+            {
+                "category": "science",
+                "requestedCount": 1,
+                "history": [],
+                "wrong_questions": [],
+                "recent_questions": [],
+            },
+        ],
+    )
+    provider = FakeProvider([make_multi_category_questions({"math": 4, "science": 1})])
+
+    result = asyncio.run(generate_adaptive_pipeline(request, Tier.LITE, provider))
+
+    assert len(result.questions) == 5
+    assert Counter(question.topic for question in result.questions) == {
+        "math": 4,
+        "science": 1,
+    }
+
+
+def test_lite_multi_category_pipeline_rejects_more_than_two_categories():
+    request = AdaptiveQuestionsRequest(
+        categories=["math", "science", "literature"],
+        count=5,
+        tier="lite",
+        category_contexts=[
+            {"category": "math", "requestedCount": 3},
+            {"category": "science", "requestedCount": 1},
+            {"category": "literature", "requestedCount": 1},
+        ],
+    )
+    provider = FakeProvider([make_multi_category_questions({"math": 3, "science": 1, "literature": 1})])
+
+    with pytest.raises(HTTPException) as error:
+        asyncio.run(generate_adaptive_pipeline(request, Tier.LITE, provider))
+
+    assert error.value.status_code == 400
+    assert "lite supports at most 2 categories" in error.value.detail
+
+
+def test_multi_category_pipeline_retries_wrong_category_mix():
+    request = AdaptiveQuestionsRequest(
+        categories=["math", "science"],
+        count=5,
+        tier="lite",
+        category_contexts=[
+            {"category": "math", "requestedCount": 4},
+            {"category": "science", "requestedCount": 1},
+        ],
+    )
+    provider = FakeProvider([
+        make_multi_category_questions({"math": 2, "science": 3}),
+        make_multi_category_questions({"math": 4, "science": 1}),
+    ])
+
+    result = asyncio.run(generate_adaptive_pipeline(request, Tier.LITE, provider))
+
+    assert provider.calls == 2
+    assert Counter(question.topic for question in result.questions) == {
+        "math": 4,
+        "science": 1,
+    }
+
+
+def test_multi_category_pipeline_auto_fixes_letter_correct_answer_without_retry():
+    request = AdaptiveQuestionsRequest(
+        categories=["math", "science"],
+        count=5,
+        tier="lite",
+        category_contexts=[
+            {"category": "math", "requestedCount": 4},
+            {"category": "science", "requestedCount": 1},
+        ],
+    )
+    questions = make_multi_category_questions({"math": 4, "science": 1})
+    questions[0]["correctAnswer"] = "A"
+    provider = FakeProvider([questions])
+
+    result = asyncio.run(generate_adaptive_pipeline(request, Tier.LITE, provider))
+
+    assert provider.calls == 1
+    assert result.questions[0].correctAnswer == "math correct 1"
+
+
+def test_multi_category_pipeline_uses_previous_response_for_small_repair_prompt():
+    request = AdaptiveQuestionsRequest(
+        categories=["math", "science"],
+        count=5,
+        tier="lite",
+        category_contexts=[
+            {"category": "math", "requestedCount": 4},
+            {"category": "science", "requestedCount": 1},
+        ],
+    )
+    invalid_questions = make_multi_category_questions({"math": 4, "science": 1})
+    invalid_questions[0]["answers"][1] = invalid_questions[0]["answers"][0]
+    provider = FakeProvider([
+        invalid_questions,
+        make_multi_category_questions({"math": 4, "science": 1}),
+    ])
+
+    result = asyncio.run(generate_adaptive_pipeline(request, Tier.LITE, provider))
+
+    assert provider.calls == 2
+    retry_prompt = provider.messages[1][1].content
+    assert "Previous response:" in retry_prompt
+    assert "Repair only the invalid questions" in retry_prompt
+    assert "full original history" not in retry_prompt
+    assert Counter(question.topic for question in result.questions) == {
+        "math": 4,
+        "science": 1,
+    }
