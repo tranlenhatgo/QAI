@@ -1,6 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import categories from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
+
+const DEFAULT_COLOR = '#3b82f6'
 
 /**
  * Generates HSL variations of a hex color for ambient effects.
@@ -25,12 +27,23 @@ function hexToHSL(hex) {
 // 16 particles with varied sizes, positions, and timing
 const PARTICLE_COUNT = 16
 
-export default function PlayBackground() {
+/**
+ * @param {{ effects: { gradient: boolean, pattern: boolean, shimmer: boolean, particles: boolean } }} props
+ */
+export default function PlayBackground({ effects }) {
 	const { queries } = useBoundStore(state => state)
 
 	const categoryId = queries.categories?.[0]
 	const category = categoryId ? categories.find(c => c.id === categoryId) : null
-	const color = category?.color || '#3b82f6'
+	const rawColor = category?.color || null
+
+	// Remember the last real category color so null-category questions
+	// keep the previous background instead of snapping to the default.
+	const lastColorRef = useRef(null)
+	if (rawColor && rawColor !== DEFAULT_COLOR) {
+		lastColorRef.current = rawColor
+	}
+	const color = rawColor || lastColorRef.current || DEFAULT_COLOR
 
 	const hsl = useMemo(() => hexToHSL(color), [color])
 
@@ -46,6 +59,14 @@ export default function PlayBackground() {
 			return { size, left, duration, delay, hueShift, opacity }
 		})
 	}, [])
+
+	// If every effect is turned off, render nothing
+	const showGradient = effects?.gradient !== false
+	const showPattern = effects?.pattern !== false
+	const showShimmer = effects?.shimmer !== false
+	const showParticles = effects?.particles !== false
+
+	if (!showGradient && !showPattern && !showShimmer && !showParticles) return null
 
 	return (
 		<div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
@@ -77,45 +98,51 @@ export default function PlayBackground() {
 			`}</style>
 
 			{/* Animated gradient underlay */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					background: `
-						radial-gradient(ellipse 80% 60% at 20% 80%, hsla(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 15, 70)}%, 0.15) 0%, transparent 70%),
-						radial-gradient(ellipse 60% 80% at 80% 20%, hsla(${(hsl.h + 30) % 360}, ${hsl.s}%, ${Math.min(hsl.l + 10, 65)}%, 0.12) 0%, transparent 70%),
-						radial-gradient(ellipse 50% 50% at 50% 50%, hsla(${(hsl.h - 20 + 360) % 360}, ${hsl.s}%, ${Math.min(hsl.l + 5, 60)}%, 0.08) 0%, transparent 60%)
-					`,
-					backgroundSize: '200% 200%',
-					animation: 'play-gradient-shift 20s ease-in-out infinite',
-				}}
-			/>
+			{showGradient && (
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						background: `
+							radial-gradient(ellipse 80% 60% at 20% 80%, hsla(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 15, 70)}%, 0.15) 0%, transparent 70%),
+							radial-gradient(ellipse 60% 80% at 80% 20%, hsla(${(hsl.h + 30) % 360}, ${hsl.s}%, ${Math.min(hsl.l + 10, 65)}%, 0.12) 0%, transparent 70%),
+							radial-gradient(ellipse 50% 50% at 50% 50%, hsla(${(hsl.h - 20 + 360) % 360}, ${hsl.s}%, ${Math.min(hsl.l + 5, 60)}%, 0.08) 0%, transparent 60%)
+						`,
+						backgroundSize: '200% 200%',
+						animation: 'play-gradient-shift 20s ease-in-out infinite',
+					}}
+				/>
+			)}
 
 			{/* Scrolling SVG pattern overlay (like PageLoading's bg-vertical-scroll-animation) */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					backgroundImage: "url('/bg-home.svg')",
-					backgroundSize: '28rem',
-					backgroundRepeat: 'repeat',
-					animation: 'play-pattern-scroll 40s linear infinite',
-					opacity: 0.08,
-				}}
-			/>
+			{showPattern && (
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						backgroundImage: "url('/bg-home.svg')",
+						backgroundSize: '28rem',
+						backgroundRepeat: 'repeat',
+						animation: 'play-pattern-scroll 40s linear infinite',
+						opacity: 0.08,
+					}}
+				/>
+			)}
 
 			{/* Subtle shimmer vignette */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					background: `radial-gradient(ellipse at center, transparent 40%, hsla(${hsl.h}, ${hsl.s}%, ${Math.max(hsl.l - 20, 10)}%, 0.3) 100%)`,
-					animation: 'play-shimmer 8s ease-in-out infinite',
-				}}
-			/>
+			{showShimmer && (
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						background: `radial-gradient(ellipse at center, transparent 40%, hsla(${hsl.h}, ${hsl.s}%, ${Math.max(hsl.l - 20, 10)}%, 0.3) 100%)`,
+						animation: 'play-shimmer 8s ease-in-out infinite',
+					}}
+				/>
+			)}
 
 			{/* Floating particles */}
-			{particles.map((p, i) => (
+			{showParticles && particles.map((p, i) => (
 				<div
 					key={i}
 					style={{
