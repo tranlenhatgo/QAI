@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useBoundStore } from '@/store/useBoundStore'
 
 export default function GameInfo() {
-	const { queries } = useBoundStore(state => state)
+	const { queries, questions, currentQuestion, adaptiveHistory } = useBoundStore(state => state)
 	const [showInfo, setShowInfo] = useState(false)
 
 	const mode = queries.quizmode
@@ -18,8 +18,18 @@ export default function GameInfo() {
 					? 'Time'
 					: 'Infinity Quiz';
 
-	const singleCategoryId = queries.categories?.[0]
-	const singleCategory = singleCategoryId ? categories.find(c => c.id === singleCategoryId) : null
+	const topicSource = queries.infinitymode
+		? (adaptiveHistory[currentQuestion - 1] || questions?.[0])
+		: questions?.[currentQuestion - 1]
+
+	let singleCategory = null
+	if (topicSource?.topic) {
+		singleCategory = categories.find(c => c.name.toLowerCase() === topicSource.topic.toLowerCase())
+	}
+	if (!singleCategory) {
+		const singleCategoryId = queries.categories?.[0]
+		singleCategory = singleCategoryId ? categories.find(c => c.id === singleCategoryId) : null
+	}
 
 	return (
 		<>

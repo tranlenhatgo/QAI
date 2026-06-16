@@ -31,10 +31,21 @@ const PARTICLE_COUNT = 16
  * @param {{ effects: { gradient: boolean, pattern: boolean, shimmer: boolean, particles: boolean } }} props
  */
 export default function PlayBackground({ effects }) {
-	const { queries } = useBoundStore(state => state)
+	const { queries, questions, currentQuestion, adaptiveHistory } = useBoundStore(state => state)
 
-	const categoryId = queries.categories?.[0]
-	const category = categoryId ? categories.find(c => c.id === categoryId) : null
+	const topicSource = queries.infinitymode
+		? (adaptiveHistory[currentQuestion - 1] || questions?.[0])
+		: questions?.[currentQuestion - 1]
+
+	let category = null
+	if (topicSource?.topic) {
+		category = categories.find(c => c.name.toLowerCase() === topicSource.topic.toLowerCase())
+	}
+	if (!category) {
+		const categoryId = queries.categories?.[0]
+		category = categoryId ? categories.find(c => c.id === categoryId) : null
+	}
+
 	const rawColor = category?.color || null
 
 	// Remember the last real category color so null-category questions

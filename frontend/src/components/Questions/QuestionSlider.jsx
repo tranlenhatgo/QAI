@@ -50,8 +50,11 @@ export default function QuestionSlider({ changueCurrent, setTime }) {
 		const activeQuestion = queries.infinitymode ? questions[0] : questions[questionIndex]
 		if (!activeQuestion) return
 
+		const isSkipped = useBoundStore.getState().skippingActiveQuestion
 		var correct = null;
-		if (!queries.quizmode) {
+		if (isSkipped) {
+			correct = true
+		} else if (!queries.quizmode) {
 			correct = e.target.textContent === activeQuestion.correctAnswer
 		} else {
 			correct = await checkAnswer(e.target.textContent, activeQuestion.correctAnswer)
@@ -78,13 +81,18 @@ export default function QuestionSlider({ changueCurrent, setTime }) {
 		if (queries.infinitymode) {
 			setTimeout(() => {
 				setTime(Number(queries.time))
-				answerAdaptiveInfinity(activeQuestion, e.target.textContent, correct)
+				answerAdaptiveInfinity(activeQuestion, e.target.textContent, isSkipped ? 2 : correct)
+				useBoundStore.getState().setSkippingActiveQuestion(false)
 			}, 1000)
 			return
 		}
 
-		setUserAnswer(currentQuestion - 1, correct ? 1 : -1)
+		setUserAnswer(currentQuestion - 1, isSkipped ? 2 : (correct ? 1 : -1))
 		setAnswer(currentQuestion - 1, e.target.textContent)
+
+		if (isSkipped) {
+			useBoundStore.getState().setSkippingActiveQuestion(false)
+		}
 
 		if (!correct) {
 			if (wildCards.lives > 0) {
