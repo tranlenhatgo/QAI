@@ -11,6 +11,7 @@ import { onIdTokenChanged } from 'firebase/auth';
 import RequireAuth from '@/components/Auth/RequireAuth';
 import StudyCoachWidget from '@/components/Chat/StudyCoachWidget';
 import SubscriptionRequiredModal from '@/components/SubscriptionRequiredModal';
+import { shallow } from 'zustand/shallow';
 const rubik = Rubik({ subsets: ['latin'] })
 
 function isFirstFirebaseSignIn(firebaseUser) {
@@ -20,7 +21,17 @@ function isFirstFirebaseSignIn(firebaseUser) {
 }
 
 export default function App({ Component, pageProps }) {
-	const { user, setUser, setAuthReady, setChatConfig, hydrateChat, loadUserDocuments, loadSubscriptionForUser, createLiteSubscriptionForNewUser, resetSubscription } = useBoundStore(state => state);
+	const { user, setUser, setAuthReady, setChatConfig, hydrateChat, loadUserDocuments, loadSubscriptionForUser, createLiteSubscriptionForNewUser, resetSubscription } = useBoundStore(state => ({
+		user: state.user,
+		setUser: state.setUser,
+		setAuthReady: state.setAuthReady,
+		setChatConfig: state.setChatConfig,
+		hydrateChat: state.hydrateChat,
+		loadUserDocuments: state.loadUserDocuments,
+		loadSubscriptionForUser: state.loadSubscriptionForUser,
+		createLiteSubscriptionForNewUser: state.createLiteSubscriptionForNewUser,
+		resetSubscription: state.resetSubscription,
+	}), shallow);
 	const studyCoachHiddenPaths = ['/', '/chat', '/play', '/coach', '/payment'];
 	const studyCoachServerUrl = process.env.NEXT_PUBLIC_STUDY_COACH_API_URL || 'http://localhost:8000'
 	

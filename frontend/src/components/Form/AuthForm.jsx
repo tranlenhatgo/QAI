@@ -4,6 +4,7 @@ import { IoCloseSharp } from 'react-icons/io5';
 import playSound from '@/helpers/playSound';
 import { useBoundStore } from '@/store/useBoundStore';
 import PageLoading from '@/components/PageLoading';
+import { shallow } from 'zustand/shallow';
 
 const WEAK_PASSWORD_MESSAGE = 'Must be at least 6 characters.';
 const LOGIN_ERROR_MESSAGE = 'Invalid email or password.';
@@ -22,7 +23,14 @@ function getAuthErrorMessage(error, fallbackMessage) {
 }
 
 export default function AuthForm() {
-	const { dest, setDest, login, register, authloading, loginWithGoogle } = useBoundStore(state => state);
+	const { dest, setDest, login, register, authloading, loginWithGoogle } = useBoundStore(state => ({
+		dest: state.dest,
+		setDest: state.setDest,
+		login: state.login,
+		register: state.register,
+		authloading: state.authloading,
+		loginWithGoogle: state.loginWithGoogle,
+	}), shallow);
 	const dialog = useRef(null);
 	const router = useRouter();
 
@@ -125,7 +133,7 @@ export default function AuthForm() {
 	return (
 		<>
 			<PageLoading visible={authloading} />
-			<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="authDialog" className='fixed top-1/2 w-5/6 sm:w-fit left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 backdrop-blur-lg rounded-md py-9 px-8 md:px-11'>
+			<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="authDialog" className='fixed top-1/2 w-5/6 sm:w-fit left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 rounded-md py-9 px-8 shadow-2xl md:px-11'>
 				<button className='absolute top-2 right-2 text-3xl hover:scale-110 transition-all' onClick={closeDialog} >
 					<IoCloseSharp />
 				</button>

@@ -10,9 +10,22 @@ import categoriesJSON from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
 import JoinGameForm from './JoinGameForm'
 import { adaptiveCategoryLimitForTier } from '@/helpers/adaptiveInfinity.mjs'
+import { shallow } from 'zustand/shallow'
 
 export default function PlayForm() {
-	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest, coachTier } = useBoundStore(state => state)
+	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest, coachTier } = useBoundStore(state => ({
+		getQuestions: state.getQuestions,
+		startAdaptiveInfinity: state.startAdaptiveInfinity,
+		cleanQuestions: state.cleanQuestions,
+		queries: state.queries,
+		setQueries: state.setQueries,
+		cleanWildCards: state.cleanWildCards,
+		takeQuiz: state.takeQuiz,
+		error: state.error,
+		user: state.user,
+		setDest: state.setDest,
+		coachTier: state.coachTier,
+	}), shallow)
 	const [nowQueries, setNowQueries] = useState(queries)
 	const [joinQuery, setJoinQuery] = useState({ ...queries, name: '' })
 	const [dialogOpen, setDialogOpen] = useState(false)
@@ -179,7 +192,7 @@ export default function PlayForm() {
 	}
 
 	return (
-		<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="newGameDialog" className='fixed top-1/2 left-1/2 w-[min(92vw,54rem)] max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain bg-slate-50 text-slate-900 m-0 backdrop-blur-lg rounded-md py-8 px-5 sm:px-7 md:px-8'>
+		<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="newGameDialog" className='fixed top-1/2 left-1/2 w-[min(92vw,54rem)] max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain bg-slate-50 text-slate-900 m-0 rounded-md py-8 px-5 shadow-2xl sm:px-7 md:px-8'>
 			<button aria-label='Close play popup' className='absolute top-3 right-3 text-3xl hover:scale-110 transition-all' onClick={closeDialog} >
 				<IoCloseSharp />
 			</button>
