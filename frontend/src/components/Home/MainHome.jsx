@@ -5,9 +5,13 @@ import HomeHeader from './HomeHeader'
 import { useBoundStore } from '@/store/useBoundStore'
 import { useRouter } from 'next/router'
 import { FiLock, FiZap } from 'react-icons/fi'
+import { shallow } from 'zustand/shallow'
 
 export default function MainHome() {
-	const { setDest, user } = useBoundStore(state => state)
+	const { setDest, user } = useBoundStore(state => ({
+		setDest: state.setDest,
+		user: state.user,
+	}), shallow)
 	const router = useRouter()
 	function handleTitleHover(e) {
 		e.target.classList.add('jello-vertical')

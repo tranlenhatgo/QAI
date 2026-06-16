@@ -27,7 +27,9 @@ export default function QuizBrowser({ onSelectQuiz, isOpen, selectedQuizId }) {
    }, [])
 
    useEffect(() => {
-      if (isOpen && !loaded) fetchQuizzes()
+      if (!isOpen || loaded) return
+      const timeoutId = window.setTimeout(fetchQuizzes, 300)
+      return () => window.clearTimeout(timeoutId)
    }, [isOpen, loaded, fetchQuizzes])
 
    const filtered = quizzes.filter(q => {
@@ -75,9 +77,8 @@ export default function QuizBrowser({ onSelectQuiz, isOpen, selectedQuizId }) {
                const isUnavailable = quiz.availability === 'upcoming' || quiz.availability === 'expired'
                const isSelected = quiz.quiz_id === selectedQuizId
                return (
-                  <div>
+                  <div key={quiz.quiz_id}>
                      <button
-                        key={quiz.quiz_id}
                         type='button'
                         disabled={isUnavailable}
                         aria-pressed={isSelected}

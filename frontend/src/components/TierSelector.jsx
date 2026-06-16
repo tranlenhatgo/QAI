@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useBoundStore } from '@/store/useBoundStore'
+import { shallow } from 'zustand/shallow'
 
 const TIERS = [
 	{
@@ -29,7 +30,10 @@ const TIERS = [
 
 export default function TierSelector() {
 	const [open, setOpen] = useState(false)
-	const { coachTier, requestCoachTier } = useBoundStore(state => state)
+	const { coachTier, requestCoachTier } = useBoundStore(state => ({
+		coachTier: state.coachTier,
+		requestCoachTier: state.requestCoachTier,
+	}), shallow)
 	const currentTier = TIERS.find(t => t.id === coachTier) || TIERS[0]
 
 	async function handleSelect(tier) {
@@ -50,7 +54,7 @@ export default function TierSelector() {
 			</button>
 
 			{open && createPortal(
-				<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)}>
+				<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/45" onClick={() => setOpen(false)}>
 					<div className="w-80 rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
 						<h3 className="mb-1 text-center text-lg font-bold text-slate-800">Select AI Tier</h3>
 						<p className="mb-5 text-center text-xs text-slate-500">Choose the AI model for Coach & Chat</p>
