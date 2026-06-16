@@ -61,36 +61,36 @@ export default function PlayForm() {
 				e.target.checked = false
 				setDest?.('/play')
 				document.getElementById('authDialog')?.showModal()
-				return setNowQueries({ ...nowQueries, infinitymode: false })
+				return setNowQueries(prev => ({ ...prev, infinitymode: false }))
 			}
 			// Preserve current categories when switching modes — no trimming
-			return setNowQueries({
-				...nowQueries,
+			return setNowQueries(prev => ({
+				...prev,
 				infinitymode: value,
-			})
+			}))
 		}
 
 		if (e.target.name === 'timemode') {
 			const value = e.target.checked
 			value ? playSound('pop-up-on') : playSound('pop-up-off')
-			return setNowQueries({ ...nowQueries, timemode: value })
+			return setNowQueries(prev => ({ ...prev, timemode: value }))
 		}
 
 		if (e.target.name === 'categories') {
 			playSound('pop-up-on')
 			// NewGameForm sends _multiValues for multi-select and _singleSelect for single
 			if (e.target._multiValues) {
-				return setNowQueries({ ...nowQueries, categories: e.target._multiValues })
+				return setNowQueries(prev => ({ ...prev, categories: e.target._multiValues }))
 			}
 			if (e.target._singleSelect) {
-				return setNowQueries({ ...nowQueries, categories: [e.target.value] })
+				return setNowQueries(prev => ({ ...prev, categories: [e.target.value] }))
 			}
 			// Fallback: treat as single select
-			return setNowQueries({ ...nowQueries, categories: [e.target.value] })
+			return setNowQueries(prev => ({ ...prev, categories: [e.target.value] }))
 		}
 
 		playSound('pop')
-		setNowQueries({ ...nowQueries, [e.target.name]: e.target.value })
+		setNowQueries(prev => ({ ...prev, [e.target.name]: e.target.value }))
 	}
 
 	function handleJoinInputs(e) {

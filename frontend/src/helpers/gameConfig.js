@@ -96,5 +96,5 @@ export const defaultQuery = {
 	quizmode: QUIZ_MODE,
 	quizId: '',
 	name: '',
-	categories: categoriesJSON.map(category => category.id)
+	categories: [categoriesJSON[0].id]
 }
