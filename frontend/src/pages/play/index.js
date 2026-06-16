@@ -10,6 +10,8 @@ import GameInfo from '@/components/Play/GameInfo'
 import Footer from '@/components/PageFooter'
 import Questions from '@/components/Questions/Questions'
 
+import { FaTrophy } from 'react-icons/fa'
+
 import queryValidator from '@/helpers/gameConfig'
 import categories from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
@@ -31,7 +33,7 @@ function saveEffects(effects) {
 }
 
 export default function Play() {
-	const { loading, error, getQuestions, startAdaptiveInfinity, setQueries, queries, questions, authReady, coachTier } = useBoundStore(state => state)
+	const { loading, error, getQuestions, startAdaptiveInfinity, setQueries, queries, questions, authReady, coachTier, win } = useBoundStore(state => state)
 	const router = useRouter()
 
 	const [bgEffects, setBgEffects] = useState(DEFAULT_EFFECTS)
@@ -78,6 +80,33 @@ export default function Play() {
 				<PlayBackground effects={bgEffects} />
 				<PlayHeader bgEffects={bgEffects} onToggleEffect={toggleEffect} onToggleAll={toggleAll} />
 				<GameInfo />
+				{win !== undefined && (
+					<button
+						onClick={() => {
+							const dialog = document.getElementById('gameoverdialog')
+							const bg = document.getElementById('gameoverbg')
+							if (dialog) {
+								try {
+									if (typeof dialog.showModal === 'function') {
+										dialog.showModal()
+									} else {
+										dialog.setAttribute('open', 'true')
+									}
+								} catch (e) {
+									dialog.setAttribute('open', 'true')
+								}
+							}
+							if (bg) {
+								bg.style.display = 'block'
+							}
+						}}
+						className="fixed top-4 right-4 z-20 flex items-center justify-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-95 text-slate-900 border border-slate-100 hover:text-blue-500 font-semibold text-sm"
+						title="Show GameOver Screen"
+					>
+						<FaTrophy className="text-yellow-500 text-base" />
+						<span>GameOver Summary</span>
+					</button>
+				)}
 				<Questions />
 				<Footer alert={true} />
 
