@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { defaultQuestions } from '@/helpers/gameConfig'
-import { BsQuestionCircleFill, BsSkipEndFill } from 'react-icons/bs'
+import { BsQuestionCircleFill, BsSkipEndFill, BsGrid3X3Gap } from 'react-icons/bs'
 import { IoMdInfinite } from 'react-icons/io'
 import { FaHeart, FaDice } from 'react-icons/fa'
 import fiftyImg from '@/assets/fifty.svg'
@@ -16,33 +16,82 @@ export default function NewGameForm({ handleInputs, nowQueries, coachTier = 'lit
 	const questionCount = nowQueries.questions || defaultQuestions.minQuestions
 	const showClassicControls = shouldShowClassicControls(nowQueries)
 
+	const categoryLimit = adaptiveCategoryLimitForTier(coachTier)
+	const [multiSelect, setMultiSelect] = useState(false)
 	const [randomMode, setRandomMode] = useState(false)
 	const [randomCategories, setRandomCategories] = useState([])
 
+	// When multiSelect is turned off, trim categories to just the first one
+	const handleMultiSelectToggle = useCallback(() => {
+		const next = !multiSelect
+		setMultiSelect(next)
+		setRandomMode(false)
+		setRandomCategories([])
+		if (next && selectedCategories.length > categoryLimit) {
+			// Switching to multi-select but too many categories are selected — trim to first one
+			const syntheticEvent = {
+				target: { name: 'categories', value: selectedCategory, _multiValues: [selectedCategory] }
+			}
+			handleInputs(syntheticEvent)
+		} else if (!next) {
+			// Turning off multi-select: keep only the first category
+			const syntheticEvent = {
+				target: { name: 'categories', value: selectedCategory, _singleSelect: true }
+			}
+			handleInputs(syntheticEvent)
+		}
+	}, [multiSelect, handleInputs, selectedCategory])
+
 	const pickRandomCategories = useCallback(() => {
 		const shuffled = [...categoriesJSON].sort(() => Math.random() - 0.5)
-		const picked = shuffled.slice(0, 3)
-		setRandomCategories(picked.map(c => c.id))
+		const picked = shuffled.slice(0, categoryLimit)
+		const pickedIds = picked.map(c => c.id)
+		setRandomCategories(pickedIds)
 		setRandomMode(true)
-		// Fire the first picked category through handleInputs so the rest of the form stays in sync
+		// Fire a synthetic event with all picked categories
 		const syntheticEvent = {
-			target: { name: 'categories', value: picked[0].id }
+			target: { name: 'categories', value: pickedIds[0], _multiValues: pickedIds }
 		}
 		handleInputs(syntheticEvent)
-	}, [handleInputs])
+	}, [handleInputs, categoryLimit])
 
 	const handleCategoryChange = useCallback((e) => {
 		// When user manually selects a regular category, exit random mode
 		setRandomMode(false)
 		setRandomCategories([])
-		handleInputs(e)
-	}, [handleInputs])
+
+		if (multiSelect) {
+			// Toggle behavior: add/remove from selection
+			const categoryId = e.target.value
+			const currentSelected = [...selectedCategories]
+			const exists = currentSelected.includes(categoryId)
+
+			let nextCategories
+			if (exists) {
+				// Don't allow deselecting the last category
+				nextCategories = currentSelected.filter(c => c !== categoryId)
+				if (nextCategories.length === 0) nextCategories = [categoryId]
+			} else if (currentSelected.length < categoryLimit) {
+				nextCategories = [...currentSelected, categoryId]
+			} else {
+				// At limit — don't add
+				return
+			}
+
+			const syntheticEvent = {
+				target: { name: 'categories', value: nextCategories[0], _multiValues: nextCategories }
+			}
+			handleInputs(syntheticEvent)
+		} else {
+			// Single select
+			const syntheticEvent = {
+				target: { name: 'categories', value: e.target.value, _singleSelect: true }
+			}
+			handleInputs(syntheticEvent)
+		}
+	}, [handleInputs, multiSelect, selectedCategories, categoryLimit])
 
 	const isRandomHighlighted = (categoryId) => randomMode && randomCategories.includes(categoryId)
-	const categoryLimit = adaptiveCategoryLimitForTier(coachTier)
-	const visibleSelectedCategories = infinityMode
-		? selectedCategories.slice(0, categoryLimit)
-		: [selectedCategory]
 
 	const WILDCARDS = [
 		{ name: 'Skip question', icon: <BsSkipEndFill color='white' className='text-2xl' />, amount: 1 },
@@ -152,67 +201,65 @@ export default function NewGameForm({ handleInputs, nowQueries, coachTier = 'lit
 
 				<fieldset className='rounded-md border border-slate-200 bg-white p-3 sm:p-4'>
 					<legend className='px-1 text-base font-bold'>Category</legend>
-					<div className='grid grid-cols-4 gap-2 lg:grid-cols-3'>
-						{/* Random category button */}
+
+					{/* Multi-select toggle */}
+					<div className='mb-3 flex items-center justify-between'>
+						<div className='flex items-center gap-2'>
+							<BsGrid3X3Gap className={`text-lg transition-colors ${multiSelect ? 'text-purple-600' : 'text-slate-400'}`} />
+							<span className='text-sm font-semibold text-slate-600'>
+								{multiSelect ? `Multi-select` : 'Single select'}
+							</span>
+							{multiSelect && (
+								<span className='rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-bold text-purple-700'>
+									max {categoryLimit}
+								</span>
+							)}
+						</div>
 						<button
 							type='button'
-							onClick={pickRandomCategories}
-							title='Random — pick 3 categories'
-							className={`relative flex h-12 cursor-pointer items-center justify-center rounded-md sm:h-14 col-span-full overflow-hidden transition-all active:scale-[0.98] ${randomMode
-									? 'ring-2 ring-offset-1 ring-purple-500'
-									: 'hover:scale-[1.01]'
-								}`}
-							style={{
-								background: randomMode
-									? 'linear-gradient(135deg, #a855f7, #ec4899, #f59e0b)'
-									: 'linear-gradient(135deg, #1e1b4b, #312e81, #4c1d95)',
-							}}
+							onClick={handleMultiSelectToggle}
+							className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors ${multiSelect ? 'bg-purple-600' : 'bg-slate-300'}`}
+							aria-label='Toggle multi-select categories'
 						>
-							{/* Animated shimmer overlay */}
-							<span
-								className='absolute inset-0 opacity-20'
-								style={{
-									background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-									backgroundSize: '200% 100%',
-									animation: 'shimmer 2.5s ease-in-out infinite',
-								}}
-							/>
-							{/* Dashed border effect */}
-							<span className={`absolute inset-[2px] rounded-[5px] border-2 border-dashed transition-colors ${randomMode ? 'border-white/60' : 'border-white/30'
-								}`} />
-							<span className='relative z-10 flex items-center gap-2'>
-								<FaDice className={`text-xl text-white transition-transform ${randomMode ? 'animate-bounce' : ''}`} />
-								<span className='text-sm font-black uppercase tracking-wider text-white'>Random</span>
-								<span className='rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm'>×3</span>
-							</span>
+							<span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${multiSelect ? 'translate-x-6' : 'translate-x-1'}`} />
 						</button>
+					</div>
+
+					<div className='grid grid-cols-4 gap-2 lg:grid-cols-3'>
 
 						{categoriesJSON.map(category => {
-							const isSelected = selectedCategory === category.id
+							const isInSelectedArray = selectedCategories.includes(category.id)
+							const isSelected = multiSelect ? isInSelectedArray : selectedCategory === category.id
 							const isRandomPick = isRandomHighlighted(category.id)
+							const atLimit = multiSelect && !isInSelectedArray && selectedCategories.length >= categoryLimit && !randomMode
 
 							return (
-								<label key={category.id} className='relative flex h-12 cursor-pointer items-center justify-center rounded-md sm:h-14' title={category.name}>
+								<label
+									key={category.id}
+									className={`relative flex h-12 items-center justify-center rounded-md sm:h-14 ${atLimit ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+									title={atLimit ? `Max ${categoryLimit} categories` : category.name}
+								>
 									<input
-										checked={isSelected && !randomMode}
+										checked={randomMode ? false : isSelected}
 										className='peer sr-only'
-										type='radio'
+										type='checkbox'
 										name='categories'
 										id={category.name}
 										value={category.id}
 										onChange={handleCategoryChange}
+										disabled={atLimit}
 									/>
 									<span
 										className={`absolute inset-0 rounded-md border transition-all ${isRandomPick
-												? 'border-transparent bg-[var(--bgColor)] shadow-[0_0_0_3px_rgba(168,85,247,0.25)]'
-												: 'border-slate-200 bg-slate-100 peer-checked:border-transparent peer-checked:bg-[var(--bgColor)] peer-checked:shadow-[0_0_0_3px_rgba(37,99,235,0.16)]'
+											? 'border-transparent bg-[var(--bgColor)] shadow-[0_0_0_3px_rgba(168,85,247,0.25)]'
+											: 'border-slate-200 bg-slate-100 peer-checked:border-transparent peer-checked:bg-[var(--bgColor)] peer-checked:shadow-[0_0_0_3px_rgba(37,99,235,0.16)]'
 											}`}
 										style={{ '--bgColor': category.color }}
 									/>
 									<Image
 										className={`relative z-10 h-7 w-7 transition-all sm:h-8 sm:w-8 ${isRandomPick || isSelected
-												? 'scale-110 opacity-100'
-												: 'opacity-80 invert'
+											? 'scale-110 opacity-100'
+											: 'opacity-80 invert'
 											}`}
 										src={`/categories-icons/${category.name.toLowerCase()}.svg`}
 										alt={category.name}
@@ -222,6 +269,36 @@ export default function NewGameForm({ handleInputs, nowQueries, coachTier = 'lit
 								</label>
 							)
 						})}
+						{/* Random category button — only visible in multi-select mode */}
+						{multiSelect && (
+							<button
+								type='button'
+								onClick={pickRandomCategories}
+								title={`Random — pick ${categoryLimit} categories`}
+								className={`relative flex h-12 cursor-pointer items-center justify-center rounded-md sm:h-14 overflow-hidden transition-all active:scale-[0.97] ${randomMode
+									? 'ring-2 ring-offset-1 ring-purple-500'
+									: 'hover:scale-105'
+									}`}
+								style={{
+									background: randomMode
+										? 'linear-gradient(135deg, #a855f7, #ec4899, #f59e0b)'
+										: 'linear-gradient(135deg, #1e1b4b, #312e81, #4c1d95)',
+								}}
+							>
+								{/* Animated shimmer overlay */}
+								<span
+									className='absolute inset-0 opacity-20'
+									style={{
+										background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+										backgroundSize: '200% 100%',
+										animation: 'shimmer 2.5s ease-in-out infinite',
+									}}
+								/>
+								{/* Dashed border inset */}
+								<span className={`absolute inset-[2px] rounded-[5px] border border-dashed transition-colors ${randomMode ? 'border-white/60' : 'border-white/25'}`} />
+								<FaDice className={`relative z-10 text-white transition-transform ${randomMode ? 'text-2xl animate-bounce' : 'text-xl'}`} />
+							</button>
+						)}
 					</div>
 				</fieldset>
 			</div>
