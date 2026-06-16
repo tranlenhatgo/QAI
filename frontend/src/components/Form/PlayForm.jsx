@@ -9,7 +9,6 @@ import queryValidator, { quizQueryValidator } from '@/helpers/gameConfig'
 import categoriesJSON from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
 import JoinGameForm from './JoinGameForm'
-import { adaptiveCategoryLimitForTier } from '@/helpers/adaptiveInfinity.mjs'
 
 export default function PlayForm() {
 	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest, coachTier } = useBoundStore(state => state)
@@ -64,15 +63,10 @@ export default function PlayForm() {
 				document.getElementById('authDialog')?.showModal()
 				return setNowQueries({ ...nowQueries, infinitymode: false })
 			}
-			const currentCategories = Array.isArray(nowQueries.categories) && nowQueries.categories.length > 0
-				? nowQueries.categories
-				: [categoriesJSON[0].id]
+			// Preserve current categories when switching modes — no trimming
 			return setNowQueries({
 				...nowQueries,
 				infinitymode: value,
-				categories: value
-					? currentCategories.slice(0, adaptiveCategoryLimitForTier(coachTier))
-					: [currentCategories[0]],
 			})
 		}
 
@@ -84,17 +78,15 @@ export default function PlayForm() {
 
 		if (e.target.name === 'categories') {
 			playSound('pop-up-on')
-			if (nowQueries.infinitymode) {
-				const selected = Array.isArray(nowQueries.categories) ? [...nowQueries.categories] : []
-				const exists = selected.includes(e.target.value)
-				const nextCategories = exists
-					? selected.filter(category => category !== e.target.value)
-					: selected.length < adaptiveCategoryLimitForTier(coachTier)
-						? [...selected, e.target.value]
-						: selected
-				return setNowQueries({ ...nowQueries, categories: nextCategories.length > 0 ? nextCategories : [e.target.value] })
+			// NewGameForm sends _multiValues for multi-select and _singleSelect for single
+			if (e.target._multiValues) {
+				return setNowQueries({ ...nowQueries, categories: e.target._multiValues })
 			}
-			return setNowQueries({ ...nowQueries, [e.target.name]: [e.target.value] })
+			if (e.target._singleSelect) {
+				return setNowQueries({ ...nowQueries, categories: [e.target.value] })
+			}
+			// Fallback: treat as single select
+			return setNowQueries({ ...nowQueries, categories: [e.target.value] })
 		}
 
 		playSound('pop')
