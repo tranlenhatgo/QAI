@@ -3,8 +3,15 @@ import getQuestionsByQuizId from '@/helpers/question/getQuestionsByQuizId'
 import takeQuiz from '@/helpers/take/takeQuiz'
 import offlineQuestions from '@/assets/questions.json'
 import categories from '@/assets/categories.json'
-
-const ADAPTIVE_AI_CONTEXT_LIMIT = 20
+import {
+	ADAPTIVE_AI_CONTEXT_LIMIT,
+	buildAdaptiveAnswerPayload,
+	buildAdaptiveAiRequestBody,
+	buildMultiCategoryStaticQueue,
+	historyItemFromQuestion,
+	pickAdaptiveMetadata,
+	shouldPrefetchAdaptiveAi,
+} from '@/helpers/adaptiveInfinity.mjs'
 
 function shuffleAnswers(questions) {
 	return questions.map(q => ({
@@ -28,6 +35,13 @@ function categoryById(categoryId) {
 
 function normalizeCategoryName(categoryId) {
 	return categoryById(categoryId).name
+}
+
+function normalizeCategoryIds(categoryIds) {
+	const values = Array.isArray(categoryIds) ? categoryIds : [categoryIds]
+	const validIds = categories.map(category => category.id)
+	const selected = values.filter((categoryId, index) => categoryId && validIds.includes(categoryId) && values.indexOf(categoryId) === index)
+	return selected.length > 0 ? selected : [categories[0].id]
 }
 
 function sourceQuestionId(categoryId, question) {
@@ -64,20 +78,10 @@ function normalizeWrongQuestion(question, categoryName, dueIn = 2) {
 			selectedAnswer: question.selectedAnswer || null,
 			repeated: true,
 			ia: question.source === 'adaptive_ai',
+			...pickAdaptiveMetadata(question),
 		},
 		dueIn,
 		wrongCount: Number(question.wrongCount || 1),
-	}
-}
-
-function historyItemFromQuestion(question, selectedAnswer, correct) {
-	return {
-		question: question.question,
-		answers: question.answers,
-		correctAnswer: question.correctAnswer,
-		selectedAnswer,
-		wasCorrect: correct,
-		source: question.source || (question.ia ? 'adaptive_ai' : 'static_json'),
 	}
 }
 
@@ -124,6 +128,9 @@ export const useQuestionsStore = (set, get) => ({
 	adaptiveSessionState: null,
 	adaptiveCategoryId: null,
 	adaptiveCategoryName: '',
+	adaptiveCategoryIds: [],
+	adaptiveCategoryNames: [],
+	adaptiveCategoryStates: {},
 	adaptiveAiError: '',
 	adaptiveStats: { total: 0, correct: 0, wrong: 0, ai: 0, static: 0, repeated: 0 },
 	getQuestions: (topics, number, infinity) => {
@@ -133,9 +140,12 @@ export const useQuestionsStore = (set, get) => ({
 			.catch(err => set({ error: [true, err] }))
 			.finally(() => infinity ? set({ loadingInfinity: false }) : set({ loading: false }))
 	},
-	startAdaptiveInfinity: async (categoryId) => {
+	startAdaptiveInfinity: async (categoryIdOrIds) => {
 		const user = get().user
-		const categoryName = normalizeCategoryName(categoryId)
+		const categoryIds = normalizeCategoryIds(categoryIdOrIds)
+		const categoryNames = categoryIds.map(normalizeCategoryName)
+		const categoryId = categoryIds[0]
+		const categoryName = categoryNames[0]
 		set({
 			questions: [],
 			currentQuestion: 1,
@@ -152,6 +162,9 @@ export const useQuestionsStore = (set, get) => ({
 			adaptiveSessionState: null,
 			adaptiveCategoryId: categoryId,
 			adaptiveCategoryName: categoryName,
+			adaptiveCategoryIds: categoryIds,
+			adaptiveCategoryNames: categoryNames,
+			adaptiveCategoryStates: {},
 			adaptiveAiError: '',
 			adaptiveStats: { total: 0, correct: 0, wrong: 0, ai: 0, static: 0, repeated: 0 },
 		})
@@ -162,19 +175,46 @@ export const useQuestionsStore = (set, get) => ({
 		}
 
 		try {
-			const response = await fetch(`/api/adaptive-practice/session-state?category=${encodeURIComponent(categoryName)}`)
-			const sessionState = await readJsonResponse(response, 'Failed to load adaptive practice state')
-			const answeredIds = Array.isArray(sessionState.answeredStaticQuestionIds) ? sessionState.answeredStaticQuestionIds : []
-			const staticQueue = staticQuestionsForCategory(categoryId, answeredIds)
-			const recentAnswers = Array.isArray(sessionState.recentAnswers)
-				? sessionState.recentAnswers.slice().reverse().map(answer => historyItemFromQuestion(answer, answer.selectedAnswer, answer.correct)).slice(-ADAPTIVE_AI_CONTEXT_LIMIT)
-				: []
-			const wrongQueue = Array.isArray(sessionState.wrongQuestions)
-				? sessionState.wrongQuestions.map(question => normalizeWrongQuestion(question, categoryName, 2))
-				: []
+			const categoryStates = await Promise.all(categoryIds.map(async (selectedCategoryId, index) => {
+				const selectedCategoryName = categoryNames[index]
+				const response = await fetch(`/api/adaptive-practice/session-state?category=${encodeURIComponent(selectedCategoryName)}`)
+				const sessionState = await readJsonResponse(response, 'Failed to load adaptive practice state')
+				const answeredIds = Array.isArray(sessionState.answeredStaticQuestionIds) ? sessionState.answeredStaticQuestionIds : []
+				const staticQuestions = staticQuestionsForCategory(selectedCategoryId, answeredIds)
+				const recentAnswers = Array.isArray(sessionState.recentAnswers)
+					? sessionState.recentAnswers.slice().reverse().map(answer => ({
+						...historyItemFromQuestion(answer, answer.selectedAnswer, answer.correct),
+						category: answer.category || selectedCategoryName,
+					})).slice(-ADAPTIVE_AI_CONTEXT_LIMIT)
+					: []
+				const wrongQueue = Array.isArray(sessionState.wrongQuestions)
+					? sessionState.wrongQuestions.map(question => normalizeWrongQuestion(question, selectedCategoryName, 2))
+					: []
+				return {
+					categoryId: selectedCategoryId,
+					categoryName: selectedCategoryName,
+					sessionState,
+					staticQuestions,
+					recentAnswers,
+					wrongQueue,
+				}
+			}))
+			const staticQueue = buildMultiCategoryStaticQueue(categoryStates.map(state => ({
+				categoryName: state.categoryName,
+				staticQuestions: state.staticQuestions,
+			})))
+			const recentAnswers = categoryStates.flatMap(state => state.recentAnswers).slice(-ADAPTIVE_AI_CONTEXT_LIMIT)
+			const wrongQueue = categoryStates.flatMap(state => state.wrongQueue)
+			const sessionState = {
+				answeredStaticQuestionIds: categoryStates.flatMap(state => state.sessionState.answeredStaticQuestionIds || []),
+				hasStaticHistoryInCategory: categoryStates.every(state => state.sessionState.hasStaticHistoryInCategory),
+				wrongQuestions: categoryStates.flatMap(state => state.sessionState.wrongQuestions || []),
+				recentAnswers: categoryStates.flatMap(state => state.sessionState.recentAnswers || []),
+			}
 
 			set({
 				adaptiveSessionState: sessionState,
+				adaptiveCategoryStates: Object.fromEntries(categoryStates.map(state => [state.categoryName, state.sessionState])),
 				adaptiveQueue: sessionState.hasStaticHistoryInCategory ? [] : staticQueue,
 				adaptiveWrongQueue: wrongQueue,
 				adaptiveRecentAnswers: recentAnswers,
@@ -205,34 +245,21 @@ export const useQuestionsStore = (set, get) => ({
 		set({ adaptiveAiLoading: true, adaptiveAiError: '' })
 		try {
 			const state = get()
-			const recentTexts = [
-				...(state.adaptiveRecentQuestions || []),
-				...state.adaptiveHistory.map(item => item.question),
-				...state.adaptiveQueue.map(item => item.question),
-				...state.questions.map(item => item.question),
-			].filter(Boolean)
 			const response = await fetch('/api/coach/adaptive-questions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					category: categoryName,
-					history: state.adaptiveRecentAnswers.slice(-ADAPTIVE_AI_CONTEXT_LIMIT),
-					wrong_questions: state.adaptiveWrongQueue.slice(-ADAPTIVE_AI_CONTEXT_LIMIT).map(item => ({
-						...historyItemFromQuestion(item.question, item.question.selectedAnswer || null, false),
-						wrongCount: item.wrongCount,
-					})),
-					recent_questions: [...new Set(recentTexts)].slice(-ADAPTIVE_AI_CONTEXT_LIMIT),
-				}),
+				body: JSON.stringify(buildAdaptiveAiRequestBody(state)),
 			})
 			const data = await readJsonResponse(response, 'Failed to generate adaptive questions')
 			const generated = (Array.isArray(data.questions) ? data.questions : []).map(question => ({
 				question: question.question,
 				answers: question.answers,
 				correctAnswer: question.correctAnswer,
-				topic: categoryName,
+				topic: question.topic || question.category || categoryName,
 				source: 'adaptive_ai',
-				sourceQuestionId: `ai:${hashString(`${question.question}|${question.correctAnswer}`)}`,
+				sourceQuestionId: `ai:${hashString(`${question.topic || question.category || categoryName}|${question.question}|${question.correctAnswer}`)}`,
 				generatedFromQuestion: question.generatedFromQuestion || null,
+				...pickAdaptiveMetadata(question),
 				selectedAnswer: null,
 				userAnswer: undefined,
 				answer: undefined,
@@ -255,8 +282,7 @@ export const useQuestionsStore = (set, get) => ({
 	},
 	maybePrefetchAdaptiveAi: () => {
 		const state = get()
-		if (!state.queries.infinitymode || state.adaptiveAiLoading) return
-		if (state.adaptiveQueue.length <= 5) {
+		if (shouldPrefetchAdaptiveAi(state)) {
 			get().fetchAdaptiveAiQuestions()
 		}
 	},
@@ -279,7 +305,7 @@ export const useQuestionsStore = (set, get) => ({
 			set({
 				adaptiveWrongQueue: nextWrongQueue,
 				questions: shuffleAnswers([nextQuestion]),
-				currentQuestion: 1,
+				currentQuestion: state.adaptiveHistory.length + 1,
 				questionProgress: state.adaptiveHistory.length + 1,
 			})
 			return
@@ -290,7 +316,7 @@ export const useQuestionsStore = (set, get) => ({
 			set({
 				adaptiveQueue: remaining,
 				questions: shuffleAnswers([{ ...nextQuestion, answer: undefined, userAnswer: undefined }]),
-				currentQuestion: 1,
+				currentQuestion: state.adaptiveHistory.length + 1,
 				questionProgress: state.adaptiveHistory.length + 1,
 			})
 			return
@@ -355,16 +381,8 @@ export const useQuestionsStore = (set, get) => ({
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				category: state.adaptiveCategoryName,
-				sourceQuestionId: answeredQuestion.sourceQuestionId,
-				question: answeredQuestion.question,
-				answers: answeredQuestion.answers,
-				correctAnswer: answeredQuestion.correctAnswer,
-				selectedAnswer,
-				correct,
-				source: answeredQuestion.repeated ? 'repeat' : (answeredQuestion.source || 'static_json'),
-				repeated: !!answeredQuestion.repeated,
-				generatedFromQuestion: answeredQuestion.generatedFromQuestion || null,
+				...buildAdaptiveAnswerPayload(answeredQuestion, selectedAnswer, correct, state),
+				attemptIndex: history.length,
 			}),
 		}).catch(error => console.warn('Could not save adaptive answer:', error))
 
@@ -436,6 +454,9 @@ export const useQuestionsStore = (set, get) => ({
 		adaptiveSessionState: null,
 		adaptiveCategoryId: null,
 		adaptiveCategoryName: '',
+		adaptiveCategoryIds: [],
+		adaptiveCategoryNames: [],
+		adaptiveCategoryStates: {},
 		adaptiveAiError: '',
 		adaptiveStats: { total: 0, correct: 0, wrong: 0, ai: 0, static: 0, repeated: 0 },
 	}),

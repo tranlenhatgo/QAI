@@ -5,6 +5,7 @@ import { TbDeviceGamepad2 } from 'react-icons/tb'
 import { FiMessageCircle, FiMessageSquare, FiRefreshCw, FiTrash2, FiZap } from 'react-icons/fi'
 import ChatTranscript from '@/components/Chat/ChatTranscript'
 import { useBoundStore } from '@/store/useBoundStore'
+import { shallow } from 'zustand/shallow'
 
 const gameModes = [
 	{
@@ -44,7 +45,26 @@ export default function GameModes () {
 		conversations,
 		activeConversationId,
 		chatConfig,
-	} = useBoundStore(state => state)
+	} = useBoundStore(state => ({
+		chatReady: state.chatReady,
+		hydrateChat: state.hydrateChat,
+		setChatSessionActive: state.setChatSessionActive,
+		ensureConversation: state.ensureConversation,
+		connectChat: state.connectChat,
+		disconnectChat: state.disconnectChat,
+		setChatMode: state.setChatMode,
+		sendChatMessage: state.sendChatMessage,
+		setDraft: state.setDraft,
+		newConversation: state.newConversation,
+		clearAllConversations: state.clearAllConversations,
+		isConnected: state.isConnected,
+		isStreaming: state.isStreaming,
+		draft: state.draft,
+		streamingText: state.streamingText,
+		conversations: state.conversations,
+		activeConversationId: state.activeConversationId,
+		chatConfig: state.chatConfig,
+	}), shallow)
 
 	useEffect(() => {
 		if (!chatReady) hydrateChat()

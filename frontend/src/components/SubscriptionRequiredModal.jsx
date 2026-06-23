@@ -1,9 +1,13 @@
 import { FiLock } from 'react-icons/fi'
 import { useRouter } from 'next/router'
 import { useBoundStore } from '@/store/useBoundStore'
+import { shallow } from 'zustand/shallow'
 
 export default function SubscriptionRequiredModal() {
-	const { subscriptionModalOpen, closeSubscriptionModal } = useBoundStore(state => state)
+	const { subscriptionModalOpen, closeSubscriptionModal } = useBoundStore(state => ({
+		subscriptionModalOpen: state.subscriptionModalOpen,
+		closeSubscriptionModal: state.closeSubscriptionModal,
+	}), shallow)
 	const router = useRouter()
 
 	if (!subscriptionModalOpen) return null
@@ -14,7 +18,7 @@ export default function SubscriptionRequiredModal() {
 	}
 
 	return (
-		<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
+		<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/65 px-4">
 			<div className="w-full max-w-md rounded-lg bg-white p-6 text-slate-900 shadow-2xl">
 				<div className="mb-4 flex items-center gap-3">
 					<span className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-blue-50 text-blue-700">

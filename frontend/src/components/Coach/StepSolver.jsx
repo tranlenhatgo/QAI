@@ -118,7 +118,7 @@ export default function StepSolver() {
 			</div>
 
 			<p className={`mb-4 rounded-md border px-3 py-2 text-xs ${coachTier === 'full' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
-				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> — {coachTier === 'full' ? 'Advanced multi-step reasoning for complex problems. Automatically retries with backup if needed.' : 'Basic problem solving using a lightweight local model. Best for simpler problems.'}
+				<strong>{coachTier === 'full' ? 'Full mode' : 'Lite mode'}</strong> - {coachTier === 'full' ? 'Advanced multi-step reasoning for complex problems. Automatically retries with backup if needed.' : 'Basic problem solving using a lightweight local model. Best for simpler problems.'}
 			</p>
 
 			<form onSubmit={handleSubmit}>

@@ -5,9 +5,13 @@ import { getAvatarSrc } from '@/components/Profile/AvatarPicker'
 import TierSelector from '@/components/TierSelector'
 import playSound from '@/helpers/playSound'
 import { useRouter } from 'next/router';
+import { shallow } from 'zustand/shallow';
 
 export default function HomeHeader() {
-	const { setDest, user } = useBoundStore(state => state)
+	const { setDest, user } = useBoundStore(state => ({
+		setDest: state.setDest,
+		user: state.user,
+	}), shallow)
 	const router = useRouter();
 	function handleLogin() {
 		playSound('pop');

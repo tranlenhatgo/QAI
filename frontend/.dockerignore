@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.git/
+.github/
+.idea/
+.vscode/
+*.log
+
+# Local env files should not be baked into images
+.env.local
+

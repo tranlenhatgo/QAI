@@ -15,11 +15,10 @@ export default function Wildcards () {
 		}
 		document.addEventListener('keydown', shortcuts)
 		return () => document.removeEventListener('keydown', shortcuts)
-	}, [])
+	}, [useSkipCard, useHalfCard])
 
 	function disabled (type) {
-		const finalQuestion = queries.infinitymode ? 1 : questionProgress
-		return wildCards[type] < 1 || win !== undefined || currentQuestion !== finalQuestion
+		return wildCards[type] < 1 || win !== undefined || currentQuestion !== questionProgress
 	}
 
 	return (

@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useBoundStore } from '@/store/useBoundStore'
 import ProfileHeader from '@/components/Profile/ProfileHeader'
 import PageLoading from '@/components/PageLoading'
@@ -11,11 +11,24 @@ import { useRouter } from 'next/router'
 
 export default function Profile() {
 	const { user, logout, authloading, getQuizByUserId } = useBoundStore(state => state)
+	const [quizzesLoading, setQuizzesLoading] = useState(true)
 	const router = useRouter()
 
 	useEffect(() => { window.onbeforeunload = () => null }, [])
 	useEffect(() => {
-		getQuizByUserId()
+		let active = true
+		async function loadData() {
+			setQuizzesLoading(true)
+			try {
+				await getQuizByUserId()
+			} catch (error) {
+				console.error("Failed to load quizzes:", error)
+			} finally {
+				if (active) setQuizzesLoading(false)
+			}
+		}
+		loadData()
+		return () => { active = false }
 	}, [getQuizByUserId])
 
 	function handleLogout() {
@@ -25,13 +38,15 @@ export default function Profile() {
 		});
 	}
 
+	const isLoading = authloading || quizzesLoading
+
 	return (
 		<>
 			<Head>
-					<title>QAI | Profile</title>
+				<title>QAI | Profile</title>
 			</Head>
-			{authloading && <PageLoading />}
-			{!authloading && <>
+			<PageLoading visible={isLoading} />
+			{!isLoading && <>
 				<ProfileHeader />
 				<main className='pt-6 pb-12'>
 					<div className='max-w-7xl mx-auto px-4 md:px-8'>

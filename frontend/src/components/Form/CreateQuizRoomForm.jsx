@@ -5,11 +5,17 @@ import { IoCloseSharp } from 'react-icons/io5';
 import playSound from '@/helpers/playSound';
 import categoriesJSON from '@/assets/categories.json';
 import { useBoundStore } from '@/store/useBoundStore';
+import { shallow } from 'zustand/shallow';
 
 export default function CreateQuizRoomForm() {
    const dialog = useRef(null);
    const router = useRouter();
-   const { quizQuery, setQuizQuery, saveQuiz, user } = useBoundStore(state => state);
+   const { quizQuery, setQuizQuery, saveQuiz, user } = useBoundStore(state => ({
+      quizQuery: state.quizQuery,
+      setQuizQuery: state.setQuizQuery,
+      saveQuiz: state.saveQuiz,
+      user: state.user,
+   }), shallow);
 
    async function handleSubmit(e) {
       e.preventDefault();
@@ -65,7 +71,7 @@ export default function CreateQuizRoomForm() {
 
    return (
       <>
-         <dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="createQuizRoomDialog" className='fixed top-1/2 w-5/6 sm:w-fit left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 backdrop-blur-lg rounded-md py-9 px-8 md:px-11'>
+         <dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="createQuizRoomDialog" className='fixed top-1/2 w-5/6 sm:w-fit left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 rounded-md py-9 px-8 shadow-2xl md:px-11'>
             <button className='absolute top-2 right-2 text-3xl hover:scale-110 transition-all' onClick={closeDialog}>
                <IoCloseSharp />
             </button>

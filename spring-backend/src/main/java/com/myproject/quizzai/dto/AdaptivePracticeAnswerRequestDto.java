@@ -17,4 +17,14 @@ public class AdaptivePracticeAnswerRequestDto {
     private String source;
     private Boolean repeated;
     private String generatedFromQuestion;
+    private String templateId;
+    private String subskill;
+    private String difficulty;
+    private String explanation;
+    private String adaptationReason;
+    private String planningIntent;
+    private String validationStatus;
+    private Double masteryBefore;
+    private Double masteryAfter;
+    private Integer attemptIndex;
 }

@@ -1,6 +1,16 @@
 import withAuth from '@/lib/withAuth'
 
 const ALLOWED_SOURCES = new Set(['static_json', 'adaptive_ai', 'repeat'])
+const OPTIONAL_STRING_METADATA = [
+	'templateId',
+	'subskill',
+	'difficulty',
+	'explanation',
+	'adaptationReason',
+	'planningIntent',
+	'validationStatus',
+]
+const OPTIONAL_NUMBER_METADATA = ['masteryBefore', 'masteryAfter', 'attemptIndex']
 
 function validateBody(body) {
 	if (!String(body?.category || '').trim()) return 'category is required'
@@ -9,6 +19,16 @@ function validateBody(body) {
 	if (!String(body?.correctAnswer || '').trim()) return 'correctAnswer is required'
 	if (typeof body?.correct !== 'boolean') return 'correct is required'
 	if (!ALLOWED_SOURCES.has(String(body?.source || '').trim())) return 'source must be static_json, adaptive_ai, or repeat'
+	for (const field of OPTIONAL_STRING_METADATA) {
+		if (body?.[field] !== undefined && body?.[field] !== null && typeof body[field] !== 'string') {
+			return `${field} must be a string`
+		}
+	}
+	for (const field of OPTIONAL_NUMBER_METADATA) {
+		if (body?.[field] !== undefined && body?.[field] !== null && !Number.isFinite(Number(body[field]))) {
+			return `${field} must be a number`
+		}
+	}
 	return null
 }
 

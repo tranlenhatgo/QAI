@@ -9,9 +9,23 @@ import queryValidator, { quizQueryValidator } from '@/helpers/gameConfig'
 import categoriesJSON from '@/assets/categories.json'
 import { useBoundStore } from '@/store/useBoundStore'
 import JoinGameForm from './JoinGameForm'
+import { adaptiveCategoryLimitForTier } from '@/helpers/adaptiveInfinity.mjs'
+import { shallow } from 'zustand/shallow'
 
 export default function PlayForm() {
-	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest } = useBoundStore(state => state)
+	const { getQuestions, startAdaptiveInfinity, cleanQuestions, queries, setQueries, cleanWildCards, takeQuiz, error, user, setDest, coachTier } = useBoundStore(state => ({
+		getQuestions: state.getQuestions,
+		startAdaptiveInfinity: state.startAdaptiveInfinity,
+		cleanQuestions: state.cleanQuestions,
+		queries: state.queries,
+		setQueries: state.setQueries,
+		cleanWildCards: state.cleanWildCards,
+		takeQuiz: state.takeQuiz,
+		error: state.error,
+		user: state.user,
+		setDest: state.setDest,
+		coachTier: state.coachTier,
+	}), shallow)
 	const [nowQueries, setNowQueries] = useState(queries)
 	const [joinQuery, setJoinQuery] = useState({ ...queries, name: '' })
 	const [dialogOpen, setDialogOpen] = useState(false)
@@ -40,10 +54,10 @@ export default function PlayForm() {
 	useEffect(() => {
 		if (router.isReady && router.pathname === '/play') {
 			if (!queries.quizmode) {
-				setQueries(queryValidator(router.query));
+				setQueries(queryValidator(router.query, { tier: coachTier }));
 			}
 		}
-	}, [router.isReady]);
+	}, [router.isReady, coachTier]);
 
 	useEffect(() => {
 		if (error[0]) {
@@ -54,25 +68,43 @@ export default function PlayForm() {
 	}, [error]);
 
 	function handleInputs(e) {
-		if (e.target.name === 'infinitymode' || e.target.name === 'timemode') {
-			e.target.checked ? playSound('pop-up-on') : playSound('pop-up-off')
-			const value = e.target.name === 'infinitymode' ? !e.target.checked : e.target.checked
-			if (e.target.name === 'infinitymode' && value && !user) {
-				e.target.checked = true
+		if (e.target.name === 'infinitymode') {
+			const value = e.target.type === 'radio' ? e.target.value === 'true' : e.target.checked
+			value ? playSound('pop-up-on') : playSound('pop-up-off')
+			if (value && !user) {
+				e.target.checked = false
 				setDest?.('/play')
 				document.getElementById('authDialog')?.showModal()
-				return setNowQueries({ ...nowQueries, infinitymode: false })
+				return setNowQueries(prev => ({ ...prev, infinitymode: false }))
 			}
-			return setNowQueries({ ...nowQueries, [e.target.name]: value })
+			// Preserve current categories when switching modes — no trimming
+			return setNowQueries(prev => ({
+				...prev,
+				infinitymode: value,
+			}))
+		}
+
+		if (e.target.name === 'timemode') {
+			const value = e.target.checked
+			value ? playSound('pop-up-on') : playSound('pop-up-off')
+			return setNowQueries(prev => ({ ...prev, timemode: value }))
 		}
 
 		if (e.target.name === 'categories') {
 			playSound('pop-up-on')
-			return setNowQueries({ ...nowQueries, [e.target.name]: [e.target.value] })
+			// NewGameForm sends _multiValues for multi-select and _singleSelect for single
+			if (e.target._multiValues) {
+				return setNowQueries(prev => ({ ...prev, categories: e.target._multiValues }))
+			}
+			if (e.target._singleSelect) {
+				return setNowQueries(prev => ({ ...prev, categories: [e.target.value] }))
+			}
+			// Fallback: treat as single select
+			return setNowQueries(prev => ({ ...prev, categories: [e.target.value] }))
 		}
 
 		playSound('pop')
-		setNowQueries({ ...nowQueries, [e.target.name]: e.target.value })
+		setNowQueries(prev => ({ ...prev, [e.target.name]: e.target.value }))
 	}
 
 	function handleJoinInputs(e) {
@@ -100,17 +132,18 @@ export default function PlayForm() {
 			cleanQuestions()
 			cleanWildCards()
 
-			const query = Object.keys(nowQueries)
+			const validQueries = queryValidator(nowQueries, { tier: coachTier })
+			const query = Object.keys(validQueries)
 				.filter(key => !['quizId', 'name'].includes(key)) // Exclude unwanted keys
-				.map(key => `${key}=${nowQueries[key]}`)
-				.join('&'); 
-			setQueries(queryValidator(nowQueries))
+				.map(key => `${key}=${validQueries[key]}`)
+				.join('&');
+			setQueries(validQueries)
 			router.push({ pathname: '/play', query })
 
-			const cate = nowQueries.categories.map(cat => categoriesJSON.find(c => c.id === cat).name)
+			const cate = validQueries.categories.map(cat => categoriesJSON.find(c => c.id === cat).name)
 			if (router.pathname === '/play') {
-				if (nowQueries.infinitymode) startAdaptiveInfinity(nowQueries.categories[0])
-				else getQuestions(cate, nowQueries.questions)
+				if (validQueries.infinitymode) startAdaptiveInfinity(validQueries.categories)
+				else getQuestions(cate, validQueries.questions)
 			}
 
 			closeDialog()
@@ -152,23 +185,27 @@ export default function PlayForm() {
 	}
 
 	return (
-		<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="newGameDialog" className='fixed top-1/2 w-5/6 sm:w-fit left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-slate-900 m-0 backdrop-blur-lg rounded-md py-9 px-8 md:px-11'>
-			<button className='absolute top-2 right-2 text-3xl hover:scale-110 transition-all' onClick={closeDialog} >
+		<dialog ref={dialog} onClick={(e) => clickOutsideDialog(e)} id="newGameDialog" className='fixed top-1/2 left-1/2 w-[min(92vw,54rem)] max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain bg-slate-50 text-slate-900 m-0 rounded-md py-8 px-5 shadow-2xl sm:px-7 md:px-8'>
+			<button aria-label='Close play popup' className='absolute top-3 right-3 text-3xl hover:scale-110 transition-all' onClick={closeDialog} >
 				<IoCloseSharp />
 			</button>
 
 			<form onSubmit={(e) => e.preventDefault()} >
-				<div className='flex flex-col sm:flex-row gap-4 sm:gap-8 mb-4 md:mb-8'>
-					<NewGameForm handleInputs={handleInputs} nowQueries={nowQueries} />
+				<div className='mb-5 pr-10'>
+					<h2 className='text-2xl font-black tracking-tight'>Play</h2>
+				</div>
+
+				<div className='mb-5'>
+					<NewGameForm handleInputs={handleInputs} nowQueries={nowQueries} coachTier={coachTier} />
 				</div>
 
 				<button type='submit' className='btn-primary uppercase py-3 px-6 w-full tracking-widest' name='newgame' onClick={(e) => handleSubmit(e)}>New game</button>
 			</form>
 
-			<div className="my-6 border-t border-gray-300 w-full"></div>
+			<div className="my-6 h-px w-full bg-slate-200"></div>
 			<form onSubmit={handleSubmit}>
 				<div className='flex flex-col gap-4' >
-					<QuizBrowser onSelectQuiz={handleSelectQuiz} isOpen={dialogOpen} />
+					<QuizBrowser onSelectQuiz={handleSelectQuiz} isOpen={dialogOpen} selectedQuizId={joinQuery.quizId} />
 					<JoinGameForm handleInputs={handleJoinInputs} selectedQuizId={joinQuery.quizId} playerName={joinQuery.name} />
 				</div>
 				<button type='submit' className='btn-primary uppercase py-3 px-6 w-full tracking-widest mt-4' name='joingame' onClick={(e) => handleSubmit(e)}>Join game</button>
